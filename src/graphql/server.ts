@@ -1,8 +1,8 @@
-import * as Express from 'express';
-import * as BodyParser from 'body-parser';
+import express from 'express';
+import bodyParser from 'body-parser';
 import { Schema } from './schema';
 import { Config } from '../config';
-import * as jwt from 'express-jwt';
+import jwt from 'express-jwt';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 const compression = require('compression');
 import { webhooks } from '../webhooks';
@@ -47,11 +47,11 @@ const buildOptions: any = async (req: any) => {
 };
 
 const setupGraphQLServer = () => {
-  const graphQLServer = Express();
+  const graphQLServer = express();
 
   graphQLServer.use(
     '/graphql',
-    BodyParser.json({
+    bodyParser.json({
       verify: (req: any, res, buf) => {
         var url = req.originalUrl;
         if (url.startsWith('/stripe-webhooks')) {

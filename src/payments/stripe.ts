@@ -1,7 +1,16 @@
-import * as Stripe from 'stripe';
+import Stripe from 'stripe';
 import { CustomerPayload, UpdateCustomerPayload } from './types';
 import { Config } from '../config';
-export const stripe = new Stripe(Config.STRIPE_SECRET_KEY);
+export const stripe = new Stripe(Config.STRIPE_SECRET_KEY, {
+  apiVersion: null,
+  maxNetworkRetries: 0,
+  httpAgent: null,
+  timeout: 80000,
+  host: 'api.stripe.com',
+  port: 443,
+  protocol: 'https',
+  telemetry: true,
+});
 
 export async function updateCustomer({
   customerId,
