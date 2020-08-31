@@ -1,0 +1,70 @@
+import { GraphQLSchema, GraphQLObjectType } from 'graphql';
+import SignIn from './sign-in';
+import PaymentsInfo from './payments-info';
+import UserLikes from './user-likes';
+import EntryLikes from './entry-likes';
+import AuthenticatedUser from './authenticated-user';
+import Entries from './entries';
+import TopChart from './top-chart';
+import RecentlyActive from './recently-active';
+import RecentlyAdded from './recently-added';
+import LikeEntry from './like-entry';
+import CreateUserWithEmail from './create-user-with-email';
+import BuyCredits from './buy-credits';
+import BuyEntry from './buy-entry';
+import SubscribeUser from './subscribe-user';
+import CancelSubscription from './cancel-subscription';
+import CreateEntry from './create-entry';
+import SendResetEmail from './send-reset-email';
+import UpdatePassword from './update-password';
+import UpdateUser from './update-user';
+import RemoveEntry from './remove-entry';
+import WithdrawToExternalWallet from './withdraw-to-external-wallet';
+import UpdatePricing from './update-pricing';
+import YoutubeUpload from './youtube-upload';
+
+const Query = new GraphQLObjectType({
+  name: 'Query',
+  description: 'Get users or entries',
+  fields: () => {
+    return {
+      authenticatedUser: AuthenticatedUser,
+      entryLikes: EntryLikes,
+      entries: Entries,
+      paymentsInfo: PaymentsInfo,
+      recentlyActive: RecentlyActive,
+      recentlyAdded: RecentlyAdded,
+      topChart: TopChart,
+      userLikes: UserLikes,
+    };
+  },
+});
+
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  description: 'Create users or entries',
+  fields() {
+    return {
+      buyEntry: BuyEntry,
+      buyCredits: BuyCredits,
+      createEntry: CreateEntry,
+      createUserWithEmail: CreateUserWithEmail,
+      signIn: SignIn,
+      likeEntry: LikeEntry,
+      removeEntry: RemoveEntry,
+      cancelSubscription: CancelSubscription,
+      sendResetEmail: SendResetEmail,
+      subscribeUser: SubscribeUser,
+      updatePassword: UpdatePassword,
+      updateUser: UpdateUser,
+      updatePricing: UpdatePricing,
+      withdrawToExternalWallet: WithdrawToExternalWallet,
+      youtubeUpload: YoutubeUpload,
+    };
+  },
+});
+
+export const Schema = new GraphQLSchema({
+  query: Query,
+  mutation: Mutation,
+});
