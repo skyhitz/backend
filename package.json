@@ -37,6 +37,7 @@
     "youtube-video-api": "^0.3.7"
   },
   "devDependencies": {
+    "@vercel/node": "^1.8.1",
     "async": "^3.2.0",
     "csv-parser": "^2.3.2",
     "ts-node": "^8.10.1",
