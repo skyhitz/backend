@@ -70,19 +70,6 @@ const setupGraphQLServer = () => {
 
   webhooks(graphQLServer);
 
-  if (Config.ENV !== 'development') {
-    /**
-     * We prepend /function-name the http trigger created is:
-     * https://us-central1-skyhitz-161021.cloudfunctions.net/function-name/graphql
-     * We take it out on development mode since we don't need it when running the server locally.
-     */
-    graphQLServer.use(
-      '/graphiql',
-      graphiqlExpress({ endpointURL: `${Config.API_ENDPOINT}/graphql` })
-    );
-
-    return graphQLServer;
-  }
   graphQLServer.use('/graphiql', graphiqlExpress({ endpointURL: `/graphql` }));
   return graphQLServer;
 };
