@@ -71,7 +71,7 @@ const setupGraphQLServer = () => {
   webhooks(graphQLServer);
 
   graphQLServer.use(
-    '/graphiql',
+    '/api/graphiql',
     graphiqlExpress({ endpointURL: '/api/graphql' })
   );
   return graphQLServer;
