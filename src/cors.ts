@@ -4,7 +4,7 @@ let whitelist: string[];
 if (Config.ENV === 'production') {
   whitelist = [
     'https://skyhitz.io',
-    'https://api.skyhitz.vercel.app',
+    'https://api.skyhitz.io',
     'http://localhost:19006',
   ];
 } else {
@@ -14,7 +14,7 @@ if (Config.ENV === 'production') {
     'http://localhost:3000',
     'http://localhost:4000',
     'http://localhost:19006',
-    'https://api.skyhitz.vercel.app',
+    'https://api-staging.skyhitz.io',
   ];
 }
 
