@@ -50,7 +50,7 @@ const setupGraphQLServer = () => {
   const graphQLServer = express();
 
   graphQLServer.use(
-    '/api',
+    '/api/graphql',
     bodyParser.json({
       verify: (req: any, res, buf) => {
         var url = req.originalUrl;
@@ -70,7 +70,10 @@ const setupGraphQLServer = () => {
 
   webhooks(graphQLServer);
 
-  graphQLServer.use('/graphiql', graphiqlExpress({ endpointURL: `/api` }));
+  graphQLServer.use(
+    '/graphiql',
+    graphiqlExpress({ endpointURL: '/api/graphql' })
+  );
   return graphQLServer;
 };
 
