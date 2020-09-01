@@ -4,7 +4,7 @@ let whitelist: string[];
 if (Config.ENV === 'production') {
   whitelist = [
     'https://skyhitz.io',
-    'https://us-central1-skyhitz-161021.cloudfunctions.net',
+    'https://api.skyhitz.vercel.app',
     'http://localhost:19006',
   ];
 } else {
@@ -14,7 +14,7 @@ if (Config.ENV === 'production') {
     'http://localhost:3000',
     'http://localhost:4000',
     'http://localhost:19006',
-    'https://us-central1-skyhitz-161021.cloudfunctions.net',
+    'https://api.skyhitz.vercel.app',
   ];
 }
 
