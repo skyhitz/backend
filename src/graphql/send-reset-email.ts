@@ -3,7 +3,7 @@ import { GraphQLString, GraphQLNonNull, GraphQLBoolean } from 'graphql';
 const crypto = require('crypto');
 import { sendGridService } from '../sendgrid/sendgrid';
 import { Config } from '../config';
-import { smembers, getAll, redisClient, updateUser } from '../redis';
+import { smembers, getAll, updateUser } from '../redis';
 
 const sendResetEmail = {
   type: GraphQLBoolean,

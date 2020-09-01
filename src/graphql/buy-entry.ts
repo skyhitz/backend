@@ -23,10 +23,10 @@ const buyEntry = {
     let { id } = args;
     let user = await getAuthenticatedUser(ctx);
 
-    let [{ credits, userSeed }, entry, owners] = [
+    let [{ credits, userSeed }, entry] = [
       await customerInfo(user),
       await getAll(`entries:${id}`),
-      await getAll(`owners:entry:${id}`),
+      // await getAll(`owners:entry:${id}`),
     ];
     let entryOwner;
 

@@ -12,7 +12,7 @@ const entryLikes = {
     },
   },
   async resolve(_: any, { id }: any, ctx: any) {
-    let user = await getAuthenticatedUser(ctx);
+    await getAuthenticatedUser(ctx);
     let users = await sendCommand('sort', [
       `likes:entry:${id}`,
       'by',
