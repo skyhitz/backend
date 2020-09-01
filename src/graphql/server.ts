@@ -54,7 +54,7 @@ const setupGraphQLServer = () => {
     bodyParser.json({
       verify: (req: any, res, buf) => {
         var url = req.originalUrl;
-        if (url.startsWith('/stripe-webhooks')) {
+        if (url.startsWith('/api/stripe-webhooks')) {
           req.rawBody = buf.toString();
         }
       },
