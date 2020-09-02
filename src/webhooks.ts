@@ -1,6 +1,10 @@
 import { Express } from 'express';
-import { stripe } from './payments/stripe';
-import { sendSubscriptionTokens } from './payments/stellar';
+import { stripe, updateCustomer } from './payments/stripe';
+import {
+  sendSubscriptionTokens,
+  createAndFundAccount,
+  allowTrust,
+} from './payments/stellar';
 import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
 
@@ -27,28 +31,46 @@ export function webhooks(graphQLServer: Express) {
   stripeWebhook(graphQLServer);
 }
 
+async function allowTrustAndSendSubscriptionTokens(keyPair, amount) {
+  console.log('sending subscription tokens', keyPair.publicAddress);
+  console.log('amount: ', amount);
+  let stripeFees = amount * 0.03;
+  let amountWithDiscountedTransactionFees = amount - stripeFees;
+  await allowTrust(keyPair.secret);
+  return sendSubscriptionTokens(
+    keyPair.publicAddress,
+    amountWithDiscountedTransactionFees / 100
+  );
+}
+
 async function processChargeSucceeded({ object }: any) {
+  let keyPair: { secret: string; publicAddress: string };
+
   console.log('event object', object);
   const { receipt_email, amount } = object;
-  const { metadata } = await findCustomer(receipt_email);
-  const { publicAddress } = metadata;
-  if (!publicAddress) {
-    return;
-  }
+  const { id } = await findCustomer(receipt_email);
+
   try {
-    console.log('sending subscription tokens', publicAddress);
-    console.log('amount: ', amount);
-    let stripeFees = amount * 0.03;
-    let amountWithDiscountedTransactionFees = amount - stripeFees;
-    // $7 plan gives the user 7 credits, amount is in cents
-    let transaction = await sendSubscriptionTokens(
-      publicAddress,
-      amountWithDiscountedTransactionFees / 100
-    );
+    keyPair = await createAndFundAccount();
+    console.log('created and funded stellar account');
+  } catch (e) {
+    throw e;
+  }
+
+  try {
+    let [customer, transaction] = await Promise.all([
+      updateCustomer({
+        customerId: id,
+        publicAddress: keyPair.publicAddress,
+        seed: keyPair.secret,
+      }),
+      allowTrustAndSendSubscriptionTokens(keyPair, amount),
+    ]);
+    console.log('customer', customer);
     console.log('transaction: ', transaction);
     return;
   } catch (e) {
-    console.error('error sending subscription tokens', e);
+    console.error('error updating customer and sending tokens', e);
     throw e;
   }
 }
