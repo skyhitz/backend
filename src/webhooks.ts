@@ -9,7 +9,7 @@ import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
 
 function stripeWebhook(graphQLServer: Express) {
-  graphQLServer.post('/stripe-webhooks', (request: any, response) => {
+  graphQLServer.post('/api/stripe-webhooks', (request: any, response) => {
     let sig = request.headers['stripe-signature'];
 
     const event = stripe.webhooks.constructEvent(
