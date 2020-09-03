@@ -56,7 +56,6 @@ const setupGraphQLServer = () => {
       res: express.Response,
       next: express.NextFunction
     ): void => {
-      console.log(req);
       if (req.originalUrl === '/api/stripe-webhooks') {
         next();
       } else {
