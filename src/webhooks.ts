@@ -70,8 +70,7 @@ async function onChargeSucceeded({ object }: any, response) {
   const { receipt_email, amount } = object;
   await sleep(1000);
   const { metadata } = await findCustomer(receipt_email);
-  console.log('metadata', metadata);
-  const { publicAddress, secret } = metadata;
+  const { publicAddress, seed } = metadata;
 
   console.log('sending subscription tokens', publicAddress);
   console.log('amount: ', amount);
@@ -79,7 +78,7 @@ async function onChargeSucceeded({ object }: any, response) {
   let amountWithDiscountedTransactionFees = amount - stripeFees;
   let amountInDollars = amountWithDiscountedTransactionFees / 100;
   console.log('amount in dollars: ', amountInDollars);
-  await allowTrust(secret);
+  await allowTrust(seed);
   sendSubscriptionTokens(publicAddress, amountInDollars);
   return response.send(200);
 }
