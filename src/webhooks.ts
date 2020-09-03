@@ -62,9 +62,15 @@ async function onCustomerCreated({ object }: any, response) {
   }
 }
 
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function onChargeSucceeded({ object }: any, response) {
   const { receipt_email, amount } = object;
+  await sleep(1000);
   const { metadata } = await findCustomer(receipt_email);
+  console.log('metadata', metadata);
   const { publicAddress, secret } = metadata;
 
   console.log('sending subscription tokens', publicAddress);
