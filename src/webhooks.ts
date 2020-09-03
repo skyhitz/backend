@@ -22,12 +22,9 @@ function stripeWebhook(graphQLServer) {
         sig,
         Config.STRIPE_WEBHOOK_SECRET
       );
-      if (event) {
-        response.send(200);
-      }
 
       if (event.type === 'charge.succeeded') {
-        return processChargeSucceeded(event.data);
+        return processChargeSucceeded(event.data, response);
       }
     }
   );
@@ -49,11 +46,12 @@ async function allowTrustAndSendSubscriptionTokens(keyPair, amount) {
   );
 }
 
-async function processChargeSucceeded({ object }: any) {
+async function processChargeSucceeded({ object }: any, response) {
   let keyPair: { secret: string; publicAddress: string };
 
-  console.log('event');
   const { receipt_email, amount } = object;
+  console.log('receipt email', receipt_email);
+
   const { id } = await findCustomer(receipt_email);
   console.log('customer id', id);
 
@@ -78,7 +76,7 @@ async function processChargeSucceeded({ object }: any) {
     ]);
     console.log('customer', customer);
     console.log('transaction: ', transaction);
-    return;
+    return response.send(200);
   } catch (e) {
     console.error('error updating customer and sending tokens', e);
     throw e;
