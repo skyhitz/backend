@@ -1,5 +1,5 @@
 import express from 'express';
-// import bodyParser from 'body-parser';
+import bodyParser from 'body-parser';
 import { Schema } from './schema';
 import { Config } from '../config';
 import jwt from 'express-jwt';
@@ -51,14 +51,18 @@ const setupGraphQLServer = () => {
 
   graphQLServer.use(
     '/api/graphql',
-    // bodyParser.json({
-    //   verify: (req: any, res, buf) => {
-    //     console.log('original url', req.originalUrl);
-    //     if (req.originalUrl === '/api/stripe-webhooks') {
-    //       req.rawBody = buf.toString();
-    //     }
-    //   },
-    // }),
+    (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ): void => {
+      console.log(req);
+      if (req.originalUrl === '/api/stripe-webhooks') {
+        next();
+      } else {
+        bodyParser.json()(req, res, next);
+      }
+    },
     compression(),
     cors(corsOptions),
     jwt({

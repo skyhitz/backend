@@ -1,4 +1,4 @@
-import { Express } from 'express';
+import express from 'express';
 import { stripe, updateCustomer } from './payments/stripe';
 import {
   sendSubscriptionTokens,
@@ -9,15 +9,16 @@ import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
 import bodyParser from 'body-parser';
 
-function stripeWebhook(graphQLServer: Express) {
+function stripeWebhook(graphQLServer) {
   graphQLServer.post(
     '/api/stripe-webhooks',
     bodyParser.raw({ type: 'application/json' }),
-    (request: any, response) => {
+    (request: express.Request, response: express.Response) => {
       let sig = request.headers['stripe-signature'];
+      console.log('signature', sig);
 
       const event = stripe.webhooks.constructEvent(
-        request.rawBody,
+        request.body,
         sig,
         Config.STRIPE_WEBHOOK_SECRET
       );
@@ -32,7 +33,7 @@ function stripeWebhook(graphQLServer: Express) {
   );
 }
 
-export function webhooks(graphQLServer: Express) {
+export function webhooks(graphQLServer) {
   stripeWebhook(graphQLServer);
 }
 
