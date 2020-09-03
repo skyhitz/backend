@@ -36,7 +36,7 @@ export function stripeWebhook(graphQLServer) {
 
 async function onCustomerCreated({ object }: any, response) {
   let keyPair: { secret: string; publicAddress: string };
-  const { customer } = object;
+  const { id } = object;
 
   try {
     console.log('create and fund account');
@@ -50,7 +50,7 @@ async function onCustomerCreated({ object }: any, response) {
     console.log('updating customer and allowing trust');
 
     let updatedCustomer = await updateCustomer({
-      customerId: customer,
+      customerId: id,
       publicAddress: keyPair.publicAddress,
       seed: keyPair.secret,
     });
