@@ -126,7 +126,7 @@ export async function sendSubscriptionTokens(
   amount: number
 ) {
   const sourceAccount = await stellarServer.loadAccount(sourceKeys.publicKey());
-  const amountInString = `${amount}`;
+  const amountInString = amount.toFixed(6).toString();
   const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
     fee: BASE_FEE,
     networkPassphrase: NETWORK_PASSPHRASE,

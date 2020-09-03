@@ -39,11 +39,10 @@ async function allowTrustAndSendSubscriptionTokens(keyPair, amount) {
   console.log('amount: ', amount);
   let stripeFees = amount * 0.03;
   let amountWithDiscountedTransactionFees = amount - stripeFees;
+  let amountInDollars = amountWithDiscountedTransactionFees / 100;
+  console.log('amount in dollars: ', amountInDollars);
   await allowTrust(keyPair.secret);
-  return sendSubscriptionTokens(
-    keyPair.publicAddress,
-    amountWithDiscountedTransactionFees / 100
-  );
+  return sendSubscriptionTokens(keyPair.publicAddress, amountInDollars);
 }
 
 async function processChargeSucceeded({ object }: any, response) {
