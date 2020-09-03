@@ -79,7 +79,7 @@ async function onChargeSucceeded({ object }: any, response) {
   let amountInDollars = amountWithDiscountedTransactionFees / 100;
   console.log('amount in dollars: ', amountInDollars);
   await allowTrust(seed);
-  sendSubscriptionTokens(publicAddress, amountInDollars);
+  await sendSubscriptionTokens(publicAddress, amountInDollars);
   return response.send(200);
 }
 
