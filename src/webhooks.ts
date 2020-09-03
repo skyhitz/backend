@@ -9,7 +9,7 @@ import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
 import bodyParser from 'body-parser';
 
-function stripeWebhook(graphQLServer) {
+export function stripeWebhook(graphQLServer) {
   graphQLServer.post(
     '/api/stripe-webhooks',
     bodyParser.raw({ type: 'application/json' }),
@@ -23,36 +23,20 @@ function stripeWebhook(graphQLServer) {
         Config.STRIPE_WEBHOOK_SECRET
       );
 
+      if (event.type === 'customer.created') {
+        return onCustomerCreated(event.data, response);
+      }
+
       if (event.type === 'charge.succeeded') {
-        return processChargeSucceeded(event.data, response);
+        return onChargeSucceeded(event.data, response);
       }
     }
   );
 }
 
-export function webhooks(graphQLServer) {
-  stripeWebhook(graphQLServer);
-}
-
-async function allowTrustAndSendSubscriptionTokens(keyPair, amount) {
-  console.log('sending subscription tokens', keyPair.publicAddress);
-  console.log('amount: ', amount);
-  let stripeFees = amount * 0.03;
-  let amountWithDiscountedTransactionFees = amount - stripeFees;
-  let amountInDollars = amountWithDiscountedTransactionFees / 100;
-  console.log('amount in dollars: ', amountInDollars);
-  await allowTrust(keyPair.secret);
-  return sendSubscriptionTokens(keyPair.publicAddress, amountInDollars);
-}
-
-async function processChargeSucceeded({ object }: any, response) {
+async function onCustomerCreated({ object }: any, response) {
   let keyPair: { secret: string; publicAddress: string };
-
-  const { receipt_email, amount } = object;
-  console.log('receipt email', receipt_email);
-
-  const { id } = await findCustomer(receipt_email);
-  console.log('customer id', id);
+  const { customer } = object;
 
   try {
     console.log('create and fund account');
@@ -65,21 +49,33 @@ async function processChargeSucceeded({ object }: any, response) {
   try {
     console.log('updating customer and allowing trust');
 
-    let [customer, transaction] = await Promise.all([
-      updateCustomer({
-        customerId: id,
-        publicAddress: keyPair.publicAddress,
-        seed: keyPair.secret,
-      }),
-      allowTrustAndSendSubscriptionTokens(keyPair, amount),
-    ]);
-    console.log('customer', customer);
-    console.log('transaction: ', transaction);
+    let updatedCustomer = await updateCustomer({
+      customerId: customer,
+      publicAddress: keyPair.publicAddress,
+      seed: keyPair.secret,
+    });
+    console.log('customer', updatedCustomer);
     return response.send(200);
   } catch (e) {
     console.error('error updating customer and sending tokens', e);
     throw e;
   }
+}
+
+async function onChargeSucceeded({ object }: any, response) {
+  const { customer, amount } = object;
+  const { metadata } = await findCustomer(customer);
+  const { publicAddress, secret } = metadata;
+
+  console.log('sending subscription tokens', publicAddress);
+  console.log('amount: ', amount);
+  let stripeFees = amount * 0.03;
+  let amountWithDiscountedTransactionFees = amount - stripeFees;
+  let amountInDollars = amountWithDiscountedTransactionFees / 100;
+  console.log('amount in dollars: ', amountInDollars);
+  await allowTrust(secret);
+  sendSubscriptionTokens(publicAddress, amountInDollars);
+  return response.send(200);
 }
 
 // async function processSubscriptionCreated(object: any, response: any) {

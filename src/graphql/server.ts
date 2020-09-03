@@ -5,7 +5,7 @@ import { Config } from '../config';
 import jwt from 'express-jwt';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 const compression = require('compression');
-import { webhooks } from '../webhooks';
+import { stripeWebhook } from '../webhooks';
 import { corsOptions } from '../cors';
 import { getAll } from '../redis';
 let cors = require('cors');
@@ -71,7 +71,7 @@ const setupGraphQLServer = () => {
     graphqlExpress(buildOptions)
   );
 
-  webhooks(graphQLServer);
+  stripeWebhook(graphQLServer);
 
   graphQLServer.use(
     '/api/graphiql',
