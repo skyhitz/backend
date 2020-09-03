@@ -63,8 +63,8 @@ async function onCustomerCreated({ object }: any, response) {
 }
 
 async function onChargeSucceeded({ object }: any, response) {
-  const { customer, amount } = object;
-  const { metadata } = await findCustomer(customer);
+  const { receipt_email, amount } = object;
+  const { metadata } = await findCustomer(receipt_email);
   const { publicAddress, secret } = metadata;
 
   console.log('sending subscription tokens', publicAddress);
