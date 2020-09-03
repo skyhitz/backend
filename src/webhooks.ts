@@ -7,24 +7,29 @@ import {
 } from './payments/stellar';
 import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
+import bodyParser from 'body-parser';
 
 function stripeWebhook(graphQLServer: Express) {
-  graphQLServer.post('/api/stripe-webhooks', (request: any, response) => {
-    let sig = request.headers['stripe-signature'];
+  graphQLServer.post(
+    '/api/stripe-webhooks',
+    bodyParser.raw({ type: 'application/json' }),
+    (request: any, response) => {
+      let sig = request.headers['stripe-signature'];
 
-    const event = stripe.webhooks.constructEvent(
-      request.rawBody,
-      sig,
-      Config.STRIPE_WEBHOOK_SECRET
-    );
-    if (event) {
-      response.send(200);
-    }
+      const event = stripe.webhooks.constructEvent(
+        request.rawBody,
+        sig,
+        Config.STRIPE_WEBHOOK_SECRET
+      );
+      if (event) {
+        response.send(200);
+      }
 
-    if (event.type === 'charge.succeeded') {
-      return processChargeSucceeded(event.data);
+      if (event.type === 'charge.succeeded') {
+        return processChargeSucceeded(event.data);
+      }
     }
-  });
+  );
 }
 
 export function webhooks(graphQLServer: Express) {
