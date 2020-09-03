@@ -62,13 +62,13 @@ async function onCustomerCreated({ object }: any, response) {
   }
 }
 
-async function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+// async function sleep(ms) {
+//   return new Promise((resolve) => setTimeout(resolve, ms));
+// }
 
 async function onChargeSucceeded({ object }: any, response) {
   const { receipt_email, amount } = object;
-  await sleep(1000);
+  // await sleep(100);
   const { metadata } = await findCustomer(receipt_email);
   const { publicAddress, seed } = metadata;
 
