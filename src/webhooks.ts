@@ -79,8 +79,8 @@ async function onChargeSucceeded({ object }: any, response) {
 }
 
 // async function processSubscriptionCreated(object: any, response: any) {
-//   const { customer } = object;
-//   const { metadata, subscriptions } = await findCustomer(customer);
+//   const { receipt_email } = object;
+//   const { metadata, subscriptions } = await findCustomer(receipt_email);
 //   const { publicAddress } = metadata;
 //   const { data } = subscriptions;
 //   const subscription = data.find(sub => sub.plan.id === Config.STRIPE_PLAN_ID);
