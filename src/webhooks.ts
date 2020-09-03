@@ -52,11 +52,13 @@ async function allowTrustAndSendSubscriptionTokens(keyPair, amount) {
 async function processChargeSucceeded({ object }: any) {
   let keyPair: { secret: string; publicAddress: string };
 
-  console.log('event object', object);
+  console.log('event');
   const { receipt_email, amount } = object;
   const { id } = await findCustomer(receipt_email);
+  console.log('customer id', id);
 
   try {
+    console.log('create and fund account');
     keyPair = await createAndFundAccount();
     console.log('created and funded stellar account');
   } catch (e) {
@@ -64,6 +66,8 @@ async function processChargeSucceeded({ object }: any) {
   }
 
   try {
+    console.log('updating customer and allowing trust');
+
     let [customer, transaction] = await Promise.all([
       updateCustomer({
         customerId: id,
