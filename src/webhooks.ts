@@ -100,10 +100,20 @@ async function onChargeSucceeded({ object }: any, response) {
 
 async function onCustomerUpdated({ object }: any, response) {
   const { email } = object;
-  const { metadata } = await findCustomer(email);
-  const { publicAddress, amount, allowedTrust } = metadata;
+  const { metadata, id } = await findCustomer(email);
+  const { publicAddress, amount, allowedTrust, seed } = metadata;
+  if (amount === '0') {
+    return response.send(200);
+  }
   if (allowedTrust === 'true') {
     await sendSubscriptionTokens(publicAddress, amount);
+    await updateCustomer({
+      customerId: id,
+      publicAddress: publicAddress,
+      seed: seed,
+      allowedTrust: true,
+      amount: '0',
+    });
   }
   return response.send(200);
 }
