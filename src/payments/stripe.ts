@@ -16,11 +16,15 @@ export async function updateCustomer({
   customerId,
   publicAddress,
   seed,
+  allowedTrust,
+  amount,
 }: UpdateCustomerPayload) {
   return stripe.customers.update(customerId, {
     metadata: {
       publicAddress: publicAddress,
       seed: seed,
+      allowedTrust: allowedTrust.toString(),
+      amount: amount,
     },
   });
 }

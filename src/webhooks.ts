@@ -30,6 +30,10 @@ export function stripeWebhook(graphQLServer) {
       if (event.type === 'charge.succeeded') {
         return onChargeSucceeded(event.data, response);
       }
+
+      if (event.type === 'customer.updated') {
+        return onCustomerUpdated(event.data, response);
+      }
     }
   );
 }
@@ -53,6 +57,8 @@ async function onCustomerCreated({ object }: any, response) {
       customerId: id,
       publicAddress: keyPair.publicAddress,
       seed: keyPair.secret,
+      allowedTrust: false,
+      amount: '0',
     });
     console.log('customer', updatedCustomer);
     return response.send(200);
@@ -68,8 +74,8 @@ async function sleep(ms) {
 
 async function onChargeSucceeded({ object }: any, response) {
   const { receipt_email, amount } = object;
-  await sleep(500);
-  const { metadata } = await findCustomer(receipt_email);
+  await sleep(1000);
+  const { metadata, id } = await findCustomer(receipt_email);
   const { publicAddress, seed } = metadata;
 
   console.log('sending subscription tokens', publicAddress);
@@ -77,9 +83,28 @@ async function onChargeSucceeded({ object }: any, response) {
   let stripeFees = amount * 0.03;
   let amountWithDiscountedTransactionFees = amount - stripeFees;
   let amountInDollars = amountWithDiscountedTransactionFees / 100;
-  console.log('amount in dollars: ', amountInDollars);
+  let totalAmount = amountInDollars.toFixed(6).toString();
+  console.log('amount in dollars: ', totalAmount);
   await allowTrust(seed);
-  await sendSubscriptionTokens(publicAddress, amountInDollars);
+
+  await updateCustomer({
+    customerId: id,
+    publicAddress: publicAddress,
+    seed: seed,
+    allowedTrust: true,
+    amount: totalAmount,
+  });
+
+  return response.send(200);
+}
+
+async function onCustomerUpdated({ object }: any, response) {
+  const { email } = object;
+  const { metadata } = await findCustomer(email);
+  const { publicAddress, amount, allowedTrust } = metadata;
+  if (allowedTrust === 'true') {
+    await sendSubscriptionTokens(publicAddress, amount);
+  }
   return response.send(200);
 }
 

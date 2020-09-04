@@ -123,10 +123,9 @@ export async function allowTrust(destinationSeed: string) {
 
 export async function sendSubscriptionTokens(
   destinationKey: string,
-  amount: number
+  amount: string
 ) {
   const sourceAccount = await stellarServer.loadAccount(sourceKeys.publicKey());
-  const amountInString = amount.toFixed(6).toString();
   const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
     fee: BASE_FEE,
     networkPassphrase: NETWORK_PASSPHRASE,
@@ -135,7 +134,7 @@ export async function sendSubscriptionTokens(
       StellarSdk.Operation.payment({
         destination: destinationKey,
         asset: asset,
-        amount: amountInString,
+        amount: amount,
       })
     )
     .setTimeout(0)

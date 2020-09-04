@@ -13,4 +13,6 @@ export type UpdateCustomerPayload = {
   customerId: string;
   publicAddress: string;
   seed: string;
+  allowedTrust: boolean;
+  amount: string;
 };
