@@ -192,7 +192,7 @@ export async function accountCredits(publicAddress: string) {
     (balance: any) => balance.asset_code === assetCode
   );
   if (currentBalance && currentBalance.balance) {
-    return parseFloat(currentBalance.balance).toFixed(2);
+    return parseFloat(currentBalance.balance);
   }
   return 0;
 }
