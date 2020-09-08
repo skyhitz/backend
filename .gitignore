@@ -10,3 +10,9 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+src/data-import/data/entries.csv
+src/data-import/data/likes.csv
+src/data-import/data/owners.csv
+src/data-import/data/searches.csv
+src/data-import/data/users.csv
