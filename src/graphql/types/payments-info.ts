@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLBoolean, GraphQLInt } from 'graphql';
+import { GraphQLObjectType, GraphQLBoolean, GraphQLFloat } from 'graphql';
 
 const PaymentsInfoObject: GraphQLObjectType = new GraphQLObjectType({
   name: 'PaymentsInfo',
@@ -12,7 +12,7 @@ const PaymentsInfoObject: GraphQLObjectType = new GraphQLObjectType({
         },
       },
       credits: {
-        type: GraphQLInt,
+        type: GraphQLFloat,
         resolve(paymentsInfo: any) {
           return paymentsInfo.credits;
         },

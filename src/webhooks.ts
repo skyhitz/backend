@@ -1,61 +1,126 @@
-import { Express } from 'express';
-import { stripe } from './payments/stripe';
-import { sendSubscriptionTokens } from './payments/stellar';
+import express from 'express';
+import { stripe, updateCustomer } from './payments/stripe';
+import {
+  sendSubscriptionTokens,
+  createAndFundAccount,
+  allowTrust,
+} from './payments/stellar';
 import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
+import bodyParser from 'body-parser';
 
-function stripeWebhook(graphQLServer: Express) {
-  graphQLServer.post('/stripe-webhooks', (request: any, response) => {
-    let sig = request.headers['stripe-signature'];
+export function stripeWebhook(graphQLServer) {
+  graphQLServer.post(
+    '/api/stripe-webhooks',
+    bodyParser.raw({ type: 'application/json' }),
+    (request: express.Request, response: express.Response) => {
+      let sig = request.headers['stripe-signature'];
+      console.log('signature', sig);
 
-    const event = stripe.webhooks.constructEvent(
-      request.rawBody,
-      sig,
-      Config.STRIPE_WEBHOOK_SECRET
-    );
-    if (event) {
-      response.send(200);
+      const event = stripe.webhooks.constructEvent(
+        request.body,
+        sig,
+        Config.STRIPE_WEBHOOK_SECRET
+      );
+
+      if (event.type === 'customer.created') {
+        return onCustomerCreated(event.data, response);
+      }
+
+      if (event.type === 'charge.succeeded') {
+        return onChargeSucceeded(event.data, response);
+      }
+
+      if (event.type === 'customer.updated') {
+        return onCustomerUpdated(event.data, response);
+      }
     }
-
-    if (event.type === 'charge.succeeded') {
-      return processChargeSucceeded(event.data);
-    }
-  });
+  );
 }
 
-export function webhooks(graphQLServer: Express) {
-  stripeWebhook(graphQLServer);
-}
+async function onCustomerCreated({ object }: any, response) {
+  let keyPair: { secret: string; publicAddress: string };
+  const { id } = object;
 
-async function processChargeSucceeded({ object }: any) {
-  console.log('event object', object);
-  const { receipt_email, amount } = object;
-  const { metadata } = await findCustomer(receipt_email);
-  const { publicAddress } = metadata;
-  if (!publicAddress) {
-    return;
-  }
   try {
-    console.log('sending subscription tokens', publicAddress);
-    console.log('amount: ', amount);
-    let stripeFees = amount * 0.03;
-    let amountWithDiscountedTransactionFees = amount - stripeFees;
-    // $7 plan gives the user 7 credits, amount is in cents
-    let transaction = await sendSubscriptionTokens(
-      publicAddress,
-      amountWithDiscountedTransactionFees / 100
-    );
-    console.log('transaction: ', transaction);
-    return;
+    console.log('create and fund account');
+    keyPair = await createAndFundAccount();
+    console.log('created and funded stellar account');
   } catch (e) {
-    console.error('error sending subscription tokens', e);
+    throw e;
+  }
+
+  try {
+    console.log('updating customer and allowing trust');
+
+    let updatedCustomer = await updateCustomer({
+      customerId: id,
+      publicAddress: keyPair.publicAddress,
+      seed: keyPair.secret,
+      allowedTrust: false,
+      amount: '0',
+    });
+    console.log('customer', updatedCustomer);
+    return response.send(200);
+  } catch (e) {
+    console.error('error updating customer and sending tokens', e);
     throw e;
   }
 }
 
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function onChargeSucceeded({ object }: any, response) {
+  const { receipt_email, amount } = object;
+  await sleep(1000);
+  const { metadata, id } = await findCustomer(receipt_email);
+  const { publicAddress, seed } = metadata;
+
+  console.log('sending subscription tokens', publicAddress);
+  console.log('amount: ', amount);
+  let stripeFees = amount * 0.03;
+  let amountWithDiscountedTransactionFees = amount - stripeFees;
+  let amountInDollars = amountWithDiscountedTransactionFees / 100;
+  let totalAmount = amountInDollars.toFixed(6).toString();
+  console.log('amount in dollars: ', totalAmount);
+  await allowTrust(seed);
+
+  await updateCustomer({
+    customerId: id,
+    publicAddress: publicAddress,
+    seed: seed,
+    allowedTrust: true,
+    amount: totalAmount,
+  });
+
+  return response.send(200);
+}
+
+async function onCustomerUpdated({ object }: any, response) {
+  const { email } = object;
+  const { metadata, id } = await findCustomer(email);
+  const { publicAddress, amount, allowedTrust, seed } = metadata;
+  if (amount === '0') {
+    return response.send(200);
+  }
+  if (allowedTrust === 'true') {
+    await sendSubscriptionTokens(publicAddress, amount);
+    await updateCustomer({
+      customerId: id,
+      publicAddress: publicAddress,
+      seed: seed,
+      allowedTrust: true,
+      amount: '0',
+    });
+  }
+  return response.send(200);
+}
+
 // async function processSubscriptionCreated(object: any, response: any) {
-//   const { customer } = object;
-//   const { metadata, subscriptions } = await findCustomer(customer);
+//   const { receipt_email } = object;
+//   const { metadata, subscriptions } = await findCustomer(receipt_email);
 //   const { publicAddress } = metadata;
 //   const { data } = subscriptions;
 //   const subscription = data.find(sub => sub.plan.id === Config.STRIPE_PLAN_ID);

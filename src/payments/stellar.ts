@@ -123,7 +123,7 @@ export async function allowTrust(destinationSeed: string) {
 
 export async function sendSubscriptionTokens(
   destinationKey: string,
-  amount: number
+  amount: string
 ) {
   const sourceAccount = await stellarServer.loadAccount(sourceKeys.publicKey());
   const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
@@ -134,7 +134,7 @@ export async function sendSubscriptionTokens(
       StellarSdk.Operation.payment({
         destination: destinationKey,
         asset: asset,
-        amount: amount.toString(),
+        amount: amount,
       })
     )
     .setTimeout(0)
@@ -192,7 +192,7 @@ export async function accountCredits(publicAddress: string) {
     (balance: any) => balance.asset_code === assetCode
   );
   if (currentBalance && currentBalance.balance) {
-    return parseInt(currentBalance.balance);
+    return parseFloat(currentBalance.balance);
   }
   return 0;
 }

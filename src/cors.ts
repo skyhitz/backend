@@ -6,6 +6,7 @@ if (Config.ENV === 'production') {
     'https://skyhitz.io',
     'https://api.skyhitz.io',
     'http://localhost:19006',
+    'https://api.stripe.com',
   ];
 } else {
   whitelist = [
@@ -15,6 +16,7 @@ if (Config.ENV === 'production') {
     'http://localhost:4000',
     'http://localhost:19006',
     'https://api-staging.skyhitz.io',
+    'https://api.stripe.com',
   ];
 }
 

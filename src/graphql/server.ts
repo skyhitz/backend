@@ -5,7 +5,7 @@ import { Config } from '../config';
 import jwt from 'express-jwt';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 const compression = require('compression');
-import { webhooks } from '../webhooks';
+import { stripeWebhook } from '../webhooks';
 import { corsOptions } from '../cors';
 import { getAll } from '../redis';
 let cors = require('cors');
@@ -51,14 +51,17 @@ const setupGraphQLServer = () => {
 
   graphQLServer.use(
     '/api/graphql',
-    bodyParser.json({
-      verify: (req: any, res, buf) => {
-        var url = req.originalUrl;
-        if (url.startsWith('/stripe-webhooks')) {
-          req.rawBody = buf.toString();
-        }
-      },
-    }),
+    (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ): void => {
+      if (req.originalUrl === '/api/stripe-webhooks') {
+        next();
+      } else {
+        bodyParser.json()(req, res, next);
+      }
+    },
     compression(),
     cors(corsOptions),
     jwt({
@@ -68,7 +71,7 @@ const setupGraphQLServer = () => {
     graphqlExpress(buildOptions)
   );
 
-  webhooks(graphQLServer);
+  stripeWebhook(graphQLServer);
 
   graphQLServer.use(
     '/api/graphiql',
