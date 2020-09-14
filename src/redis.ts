@@ -46,7 +46,7 @@ export function updateUser(user) {
         'password',
         user.password,
         'version',
-        parseInt(user.version),
+        user.version,
         'resetPasswordToken',
         user.resetPasswordToken,
         'resetPasswordExpires',
@@ -58,8 +58,10 @@ export function updateUser(user) {
         'testing',
         user.testing,
         'publishedAtTimestamp',
-        parseInt(user.publishedAtTimestamp)
+        user.publishedAtTimestamp
       )
+      .sadd(`usernames:${user.username.toLowerCase()}`, user.id)
+      .sadd(`emails:${user.email}`, user.id)
       .exec((err) => {
         if (err) {
           return reject(err);
