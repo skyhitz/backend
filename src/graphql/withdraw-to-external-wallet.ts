@@ -7,16 +7,14 @@ import {
 import { getAuthenticatedUser } from '../auth/logic';
 import { findCustomer } from '../payments/stripe';
 import {
-  payUserInXLM,
   accountCredits,
-  convertUSDtoXLM,
-  withdrawalFromAccount,
+  withdrawToExternalAddressAnchorUSD,
 } from '../payments/stellar';
 
 /**
  * Withdraws user balance to external address in XLM
  */
-const withdrawToExternalWallet = {
+export default {
   type: GraphQLBoolean,
   args: {
     address: {
@@ -45,17 +43,13 @@ const withdrawToExternalWallet = {
     const skyhitzFee = amount * 0.1;
     const remainingBalance = amount - skyhitzFee;
     // 1 per dollar
-    const dollarBalance = remainingBalance * 1;
-    const xlmAmount = await convertUSDtoXLM(dollarBalance);
-    console.log(`converted ${dollarBalance} USD to ${xlmAmount}`);
-    // Withdrawal payment in XLM to the user external wallet
-    await withdrawalFromAccount(seed, amount);
-    // console.log(`charged for fees ${transactionFees}`);
     try {
       console.log(
-        `withdrawal to address ${address}, amount ${xlmAmount.toFixed(6)}`
+        `withdrawal to address ${address}, amount ${remainingBalance.toFixed(
+          6
+        )}`
       );
-      await payUserInXLM(address, xlmAmount);
+      await withdrawToExternalAddressAnchorUSD(address, remainingBalance, seed);
       return true;
     } catch (e) {
       console.log(`error`, e);
@@ -63,5 +57,3 @@ const withdrawToExternalWallet = {
     }
   },
 };
-
-export default withdrawToExternalWallet;

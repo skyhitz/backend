@@ -289,3 +289,32 @@ export async function payUserInXLM(address: string, amount: number) {
   console.log('\nSuccess! View the transaction at: ', transactionResult);
   return transactionResult;
 }
+
+export async function withdrawToExternalAddressAnchorUSD(
+  address: string,
+  amount: number,
+  seed: string
+) {
+  const keys = StellarSdk.Keypair.fromSecret(seed);
+  const sourcePublicKey = keys.publicKey();
+
+  let account = await stellarServer.loadAccount(sourcePublicKey);
+  let transaction = new StellarSdk.TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: NETWORK_PASSPHRASE,
+  })
+    .addOperation(
+      StellarSdk.Operation.payment({
+        destination: address,
+        asset: asset,
+        amount: amount.toFixed(6).toString(),
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  transaction.sign(keys);
+  let transactionResult = await stellarServer.submitTransaction(transaction);
+  console.log('\nSuccess! View the transaction at: ', transactionResult);
+  return transactionResult;
+}
