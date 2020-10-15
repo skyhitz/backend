@@ -48,7 +48,7 @@ async function setEntry(entry, testing, userId) {
         'publishedAtTimestamp',
         parseInt(entry.publishedAtTimestamp),
         'youtubeId',
-        null,
+        '',
         'price',
         parseInt(entry.price),
         'forSale',
@@ -61,6 +61,7 @@ async function setEntry(entry, testing, userId) {
       .hmset(`owners:user:${userId}`, entry.id, 1)
       .exec((err) => {
         if (err) {
+          console.log(err);
           return reject();
         }
         return resolve();
@@ -132,7 +133,7 @@ const createEntry = {
     entryIndex.userDisplayName = user.displayName;
     entryIndex.userUsername = user.username;
     entryIndex.objectID = id;
-    entryIndex.testing = user.testing;
+    entryIndex.testing = user.testing === 'true';
     [
       await entriesIndex.addObject(entryIndex),
       await checkPaymentsAccount(entry.forSale, user.email),
