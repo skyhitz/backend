@@ -127,7 +127,7 @@ const createEntry = {
       price: price,
     };
 
-    await setEntry(entry, user.testing, user.id);
+    await setEntry(entry, user.testing === 'true', user.id);
 
     let entryIndex: any = entry;
     entryIndex.userDisplayName = user.displayName;
