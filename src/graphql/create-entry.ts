@@ -48,7 +48,7 @@ async function setEntry(entry, testing, userId) {
         'publishedAtTimestamp',
         parseInt(entry.publishedAtTimestamp),
         'youtubeId',
-        null,
+        '',
         'price',
         parseInt(entry.price),
         'forSale',
