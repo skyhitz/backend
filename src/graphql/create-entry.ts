@@ -138,6 +138,7 @@ const createEntry = {
       await entriesIndex.addObject(entryIndex),
       await checkPaymentsAccount(entry.forSale, user.email),
     ];
+    return entry;
   },
 };
 
