@@ -40,7 +40,7 @@ export default {
     }
 
     // 10%
-    const skyhitzFee = amount * 0.1;
+    const skyhitzFee = amount * 0.07;
     const remainingBalance = amount - skyhitzFee;
     // 1 per dollar
     try {
