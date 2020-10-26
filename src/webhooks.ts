@@ -40,7 +40,11 @@ export function stripeWebhook(graphQLServer) {
 
 async function onCustomerCreated({ object }: any, response) {
   let keyPair: { secret: string; publicAddress: string };
-  const { id } = object;
+  const { id, metadata } = object;
+
+  if (metadata.publicAddress) {
+    return response.send(200);
+  }
 
   try {
     console.log('create and fund account');
