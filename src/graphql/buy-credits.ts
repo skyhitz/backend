@@ -1,4 +1,4 @@
-import { GraphQLString, GraphQLInt, GraphQLNonNull } from 'graphql';
+import { GraphQLString, GraphQLFloat, GraphQLNonNull } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { buyCreditsWithCard } from '../payments/subscription';
 
@@ -9,7 +9,7 @@ const buyCredits = {
       type: new GraphQLNonNull(GraphQLString),
     },
     amount: {
-      type: new GraphQLNonNull(GraphQLInt),
+      type: new GraphQLNonNull(GraphQLFloat),
     },
   },
   async resolve(_: any, { cardToken, amount }: any, ctx: any) {
