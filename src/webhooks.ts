@@ -8,6 +8,8 @@ import {
 import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
 import bodyParser from 'body-parser';
+import StellarSdkLibrary = require('stellar-sdk');
+
 
 export function stripeWebhook(graphQLServer) {
   graphQLServer.post(
@@ -81,7 +83,9 @@ async function onChargeSucceeded({ object }: any, response) {
   await sleep(1000);
   const { metadata, id } = await findCustomer(receipt_email);
   const { publicAddress, seed } = metadata;
-  console.log('sending subscription tokens from seed:', Config.ISSUER_SEED);
+  const sourceKeys = StellarSdkLibrary.Keypair.fromSecret(Config.ISSUER_SEED);
+
+  console.log('sending subscription tokens from seed:', sourceKeys.publicKey);
   console.log('sending subscription tokens to:', publicAddress);
   console.log('amount: ', amount);
   let stripeFees = amount * 0.03;
