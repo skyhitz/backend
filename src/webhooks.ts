@@ -82,10 +82,10 @@ async function onChargeSucceeded({ object }: any, response) {
   const { receipt_email, amount } = object;
   await sleep(1000);
   const { metadata, id } = await findCustomer(receipt_email);
-  const { publicAddress, seed } = metadata;
+  const { publicAddress, seed, allowedTrust } = metadata;
   const sourceKeys = StellarSdkLibrary.Keypair.fromSecret(Config.ISSUER_SEED);
 
-  console.log('sending subscription tokens from seed:', sourceKeys.publicKey);
+  console.log('sending subscription tokens from seed:', sourceKeys.publicKey());
   console.log('sending subscription tokens to:', publicAddress);
   console.log('amount: ', amount);
   let stripeFees = amount * 0.03;
@@ -93,6 +93,18 @@ async function onChargeSucceeded({ object }: any, response) {
   let amountInDollars = amountWithDiscountedTransactionFees / 100;
   let totalAmount = amountInDollars.toFixed(6).toString();
   console.log('amount in dollars: ', totalAmount);
+
+  if (allowedTrust === 'true') {
+    await updateCustomer({
+      customerId: id,
+      publicAddress: publicAddress,
+      seed: seed,
+      allowedTrust: true,
+      amount: totalAmount,
+    });
+    return response.send(200);
+  }
+
   await allowTrust(seed);
 
   await updateCustomer({
