@@ -64,6 +64,7 @@ async function onCustomerCreated({ object }: any, response) {
       seed: keyPair.secret,
       allowedTrust: false,
       amount: '0',
+      pendingTransfer: false,
     });
     console.log('customer', updatedCustomer);
     return response.send(200);
@@ -100,6 +101,7 @@ async function onChargeSucceeded({ object }: any, response) {
       seed: seed,
       allowedTrust: true,
       amount: totalAmount,
+      pendingTransfer: true,
     });
     return response.send(200);
   }
@@ -112,6 +114,7 @@ async function onChargeSucceeded({ object }: any, response) {
     seed: seed,
     allowedTrust: true,
     amount: totalAmount,
+    pendingTransfer: true,
   });
 
   return response.send(200);
@@ -135,6 +138,7 @@ async function onCustomerUpdated({ object }: any, response) {
       seed: seed,
       allowedTrust: true,
       amount: '0',
+      pendingTransfer: false,
     });
   }
   return response.send(200);

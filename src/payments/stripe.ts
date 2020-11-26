@@ -18,6 +18,7 @@ export async function updateCustomer({
   seed,
   allowedTrust,
   amount,
+  pendingTransfer,
 }: UpdateCustomerPayload) {
   return stripe.customers.update(customerId, {
     metadata: {
@@ -25,6 +26,7 @@ export async function updateCustomer({
       seed: seed,
       allowedTrust: allowedTrust.toString(),
       amount: amount,
+      pendingTransfer: pendingTransfer.toString(),
     },
   });
 }

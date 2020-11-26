@@ -15,4 +15,5 @@ export type UpdateCustomerPayload = {
   seed: string;
   allowedTrust: boolean;
   amount: string;
+  pendingTransfer: boolean;
 };
