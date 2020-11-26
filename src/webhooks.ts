@@ -10,7 +10,6 @@ import { Config } from './config/index';
 import bodyParser from 'body-parser';
 import StellarSdkLibrary = require('stellar-sdk');
 
-
 export function stripeWebhook(graphQLServer) {
   graphQLServer.post(
     '/api/stripe-webhooks',
@@ -120,8 +119,11 @@ async function onChargeSucceeded({ object }: any, response) {
 
 async function onCustomerUpdated({ object }: any, response) {
   const { email } = object;
+  console.log('on customer updated', email);
   const { metadata, id } = await findCustomer(email);
   const { publicAddress, amount, allowedTrust, seed } = metadata;
+  console.log('public address: ', publicAddress);
+  console.log('horizon url ', Config.HORIZON_URL);
   if (amount === '0') {
     return response.send(200);
   }
