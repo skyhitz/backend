@@ -81,8 +81,8 @@ async function onChargeSucceeded({ object }: any, response) {
   await sleep(1000);
   const { metadata, id } = await findCustomer(receipt_email);
   const { publicAddress, seed } = metadata;
-
-  console.log('sending subscription tokens', publicAddress);
+  console.log('sending subscription tokens from seed:', Config.ISSUER_SEED);
+  console.log('sending subscription tokens to:', publicAddress);
   console.log('amount: ', amount);
   let stripeFees = amount * 0.03;
   let amountWithDiscountedTransactionFees = amount - stripeFees;
