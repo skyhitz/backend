@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import StellarSdkLibrary = require('stellar-sdk');
 import { Config } from '../config';
 export const BASE_FEE = '102';
@@ -25,10 +24,6 @@ const NETWORK_PASSPHRASE =
   Config.ENV === 'production'
     ? StellarSdk.Networks.PUBLIC
     : StellarSdk.Networks.TESTNET;
-
-export async function fundTestAccount(publicKey: string) {
-  return fetch(`https://friendbot.stellar.org/?addr=${publicKey}`);
-}
 
 export async function accountExists(publicKey: string) {
   try {
@@ -60,23 +55,7 @@ export async function fundAccount(destinationKey: string) {
   return stellarServer.submitTransaction(transaction);
 }
 
-export async function createAndFundTestStellarAccount() {
-  console.log('creating and funding stellar test account');
-  let pair = StellarSdk.Keypair.random();
-  let secret = pair.secret();
-  let publicAddress = pair.publicKey();
-  try {
-    await fundTestAccount(publicAddress);
-  } catch (e) {
-    throw e;
-  }
-  return {
-    secret,
-    publicAddress,
-  };
-}
-
-export async function createAndFundPublicStellarAccount() {
+export async function createAndFundAccount() {
   let pair = StellarSdk.Keypair.random();
   let secret = pair.secret();
   let publicAddress = pair.publicKey();
@@ -92,13 +71,6 @@ export async function createAndFundPublicStellarAccount() {
     secret,
     publicAddress,
   };
-}
-
-export async function createAndFundAccount() {
-  if (Config.ENV === 'production') {
-    return createAndFundPublicStellarAccount();
-  }
-  return createAndFundTestStellarAccount();
 }
 
 export async function allowTrust(destinationSeed: string) {
