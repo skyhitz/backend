@@ -8,9 +8,8 @@ import {
 import { createAndFundAccount, mergeAccount, allowTrust } from './stellar';
 
 export async function buyCreditsWithCard(payload: BuyCreditsPayload) {
-  let newCustomer;
   try {
-    newCustomer = await createOrFindCustomer({
+    await createOrFindCustomer({
       email: payload.email,
       cardToken: payload.cardToken,
       pendingCharge: payload.amount.toString(),
@@ -22,9 +21,8 @@ export async function buyCreditsWithCard(payload: BuyCreditsPayload) {
 }
 
 export async function subscribe(customerPayload: CustomerPayload) {
-  let newCustomer;
   try {
-    newCustomer = await createOrFindCustomer({
+    await createOrFindCustomer({
       ...customerPayload,
       subscribe: 'true',
     });
