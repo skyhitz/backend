@@ -35,6 +35,28 @@ export async function updateCustomer({
   });
 }
 
+export async function updateCustomerWithPendingCharge(
+  customerId: string,
+  pendingCharge: string
+) {
+  return stripe.customers.update(customerId, {
+    metadata: {
+      pendingCharge: pendingCharge,
+    },
+  });
+}
+
+export async function updateCustomerWithSubscription(
+  customerId: string,
+  subscribe: string
+) {
+  return stripe.customers.update(customerId, {
+    metadata: {
+      subscribe: subscribe,
+    },
+  });
+}
+
 export async function cleanSubscriptionMetadata(customerId) {
   return stripe.customers.update(customerId, {
     metadata: {
@@ -150,7 +172,16 @@ export async function createOrFindCustomer({
     // check if the customer has cardToken, add cardToken
     let sourceCustomer = await findCustomer(email);
     if (!!sourceCustomer.id && !sourceCustomer.default_source) {
-      return await updateSource(sourceCustomer.id, cardToken);
+      await updateSource(sourceCustomer.id, cardToken);
+    }
+    if (pendingCharge) {
+      return await updateCustomerWithPendingCharge(
+        sourceCustomer.id,
+        pendingCharge
+      );
+    }
+    if (subscribe) {
+      return await updateCustomerWithSubscription(sourceCustomer.id, subscribe);
     }
     return sourceCustomer;
   }
