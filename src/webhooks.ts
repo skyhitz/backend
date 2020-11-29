@@ -129,8 +129,7 @@ async function onChargeSucceeded({ object }: any, response) {
   console.log('sending subscription tokens from seed:', sourceKeys.publicKey());
   console.log('sending subscription tokens to:', publicAddress);
   console.log('amount: ', amount);
-  let stripeFees = amount * 0.03;
-  let amountWithDiscountedTransactionFees = amount - stripeFees;
+  let amountWithDiscountedTransactionFees = amount * (100 / 103);
   let amountInDollars = amountWithDiscountedTransactionFees / 100;
   let totalAmount = amountInDollars.toFixed(6).toString();
   console.log('amount in dollars: ', totalAmount);
