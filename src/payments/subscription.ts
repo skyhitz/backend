@@ -14,7 +14,6 @@ export async function buyCreditsWithCard(payload: BuyCreditsPayload) {
       cardToken: payload.cardToken,
       pendingCharge: payload.amount.toString(),
     });
-    console.log('created customer');
   } catch (e) {
     throw e;
   }
@@ -26,7 +25,6 @@ export async function subscribe(customerPayload: CustomerPayload) {
       ...customerPayload,
       subscribe: 'true',
     });
-    console.log('created customer');
   } catch (e) {
     throw e;
   }

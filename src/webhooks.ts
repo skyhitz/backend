@@ -16,7 +16,6 @@ import {
 import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
 import bodyParser from 'body-parser';
-import StellarSdkLibrary = require('stellar-sdk');
 
 export function stripeWebhook(graphQLServer) {
   graphQLServer.post(
@@ -24,7 +23,6 @@ export function stripeWebhook(graphQLServer) {
     bodyParser.raw({ type: 'application/json' }),
     (request: express.Request, response: express.Response) => {
       let sig = request.headers['stripe-signature'];
-      console.log('signature', sig);
 
       const event = stripe.webhooks.constructEvent(
         request.body,
@@ -58,23 +56,18 @@ async function onCustomerCreated({ object }: any, response) {
 
   // Create account and allow trust should be executed independently, once the account is created it has to trust the asset
   try {
-    console.log('create and fund account');
     keyPair = await createAndFundAccount();
-    console.log('created and funded stellar account');
   } catch (e) {
     throw e;
   }
 
   try {
-    console.log('updating customer');
-
-    let updatedCustomer = await updateCustomer({
+    await updateCustomer({
       customerId: id,
       publicAddress: keyPair.publicAddress,
       seed: keyPair.secret,
       allowedTrust: false,
     });
-    console.log('customer', updatedCustomer);
     return response.send(200);
   } catch (e) {
     console.error('error updating customer and sending tokens', e);
@@ -84,19 +77,10 @@ async function onCustomerCreated({ object }: any, response) {
 
 async function onCustomerUpdated({ object }: any, response) {
   const { email } = object;
-  console.log('on customer updated', email);
   const { metadata, id } = await findCustomer(email);
-  const {
-    publicAddress,
-    pendingCharge,
-    subscribe,
-    allowedTrust,
-    seed,
-  } = metadata;
+  const { pendingCharge, subscribe, allowedTrust, seed } = metadata;
 
   if (allowedTrust === 'false') {
-    console.log('allowing trust', publicAddress);
-
     await allowTrust(seed);
     await updateCustomerWithAllowedTrust(id);
     return response.send(200);
@@ -123,16 +107,9 @@ async function onChargeSucceeded({ object }: any, response) {
   const { receipt_email, amount } = object;
   const { metadata, id } = await findCustomer(receipt_email);
   const { publicAddress, pendingCharge, subscribe } = metadata;
-
-  const sourceKeys = StellarSdkLibrary.Keypair.fromSecret(Config.ISSUER_SEED);
-
-  console.log('sending subscription tokens from seed:', sourceKeys.publicKey());
-  console.log('sending subscription tokens to:', publicAddress);
-  console.log('amount: ', amount);
   let amountWithDiscountedTransactionFees = amount * (100 / 103);
   let amountInDollars = amountWithDiscountedTransactionFees / 100;
   let totalAmount = amountInDollars.toFixed(6).toString();
-  console.log('amount in dollars: ', totalAmount);
 
   await sendSubscriptionTokens(publicAddress, totalAmount);
   if (pendingCharge) {
