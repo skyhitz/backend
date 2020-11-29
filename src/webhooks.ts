@@ -98,9 +98,7 @@ async function onCustomerUpdated({ object }: any, response) {
     console.log('allowing trust', publicAddress);
 
     await allowTrust(seed);
-    await updateCustomerWithAllowedTrust({
-      customerId: id,
-    });
+    await updateCustomerWithAllowedTrust(id);
     return response.send(200);
   }
 
