@@ -105,7 +105,7 @@ async function onCustomerUpdated({ object }: any, response) {
   if (allowedTrust === 'true') {
     // charge user with one time amount
     if (pendingCharge) {
-      await chargeCustomer(id, parseInt(pendingCharge));
+      await chargeCustomer(id, parseFloat(pendingCharge));
       return response.send(200);
     }
 
