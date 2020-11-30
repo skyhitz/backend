@@ -1,6 +1,8 @@
 export type CustomerPayload = {
   email: string;
   cardToken: string;
+  pendingCharge?: string;
+  subscribe?: string;
 };
 
 export type BuyCreditsPayload = {
@@ -14,5 +16,6 @@ export type UpdateCustomerPayload = {
   publicAddress: string;
   seed: string;
   allowedTrust: boolean;
-  amount: string;
+  pendingCharge?: string;
+  subscribe?: string;
 };

@@ -12,19 +12,63 @@ export const stripe = new Stripe(Config.STRIPE_SECRET_KEY, {
   telemetry: true,
 });
 
+export async function updateCustomerWithAllowedTrust(customerId: string) {
+  return stripe.customers.update(customerId, {
+    metadata: {
+      allowedTrust: 'true',
+    },
+  });
+}
+
 export async function updateCustomer({
   customerId,
   publicAddress,
   seed,
   allowedTrust,
-  amount,
 }: UpdateCustomerPayload) {
   return stripe.customers.update(customerId, {
     metadata: {
       publicAddress: publicAddress,
       seed: seed,
       allowedTrust: allowedTrust.toString(),
-      amount: amount,
+    },
+  });
+}
+
+export async function updateCustomerWithPendingCharge(
+  customerId: string,
+  pendingCharge: string
+) {
+  return stripe.customers.update(customerId, {
+    metadata: {
+      pendingCharge: pendingCharge,
+    },
+  });
+}
+
+export async function updateCustomerWithSubscription(
+  customerId: string,
+  subscribe: string
+) {
+  return stripe.customers.update(customerId, {
+    metadata: {
+      subscribe: subscribe,
+    },
+  });
+}
+
+export async function cleanSubscriptionMetadata(customerId) {
+  return stripe.customers.update(customerId, {
+    metadata: {
+      subscribe: null,
+    },
+  });
+}
+
+export async function cleanPendingChargeMetadata(customerId) {
+  return stripe.customers.update(customerId, {
+    metadata: {
+      pendingCharge: null,
     },
   });
 }
@@ -35,11 +79,37 @@ export async function updateSource(customerId: string, source: string) {
   });
 }
 
-export async function createCustomer({ email, cardToken }: CustomerPayload) {
+export async function createCustomer({
+  email,
+  cardToken,
+  pendingCharge,
+  subscribe,
+}: CustomerPayload) {
   let customer = await findCustomer(email);
   if (customer && customer.id) {
     throw 'customer already exists';
   }
+
+  if (pendingCharge) {
+    return stripe.customers.create({
+      email: email,
+      source: cardToken,
+      metadata: {
+        pendingCharge: pendingCharge,
+      },
+    });
+  }
+
+  if (subscribe) {
+    return stripe.customers.create({
+      email: email,
+      source: cardToken,
+      metadata: {
+        subscribe: subscribe,
+      },
+    });
+  }
+
   return stripe.customers.create({
     email: email,
     source: cardToken,
@@ -86,16 +156,32 @@ export async function findSubscription(customerId: string) {
 export async function createOrFindCustomer({
   email,
   cardToken,
+  pendingCharge,
+  subscribe,
 }: CustomerPayload) {
   let customer;
   try {
-    customer = await createCustomer({ email, cardToken });
+    customer = await createCustomer({
+      email,
+      cardToken,
+      pendingCharge,
+      subscribe,
+    });
     return customer;
   } catch (e) {
     // check if the customer has cardToken, add cardToken
     let sourceCustomer = await findCustomer(email);
     if (!!sourceCustomer.id && !sourceCustomer.default_source) {
-      return await updateSource(sourceCustomer.id, cardToken);
+      await updateSource(sourceCustomer.id, cardToken);
+    }
+    if (pendingCharge) {
+      return await updateCustomerWithPendingCharge(
+        sourceCustomer.id,
+        pendingCharge
+      );
+    }
+    if (subscribe) {
+      return await updateCustomerWithSubscription(sourceCustomer.id, subscribe);
     }
     return sourceCustomer;
   }
