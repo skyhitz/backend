@@ -75,7 +75,15 @@ async function onCustomerCreated({ object }: any, response) {
   }
 }
 
-async function onCustomerUpdated({ object }: any, response) {
+async function onCustomerUpdated(
+  { object, previous_attributes }: any,
+  response
+) {
+  // stripe updates the user currency on subscribe
+  if (previous_attributes && previous_attributes.currency === null) {
+    return response.send(200);
+  }
+
   const { email } = object;
   const { metadata, id } = await findCustomer(email);
   const { pendingCharge, subscribe, allowedTrust, seed } = metadata;
