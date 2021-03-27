@@ -1,4 +1,5 @@
 export interface IConfig {
+  APP_URL: string;
   REDIS_HOST: string;
   REDIS_PORT: number;
   REDIS_KEY: string;

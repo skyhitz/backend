@@ -1,4 +1,5 @@
 import { GraphQLSchema, GraphQLObjectType } from 'graphql';
+import RequestToken from './request-token';
 import SignIn from './sign-in';
 import PaymentsInfo from './payments-info';
 import UserLikes from './user-likes';
@@ -49,6 +50,7 @@ const Mutation = new GraphQLObjectType({
       buyCredits: BuyCredits,
       createEntry: CreateEntry,
       createUserWithEmail: CreateUserWithEmail,
+      requestToken: RequestToken,
       signIn: SignIn,
       likeEntry: LikeEntry,
       removeEntry: RemoveEntry,

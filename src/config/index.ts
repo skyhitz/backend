@@ -6,6 +6,7 @@ config();
 
 export const Config: IConfig = {
   ALGOLIA_APP_ID: process.env.ALGOLIA_APP_ID || '',
+  APP_URL: process.env.APP_URL || '',
   REDIS_HOST: process.env.REDIS_HOST || '',
   REDIS_PORT: parseInt(process.env.REDIS_PORT) || 8080,
   REDIS_KEY: process.env.REDIS_KEY || '',

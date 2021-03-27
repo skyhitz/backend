@@ -5,14 +5,13 @@ import { Config } from '../config';
 import jwt from 'express-jwt';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 const compression = require('compression');
-const session = require('express-session');
 const RedisStore = require('../passwordless/store');
 
 import passwordless from '../passwordless/passwordless';
-
 import { stripeWebhook } from '../webhooks';
 import { corsOptions } from '../cors';
 import { getAll } from '../redis';
+
 let cors = require('cors');
 const cache = require('memory-cache');
 let cacheInstance = new cache.Cache();
@@ -52,23 +51,6 @@ const buildOptions: any = async (req: any) => {
 };
 
 passwordless.init(new RedisStore());
-passwordless.addDelivery(function (
-  tokenToSend,
-  uidToSend,
-  recipient,
-  callback
-) {
-  console.log('recipient', recipient);
-  console.log(
-    'Access the account here:\n' +
-      'http://localhost:3000/' +
-      '?token=' +
-      tokenToSend +
-      '&uid=' +
-      encodeURIComponent(uidToSend)
-  );
-  callback();
-});
 
 const setupGraphQLServer = () => {
   const graphQLServer = express();
@@ -92,10 +74,7 @@ const setupGraphQLServer = () => {
       secret: Config.JWT_SECRET,
       credentialsRequired: false,
     }),
-    session({ secret: 'foo', resave: false, saveUninitialized: true }),
     bodyParser.urlencoded({ extended: false }),
-    passwordless.sessionSupport() as any,
-    passwordless.acceptToken() as any,
     graphqlExpress(buildOptions)
   );
 
