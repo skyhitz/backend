@@ -16,8 +16,6 @@ import BuyEntry from './buy-entry';
 import SubscribeUser from './subscribe-user';
 import CancelSubscription from './cancel-subscription';
 import CreateEntry from './create-entry';
-import SendResetEmail from './send-reset-email';
-import UpdatePassword from './update-password';
 import UpdateUser from './update-user';
 import RemoveEntry from './remove-entry';
 import WithdrawToExternalWallet from './withdraw-to-external-wallet';
@@ -55,9 +53,7 @@ const Mutation = new GraphQLObjectType({
       likeEntry: LikeEntry,
       removeEntry: RemoveEntry,
       cancelSubscription: CancelSubscription,
-      sendResetEmail: SendResetEmail,
       subscribeUser: SubscribeUser,
-      updatePassword: UpdatePassword,
       updateUser: UpdateUser,
       updatePricing: UpdatePricing,
       withdrawToExternalWallet: WithdrawToExternalWallet,

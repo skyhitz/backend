@@ -64,7 +64,7 @@ async function setEntry(entry, testing, userId) {
           console.log(err);
           return reject();
         }
-        return resolve();
+        return resolve(true);
       });
   });
 }
