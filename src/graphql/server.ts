@@ -5,9 +5,13 @@ import { Config } from '../config';
 import jwt from 'express-jwt';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 const compression = require('compression');
+const RedisStore = require('../passwordless/store');
+
+import passwordless from '../passwordless/passwordless';
 import { stripeWebhook } from '../webhooks';
 import { corsOptions } from '../cors';
 import { getAll } from '../redis';
+
 let cors = require('cors');
 const cache = require('memory-cache');
 let cacheInstance = new cache.Cache();
@@ -46,6 +50,8 @@ const buildOptions: any = async (req: any) => {
   };
 };
 
+passwordless.init(new RedisStore());
+
 const setupGraphQLServer = () => {
   const graphQLServer = express();
 
@@ -68,6 +74,7 @@ const setupGraphQLServer = () => {
       secret: Config.JWT_SECRET,
       credentialsRequired: false,
     }),
+    bodyParser.urlencoded({ extended: false }),
     graphqlExpress(buildOptions)
   );
 

@@ -2,11 +2,11 @@ import { GraphQLString, GraphQLNonNull, GraphQLBoolean } from 'graphql';
 
 import User from './types/user';
 import UniqueIdGenerator from '../auth/unique-id-generator';
-import { generateHash } from '../auth/bycrypt';
 import * as jwt from 'jsonwebtoken';
 import { Config } from '../config';
 import { usersIndex } from '../algolia/algolia';
-import { redisClient } from '../redis';
+import { redisClient, smembers } from '../redis';
+import { sendGridService } from '../sendgrid/sendgrid';
 
 function setUser(user) {
   let key = user.testing ? 'testing:all-users' : 'all-users';
@@ -28,14 +28,8 @@ function setUser(user) {
         user.username.toLowerCase(),
         'id',
         user.id,
-        'password',
-        user.password,
         'version',
         user.version,
-        'resetPasswordToken',
-        user.resetPasswordToken,
-        'resetPasswordExpires',
-        user.resetPasswordExpires,
         'description',
         user.description,
         'phone',
@@ -57,6 +51,21 @@ function setUser(user) {
   });
 }
 
+function sendWelcomeEmail(email) {
+  const msg = {
+    to: email,
+    from: 'alejandro@skyhitzmusic.com',
+    subject: 'Welcome to Skyhitz',
+    html: `<p>Hi,
+        <br><p>Thanks for joining Skyhitz, we are on a mission to encourage music creation and production around the world.<br>
+        <br>
+        <br><br>If you did not sign up for an account, please send us an email.
+        <br>
+        <br><br>Keep making music, <br>Skyhitz Team</p>`,
+  };
+  sendGridService.sendEmail(msg);
+}
+
 const createUserWithEmail = {
   type: User,
   args: {
@@ -69,21 +78,27 @@ const createUserWithEmail = {
     username: {
       type: new GraphQLNonNull(GraphQLString),
     },
-    password: {
-      type: new GraphQLNonNull(GraphQLString),
-    },
     testing: {
       type: new GraphQLNonNull(GraphQLBoolean),
     },
   },
   async resolve(_: any, args: any, ctx: any) {
-    let passwordHash = await generateHash(args.password);
+    let [[emailId], [usernameId]] = [
+      await smembers(`emails:${args.email}`),
+      await smembers(`usernames:${args.username}`),
+    ];
+    if (emailId) {
+      throw 'Email already exists, please sign in';
+    }
+    if (usernameId) {
+      throw 'Username is taken';
+    }
+
     let userPayload: any = {
       avatarUrl: '',
       displayName: args.displayName,
       description: '',
       email: args.email,
-      password: passwordHash,
       username: args.username,
       id: UniqueIdGenerator.generate(),
       version: 1,
@@ -91,8 +106,6 @@ const createUserWithEmail = {
       publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
       phone: '',
       testing: args.testing ? true : false,
-      resetPasswordToken: '',
-      resetPasswordExpires: '',
     };
     let user: any = await setUser(userPayload);
 
@@ -112,7 +125,7 @@ const createUserWithEmail = {
       testing: userPayload.testing,
     };
     await usersIndex.addObject(userIndexObject);
-
+    sendWelcomeEmail(email);
     return user;
   },
 };

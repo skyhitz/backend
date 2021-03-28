@@ -42,6 +42,9 @@ const Entries = {
     }
 
     let userEntries = await getAll(`owners:user:${userId}`);
+    if (!userEntries) {
+      return [];
+    }
     let entries = await getEntries(Object.keys(userEntries));
     return entries;
   },
