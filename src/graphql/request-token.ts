@@ -53,7 +53,10 @@ const RequestToken = {
         <br><br>If you did not request this, please ignore this email and let us know if your account was compromised.
         <br><br>Keep making music, <br>Skyhitz Team</p>`,
             };
+
             sendGridService.sendEmail(msg);
+
+            console.log('email sent');
             resolve(true);
           }
         }
