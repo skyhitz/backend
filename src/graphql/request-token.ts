@@ -34,7 +34,7 @@ const RequestToken = {
         currentUser.id,
         ttl,
         '',
-        function (storeError) {
+        async function (storeError) {
           if (storeError) {
             throw `Error on the storage layer: ${storeError}`;
           } else {
@@ -54,9 +54,8 @@ const RequestToken = {
         <br><br>Keep making music, <br>Skyhitz Team</p>`,
             };
 
-            sendGridService.sendEmail(msg);
+            await sendGridService.sendEmail(msg);
 
-            console.log('email sent');
             resolve(true);
           }
         }

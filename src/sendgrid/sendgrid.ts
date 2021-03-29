@@ -1,4 +1,4 @@
-const sgMail = require('@sendgrid/mail');
+import sgMail from '@sendgrid/mail';
 import { Config } from '../config';
 sgMail.setApiKey(Config.SENDGRID_API_KEY);
 
@@ -13,7 +13,7 @@ class SendGridService {
   constructor() {}
 
   sendEmail(message: SendGridMessage) {
-    sgMail.send(message);
+    return sgMail.send(message);
   }
 }
 
