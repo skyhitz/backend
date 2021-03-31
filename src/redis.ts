@@ -106,7 +106,7 @@ export function updateEntry(entry) {
         if (err) {
           return reject();
         }
-        return resolve();
+        return resolve(null);
       });
   });
 }

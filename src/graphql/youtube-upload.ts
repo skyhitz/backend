@@ -1,7 +1,7 @@
 import { GraphQLString, GraphQLBoolean } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
-import { uploadVideoToYoutube } from '../youtube/youtube-upload';
-import { getAll, updateEntry } from '../redis';
+// import { uploadVideoToYoutube } from '../youtube/youtube-upload';
+// import { getAll, updateEntry } from '../redis';
 
 const youtubeUpload = {
   type: GraphQLBoolean,
@@ -21,10 +21,10 @@ const youtubeUpload = {
   },
   async resolve(_: any, { videoUrl, title, description, id }: any, ctx: any) {
     await getAuthenticatedUser(ctx);
-    const youtubeId = await uploadVideoToYoutube(videoUrl, title, description);
-    const entry = await getAll(`entries:${id}`);
-    entry.youtubeId = youtubeId;
-    await updateEntry(entry);
+    // const youtubeId = await uploadVideoToYoutube(videoUrl, title, description);
+    // const entry = await getAll(`entries:${id}`);
+    // entry.youtubeId = youtubeId;
+    // await updateEntry(entry);
     return true;
   },
 };

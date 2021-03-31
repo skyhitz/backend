@@ -1,4 +1,5 @@
 import { GraphQLSchema, GraphQLObjectType } from 'graphql';
+import RequestToken from './request-token';
 import SignIn from './sign-in';
 import PaymentsInfo from './payments-info';
 import UserLikes from './user-likes';
@@ -15,8 +16,6 @@ import BuyEntry from './buy-entry';
 import SubscribeUser from './subscribe-user';
 import CancelSubscription from './cancel-subscription';
 import CreateEntry from './create-entry';
-import SendResetEmail from './send-reset-email';
-import UpdatePassword from './update-password';
 import UpdateUser from './update-user';
 import RemoveEntry from './remove-entry';
 import WithdrawToExternalWallet from './withdraw-to-external-wallet';
@@ -49,13 +48,12 @@ const Mutation = new GraphQLObjectType({
       buyCredits: BuyCredits,
       createEntry: CreateEntry,
       createUserWithEmail: CreateUserWithEmail,
+      requestToken: RequestToken,
       signIn: SignIn,
       likeEntry: LikeEntry,
       removeEntry: RemoveEntry,
       cancelSubscription: CancelSubscription,
-      sendResetEmail: SendResetEmail,
       subscribeUser: SubscribeUser,
-      updatePassword: UpdatePassword,
       updateUser: UpdateUser,
       updatePricing: UpdatePricing,
       withdrawToExternalWallet: WithdrawToExternalWallet,
