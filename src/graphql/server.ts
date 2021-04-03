@@ -55,6 +55,8 @@ passwordless.init(new RedisStore());
 const setupGraphQLServer = () => {
   const graphQLServer = express();
 
+  graphQLServer.options('*', cors(corsOptions));
+
   graphQLServer.use(
     '/api/graphql',
     (
