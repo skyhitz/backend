@@ -5,13 +5,6 @@ const client = algoliasearch(
   Config.ALGOLIA_ADMIN_API_KEY
 );
 export const entriesIndex = client.initIndex('entries');
-entriesIndex.setSettings({
-  searchableAttributes: [
-    'title,artist',
-    'description',
-    'userUsername,userDisplayName',
-  ],
-});
 export const usersIndex = client.initIndex('users');
 
 // Always pass objectID
