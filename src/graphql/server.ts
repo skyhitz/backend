@@ -56,6 +56,8 @@ const setupGraphQLServer = () => {
   const graphQLServer = express();
 
   graphQLServer.options('*', cors(corsOptions));
+  graphQLServer.use(cors(corsOptions));
+
   graphQLServer.use(
     '/api/graphql',
     (
@@ -70,7 +72,6 @@ const setupGraphQLServer = () => {
       }
     },
     compression(),
-    cors(corsOptions),
     jwt({
       secret: Config.JWT_SECRET,
       credentialsRequired: false,

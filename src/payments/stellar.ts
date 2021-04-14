@@ -3,7 +3,7 @@ import { Config } from '../config';
 export const BASE_FEE = '102';
 export const stellarServer = new StellarSdkLibrary.Server(Config.HORIZON_URL);
 export const StellarSdk = StellarSdkLibrary;
-const sourceKeys = StellarSdk.Keypair.fromSecret(Config.ISSUER_SEED);
+export const sourceKeys = StellarSdk.Keypair.fromSecret(Config.ISSUER_SEED);
 let assetCode;
 let asset;
 
