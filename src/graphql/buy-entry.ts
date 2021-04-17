@@ -23,24 +23,20 @@ const buyEntry = {
     let { id } = args;
     let user = await getAuthenticatedUser(ctx);
 
-    let [{ credits, userSeed }, entry] = [
+    let [{ credits, userSeed }, entry, entryOwnersList] = [
       await customerInfo(user),
       await getAll(`entries:${id}`),
-      // await getAll(`owners:entry:${id}`),
+      await getAll(`owners:entry:${id}`),
     ];
-    let entryOwner;
 
-    if (
-      entry.EntryOwner &&
-      entry.EntryOwner[0] &&
-      entry.EntryOwner[0].dataValues
-    ) {
-      entryOwner = entry.EntryOwner[0].dataValues;
-    } else {
+    if (!entryOwnersList) {
       throw 'no entry owner';
     }
 
-    let entryOwnerCustomer = await findCustomer(entryOwner.email);
+    const [ownerId] = Object.keys(entryOwnersList);
+    const owner = await getAll(`users:${ownerId}`);
+
+    let entryOwnerCustomer = await findCustomer(owner.email);
     let { metadata } = entryOwnerCustomer;
     let { publicAddress } = metadata;
 
@@ -62,7 +58,7 @@ const buyEntry = {
 
     entry.forSale = false;
     [
-      await entry.removeEntryOwner(entryOwner.id),
+      await entry.removeEntryOwner(owner.id),
       await entry.addEntryOwner(user.id),
       await entry.save(),
       await partialUpdateObject({
