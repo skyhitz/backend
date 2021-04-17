@@ -18,7 +18,7 @@ function deleteFromCloudinary(cloudinaryPublicId: string) {
           reject();
           return;
         }
-        resolve();
+        resolve(true);
         return;
       }
     );
