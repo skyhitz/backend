@@ -24,6 +24,7 @@ export const sendCommand = promisify(redisClient.send_command).bind(
 export const sadd = promisify(redisClient.sadd).bind(redisClient);
 export const hset = promisify(redisClient.hset).bind(redisClient);
 export const hdel = promisify(redisClient.hdel).bind(redisClient);
+export const hmset = promisify(redisClient.hmset).bind(redisClient);
 
 export function updateUser(user) {
   return new Promise((resolve, reject) => {

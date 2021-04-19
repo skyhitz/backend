@@ -3,7 +3,7 @@ import { getAuthenticatedUser } from '../auth/logic';
 import { findCustomer } from '../payments/stripe';
 import { accountCredits, payment } from '../payments/stellar';
 import { partialUpdateObject } from '../algolia/algolia';
-import { getAll } from '../redis';
+import { getAll, hdel, hmset, updateEntry } from '../redis';
 
 async function customerInfo(user: any) {
   let customer = await findCustomer(user.email);
@@ -55,12 +55,11 @@ const buyEntry = {
     }
 
     // update entry owner to buyer
-
     entry.forSale = false;
     [
-      await entry.removeEntryOwner(owner.id),
-      await entry.addEntryOwner(user.id),
-      await entry.save(),
+      await hdel(`owners:entry:${entry.id}`, owner.id),
+      await hmset(`owners:entry:${entry.id}`, user.id, 1),
+      await updateEntry(entry),
       await partialUpdateObject({
         objectID: entry.id,
         forSale: false,
