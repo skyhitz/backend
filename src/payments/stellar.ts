@@ -93,6 +93,50 @@ export async function allowTrust(destinationSeed: string) {
   return transactionResult;
 }
 
+export async function sendOwnershipOfAsset(
+  destinationSeed: string,
+  assetCode: string
+) {
+  const limitOfShares = '100';
+  const newAsset = new StellarSdk.Asset(assetCode, sourceKeys.publicKey());
+  const destinationKeys = StellarSdk.Keypair.fromSecret(destinationSeed);
+  const account = await stellarServer.loadAccount(sourceKeys.publicKey());
+  const transaction = new StellarSdk.TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: NETWORK_PASSPHRASE,
+  })
+    .addOperation(
+      StellarSdk.Operation.beginSponsoringFutureReserves({
+        sponsoredId: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.changeTrust({
+        asset: newAsset,
+        limit: limitOfShares,
+        source: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.endSponsoringFutureReserves({
+        source: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.payment({
+        destination: destinationKeys.publicKey(),
+        asset: newAsset,
+        amount: limitOfShares,
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  transaction.sign(sourceKeys, destinationKeys);
+  let transactionResult = await stellarServer.submitTransaction(transaction);
+  return transactionResult;
+}
+
 export async function sendSubscriptionTokens(
   destinationKey: string,
   amount: string
