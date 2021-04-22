@@ -46,7 +46,7 @@ export async function fundAccount(destinationKey: string) {
     .addOperation(
       StellarSdk.Operation.createAccount({
         destination: destinationKey,
-        startingBalance: '2',
+        startingBalance: '1',
       })
     )
     .setTimeout(0)
@@ -73,22 +73,142 @@ export async function createAndFundAccount() {
   };
 }
 
-export async function allowTrust(destinationSeed: string) {
+export async function issueAssetAndOpenSellOffer(
+  destinationSeed: string,
+  assetCode: string,
+  amount: number,
+  price: number
+) {
+  const limitOfShares = '100';
+  const newAsset = new StellarSdk.Asset(assetCode, sourceKeys.publicKey());
   const destinationKeys = StellarSdk.Keypair.fromSecret(destinationSeed);
-  const account = await stellarServer.loadAccount(destinationKeys.publicKey());
+  const account = await stellarServer.loadAccount(sourceKeys.publicKey());
   const transaction = new StellarSdk.TransactionBuilder(account, {
     fee: BASE_FEE,
     networkPassphrase: NETWORK_PASSPHRASE,
   })
     .addOperation(
+      StellarSdk.Operation.beginSponsoringFutureReserves({
+        sponsoredId: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
       StellarSdk.Operation.changeTrust({
-        asset: asset,
+        asset: newAsset,
+        limit: limitOfShares,
+        source: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.endSponsoringFutureReserves({
+        source: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.payment({
+        destination: destinationKeys.publicKey(),
+        asset: newAsset,
+        amount: limitOfShares,
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.beginSponsoringFutureReserves({
+        sponsoredId: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.manageSellOffer({
+        selling: newAsset,
+        buying: asset,
+        amount: amount.toString(),
+        price: price.toString(),
+        source: destinationKeys.publicKey(),
+        offerId: 0,
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.endSponsoringFutureReserves({
+        source: destinationKeys.publicKey(),
       })
     )
     .setTimeout(0)
     .build();
 
-  transaction.sign(destinationKeys);
+  transaction.sign(sourceKeys, destinationKeys);
+  let transactionResult = await stellarServer.submitTransaction(transaction);
+  return transactionResult;
+}
+
+export async function manageSellOffer(
+  destinationSeed: string,
+  amount: number,
+  price: number,
+  assetCode: string
+) {
+  const destinationKeys = StellarSdk.Keypair.fromSecret(destinationSeed);
+  const account = await stellarServer.loadAccount(sourceKeys.publicKey());
+  const newAsset = new StellarSdk.Asset(assetCode, sourceKeys.publicKey());
+
+  // price of 1 unit in terms of buying, 100 will be 100 usd per one share
+  const transaction = new StellarSdk.TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: NETWORK_PASSPHRASE,
+  })
+    .addOperation(
+      StellarSdk.Operation.beginSponsoringFutureReserves({
+        sponsoredId: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.manageSellOffer({
+        selling: newAsset,
+        buying: asset,
+        amount: amount.toString(),
+        price: price.toString(),
+        source: destinationKeys.publicKey(),
+        offerId: 0,
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.endSponsoringFutureReserves({
+        source: destinationKeys.publicKey(),
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  transaction.sign(sourceKeys, destinationKeys);
+  let transactionResult = await stellarServer.submitTransaction(transaction);
+  return transactionResult;
+}
+
+export async function allowTrust(destinationSeed: string) {
+  const destinationKeys = StellarSdk.Keypair.fromSecret(destinationSeed);
+  const account = await stellarServer.loadAccount(sourceKeys.publicKey());
+  const transaction = new StellarSdk.TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: NETWORK_PASSPHRASE,
+  })
+    .addOperation(
+      StellarSdk.Operation.beginSponsoringFutureReserves({
+        sponsoredId: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.changeTrust({
+        asset: asset,
+        source: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.endSponsoringFutureReserves({
+        source: destinationKeys.publicKey(),
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  transaction.sign(sourceKeys, destinationKeys);
   let transactionResult = await stellarServer.submitTransaction(transaction);
   return transactionResult;
 }
