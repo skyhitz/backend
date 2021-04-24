@@ -35,6 +35,7 @@ export async function cancel(email: string) {
   await mergeAccount(seed);
 }
 
+// TODO: use Redis as main source for encrypted info
 export async function checkIfEntryOwnerHasStripeAccount(email: string) {
   let entryOwnerCustomer = await findCustomer(email);
 
@@ -61,10 +62,13 @@ export async function checkIfEntryOwnerHasStripeAccount(email: string) {
       console.log(e);
       throw 'could not create stripe customer';
     }
-    return newCustomer.metadata.publicAddress;
+    return {
+      publicAddress: newCustomer.metadata.publicAddress as string,
+      seed: newCustomer.metadata.seed as string,
+    };
   }
 
   let { metadata } = entryOwnerCustomer;
-  let { publicAddress } = metadata;
-  return publicAddress;
+  let { publicAddress, seed } = metadata;
+  return { publicAddress, seed };
 }
