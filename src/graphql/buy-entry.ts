@@ -1,9 +1,13 @@
-import { GraphQLString, GraphQLNonNull, GraphQLBoolean } from 'graphql';
+import {
+  GraphQLString,
+  GraphQLNonNull,
+  GraphQLBoolean,
+  GraphQLInt,
+} from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { findCustomer } from '../payments/stripe';
-import { accountCredits, payment } from '../payments/stellar';
-import { partialUpdateObject } from '../algolia/algolia';
-import { getAll, hdel, hmset, updateEntry } from '../redis';
+import { accountCredits, manageBuyOffer } from '../payments/stellar';
+import { getAll } from '../redis';
 
 async function customerInfo(user: any) {
   let customer = await findCustomer(user.email);
@@ -18,35 +22,33 @@ const buyEntry = {
     id: {
       type: new GraphQLNonNull(GraphQLString),
     },
+    amount: {
+      type: new GraphQLNonNull(GraphQLInt),
+    },
+    price: {
+      type: new GraphQLNonNull(GraphQLInt),
+    },
   },
   async resolve(_: any, args: any, ctx: any) {
-    let { id } = args;
+    let { id, amount, price } = args;
     let user = await getAuthenticatedUser(ctx);
 
-    let [{ credits, userSeed }, entry, entryOwnersList] = [
+    let [{ credits, userSeed }, assetCode] = [
       await customerInfo(user),
-      await getAll(`entries:${id}`),
-      await getAll(`owners:entry:${id}`),
+      await getAll(`assets:entry:${id}`),
     ];
 
-    if (!entryOwnersList) {
-      throw 'no entry owner';
-    }
+    const total = price * amount;
 
-    const [ownerId] = Object.keys(entryOwnersList);
-    const owner = await getAll(`users:${ownerId}`);
-
-    let entryOwnerCustomer = await findCustomer(owner.email);
-    let { metadata } = entryOwnerCustomer;
-    let { publicAddress } = metadata;
-
-    if (credits >= entry.price) {
-      // send payment from buyer to owner of entry
+    // fetch price from offer
+    if (credits >= total) {
+      // // send payment from buyer to owner of entry
       try {
-        let transactionRecord = await payment(
-          publicAddress,
+        let transactionRecord = await manageBuyOffer(
           userSeed,
-          entry.price
+          amount,
+          price,
+          assetCode
         );
         console.log(transactionRecord);
       } catch (e) {
@@ -54,18 +56,6 @@ const buyEntry = {
       }
     }
 
-    // update entry owner to buyer
-    entry.forSale = false;
-    [
-      await hdel(`owners:entry:${entry.id}`, owner.id),
-      await hmset(`owners:entry:${entry.id}`, user.id, 1),
-      await updateEntry(entry),
-      await partialUpdateObject({
-        objectID: entry.id,
-        forSale: false,
-        userUsername: user.username,
-      }),
-    ];
     return true;
   },
 };
