@@ -85,8 +85,6 @@ async function setEntry(entry, testing, userId): Promise<number> {
         entry.artist
       )
       .sadd(`${key}`, entry.id)
-      .hmset(`owners:entry:${entry.id}`, userId, 1)
-      .hmset(`owners:user:${userId}`, entry.id, 1)
       .exec(async (err) => {
         if (err) {
           console.log(err);
