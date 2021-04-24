@@ -80,7 +80,7 @@ async function setEntry(entry, testing, userId): Promise<number> {
         'forSale',
         entry.forSale,
         'equityForSale',
-        entry.equityForSale,
+        parseInt(entry.equityForSale),
         'artist',
         entry.artist
       )
