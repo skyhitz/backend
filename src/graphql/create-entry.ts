@@ -29,8 +29,8 @@ async function mapAssetIdToEntryId(entry, testing, assetCode) {
   return new Promise((resolve, reject) => {
     redisClient
       .multi()
-      .hmset(`assets:entry:${entry.id}`, assetCode)
-      .hmset(`assets:code:${assetCode}`, entry.id)
+      .hmset(`assets:entry:${entry.id}`, assetCode, 1)
+      .hmset(`assets:code:${assetCode}`, entry.id, 1)
       .sadd(`${key}`, assetCode)
       .exec((err) => {
         if (err) {
@@ -49,7 +49,7 @@ function generateAssetCode(totalEntries) {
   return `SK${newStr}`;
 }
 
-async function setEntry(entry, testing, userId): Promise<number> {
+async function setEntry(entry, testing): Promise<number> {
   let key = testing ? 'testing:all-entries' : 'all-entries';
 
   return new Promise((resolve, reject) => {
@@ -168,7 +168,7 @@ const createEntry = {
     entryIndex.testing = testing;
 
     const [totalEntries, , { publicAddress, seed }] = [
-      await setEntry(entry, testing, user.id),
+      await setEntry(entry, testing),
       await entriesIndex.addObject(entryIndex),
       await checkPaymentsAccount(entry.forSale, user.email),
     ];
