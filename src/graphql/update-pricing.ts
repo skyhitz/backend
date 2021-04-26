@@ -8,6 +8,7 @@ import { getAuthenticatedUser } from '../auth/logic';
 import { partialUpdateObject } from '../algolia/algolia';
 import { checkIfEntryOwnerHasStripeAccount } from '../payments/subscription';
 import { getAll, updateEntry } from '../redis';
+import { manageSellOffer, getOfferId } from '../payments/stellar';
 
 const updatePricing = {
   type: GraphQLBoolean,
@@ -21,25 +22,33 @@ const updatePricing = {
     forSale: {
       type: new GraphQLNonNull(GraphQLBoolean),
     },
+    equityForSale: {
+      type: new GraphQLNonNull(GraphQLInt),
+    },
   },
   async resolve(_: any, args: any, ctx: any) {
-    let { id, price, forSale } = args;
+    let { id, price, forSale, equityForSale } = args;
 
     let user = await getAuthenticatedUser(ctx);
-    let entry = await getAll(`entries:${id}`);
-
-    try {
-      const result = getAll(`owners:entries:${id}`);
-      const [ownerId] = Object.keys(result);
-      if (user.id !== ownerId) {
-        return false;
-      }
-    } catch (e) {
-      return false;
-    }
+    let [entry, res] = [
+      await getAll(`entries:${id}`),
+      await getAll(`assets:entry:${id}`),
+    ];
+    const [assetCode] = Object.keys(res);
 
     if (entry.forSale) {
-      await checkIfEntryOwnerHasStripeAccount(user.email);
+      const { publicAddress, seed } = await checkIfEntryOwnerHasStripeAccount(
+        user.email
+      );
+      const offerId = await getOfferId(publicAddress, assetCode);
+
+      await manageSellOffer(
+        seed,
+        equityForSale,
+        price / equityForSale,
+        assetCode,
+        typeof offerId === 'string' ? parseInt(offerId) : offerId
+      );
     }
 
     entry.price = price;
