@@ -451,6 +451,19 @@ export async function withdrawalFromAccount(seed: string, amount: number) {
   return transactionResult;
 }
 
+export async function loadSkyhitzAssets(sourcePublicKey) {
+  let { balances } = await stellarServer.loadAccount(sourcePublicKey);
+  const assetCodes = balances
+    .filter((balance: any) => {
+      if (balance.asset_code !== assetCode && balance.asset_code !== 'XLM') {
+        return true;
+      }
+      return false;
+    })
+    .map((ba: any) => ba.asset_code);
+  return assetCodes;
+}
+
 export async function payUserInXLM(address: string, amount: number) {
   const sourcePublicKey = sourceKeys.publicKey();
 
