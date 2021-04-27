@@ -182,11 +182,25 @@ export async function manageBuyOffer(
   return transactionResult;
 }
 
+export async function getOfferId(sellingAccount, assetCode) {
+  const sellingAsset = new StellarSdk.Asset(assetCode, sourceKeys.publicKey());
+
+  let offers = await stellarServer
+    .offers()
+    .forAccount(sellingAccount)
+    .selling(sellingAsset)
+    .call();
+
+  let offer = offers.records[0];
+  return offer.id;
+}
+
 export async function manageSellOffer(
   destinationSeed: string,
   amount: number,
   price: number,
-  assetCode: string
+  assetCode: string,
+  offerId = 0
 ) {
   const destinationKeys = StellarSdk.Keypair.fromSecret(destinationSeed);
   const account = await stellarServer.loadAccount(sourceKeys.publicKey());
@@ -209,7 +223,7 @@ export async function manageSellOffer(
         amount: amount.toString(),
         price: price.toString(),
         source: destinationKeys.publicKey(),
-        offerId: 0,
+        offerId: offerId,
       })
     )
     .addOperation(
@@ -449,6 +463,19 @@ export async function withdrawalFromAccount(seed: string, amount: number) {
   let transactionResult = await stellarServer.submitTransaction(transaction);
   console.log('\nSuccess! View the transaction at: ', transactionResult);
   return transactionResult;
+}
+
+export async function loadSkyhitzAssets(sourcePublicKey) {
+  let { balances } = await stellarServer.loadAccount(sourcePublicKey);
+  const assetCodes = balances
+    .filter((balance: any) => {
+      if (balance.asset_code !== assetCode && balance.asset_code !== 'XLM') {
+        return true;
+      }
+      return false;
+    })
+    .map((ba: any) => ba.asset_code);
+  return assetCodes;
 }
 
 export async function payUserInXLM(address: string, amount: number) {

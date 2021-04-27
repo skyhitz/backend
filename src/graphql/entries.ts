@@ -2,15 +2,20 @@ import { GraphQLList, GraphQLString } from 'graphql';
 import Entry from './types/entry';
 import { getAuthenticatedUser } from '../auth/logic';
 import { getAll } from '../redis';
+import { findCustomer } from '../payments/stripe';
+import { loadSkyhitzAssets } from '../payments/stellar';
+
 import { each } from 'async';
 
-function getEntries(entriesIds) {
+function getEntriesWithAssetCodes(assetCodes) {
   let entries = [];
   return new Promise((resolve, reject) => {
     each(
-      entriesIds,
-      async (entryId, cb) => {
-        let entry = await getAll(`entries:${entryId}`);
+      assetCodes,
+      async (id, cb) => {
+        let res = await getAll(`assets:code:${id}`);
+        const [entryId] = Object.keys(res);
+        const entry = await getAll(`entries:${entryId}`);
         entries.push(entry);
         cb();
       },
@@ -41,12 +46,12 @@ const Entries = {
       return getAll(`entries:${id}`);
     }
 
-    let userEntries = await getAll(`owners:user:${userId}`);
-    if (!userEntries) {
-      return [];
-    }
-    let entries = await getEntries(Object.keys(userEntries));
-    return entries;
+    let user = await getAll(`user:${userId}`);
+    let customer = await findCustomer(user.email);
+    let { metadata } = customer;
+    let { publicAddress } = metadata;
+    const assetCodes = await loadSkyhitzAssets(publicAddress);
+    return getEntriesWithAssetCodes(assetCodes);
   },
 };
 
