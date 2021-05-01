@@ -480,7 +480,7 @@ export async function loadSkyhitzAssets(sourcePublicKey) {
   let { balances } = await stellarServer.loadAccount(sourcePublicKey);
   const assetCodes = balances
     .filter((balance: any) => {
-      if (balance.asset_code !== assetCode && balance.asset_code !== 'XLM') {
+      if (balance.asset_code !== assetCode && balance.asset_type !== 'native') {
         return true;
       }
       return false;
