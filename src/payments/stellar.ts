@@ -34,24 +34,35 @@ export async function accountExists(publicKey: string) {
   return true;
 }
 
-export async function fundAccount(destinationKey: string) {
-  if (!destinationKey) {
+export async function fundAccount(destinationKeys: StellarSdkLibrary.Keypair) {
+  if (!destinationKeys.publicKey()) {
     throw 'Account does not exist';
   }
+
   let sourceAccount = await stellarServer.loadAccount(sourceKeys.publicKey());
   let transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
     fee: BASE_FEE,
     networkPassphrase: NETWORK_PASSPHRASE,
   })
     .addOperation(
+      StellarSdk.Operation.beginSponsoringFutureReserves({
+        sponsoredId: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
       StellarSdk.Operation.createAccount({
-        destination: destinationKey,
-        startingBalance: '1',
+        destination: destinationKeys.publicKey(),
+        startingBalance: '0',
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.endSponsoringFutureReserves({
+        source: destinationKeys.publicKey(),
       })
     )
     .setTimeout(0)
     .build();
-  transaction.sign(sourceKeys);
+  transaction.sign(sourceKeys, destinationKeys);
   return stellarServer.submitTransaction(transaction);
 }
 
@@ -60,7 +71,7 @@ export async function createAndFundAccount() {
   let secret = pair.secret();
   let publicAddress = pair.publicKey();
   try {
-    await fundAccount(publicAddress);
+    await fundAccount(pair);
   } catch (e) {
     if (e && e.response) {
       console.log(e.response);
