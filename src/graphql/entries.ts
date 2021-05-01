@@ -4,7 +4,6 @@ import { getAuthenticatedUser } from '../auth/logic';
 import { getAll } from '../redis';
 import { findCustomer } from '../payments/stripe';
 import { loadSkyhitzAssets } from '../payments/stellar';
-
 import { each } from 'async';
 
 function getEntriesWithAssetCodes(assetCodes) {
@@ -14,10 +13,14 @@ function getEntriesWithAssetCodes(assetCodes) {
       assetCodes,
       async (id, cb) => {
         let res = await getAll(`assets:code:${id}`);
-        const [entryId] = Object.keys(res);
-        const entry = await getAll(`entries:${entryId}`);
-        entries.push(entry);
-        cb();
+        if (res) {
+          const [entryId] = Object.keys(res);
+          const entry = await getAll(`entries:${entryId}`);
+          entries.push(entry);
+          cb();
+        } else {
+          cb();
+        }
       },
       (err) => {
         if (err) {
