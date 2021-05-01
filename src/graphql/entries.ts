@@ -46,7 +46,7 @@ const Entries = {
       return getAll(`entries:${id}`);
     }
 
-    let user = await getAll(`user:${userId}`);
+    let user = await getAll(`users:${userId}`);
     let customer = await findCustomer(user.email);
     let { metadata } = customer;
     let { publicAddress } = metadata;
