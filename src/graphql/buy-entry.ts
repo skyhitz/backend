@@ -47,7 +47,7 @@ const buyEntry = {
         let transactionRecord = await manageBuyOffer(
           userSeed,
           amount,
-          price,
+          price / amount,
           assetCode
         );
         console.log(transactionRecord);
