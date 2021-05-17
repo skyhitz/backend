@@ -15,8 +15,11 @@ export default {
     await getAuthenticatedUser(ctx);
 
     let res = await getAll(`assets:entry:${id}`);
-    const [assetCode] = Object.keys(res);
-    let bid = await getBid(assetCode);
-    return { price: bid.price, amount: bid.amount };
+    if (res) {
+      const [assetCode] = Object.keys(res);
+      let bid = await getBid(assetCode);
+      return { price: bid.price, amount: bid.amount };
+    }
+    return { price: 0, amount: 0 };
   },
 };
