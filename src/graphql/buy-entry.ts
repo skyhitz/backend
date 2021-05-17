@@ -53,6 +53,7 @@ const buyEntry = {
         );
         console.log(transactionRecord);
       } catch (e) {
+        console.log(e);
         throw 'could not complete transaction';
       }
     }
