@@ -1,7 +1,7 @@
 import { GraphQLObjectType, GraphQLString } from 'graphql';
 
 const EntryPrice: GraphQLObjectType = new GraphQLObjectType({
-  name: 'Entry Price',
+  name: 'EntryPrice',
   description: 'This is an Entry Price',
   fields: () => {
     return {
