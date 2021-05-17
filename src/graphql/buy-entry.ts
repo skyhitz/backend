@@ -33,11 +33,12 @@ const buyEntry = {
     let { id, amount, price } = args;
     let user = await getAuthenticatedUser(ctx);
 
-    let [{ credits, userSeed }, assetCode] = [
+    let [{ credits, userSeed }, res] = [
       await customerInfo(user),
       await getAll(`assets:entry:${id}`),
     ];
 
+    const [assetCode] = Object.keys(res);
     const total = price * amount;
 
     // fetch price from offer
