@@ -441,10 +441,10 @@ export async function getUSDPriceForAsset(assetCode) {
   return response.bids[0].price;
 }
 
-export async function getBid(assetCode) {
+export async function getAsks(assetCode) {
   const newAsset = new StellarSdk.Asset(assetCode, sourceKeys.publicKey());
   let response = await stellarServer.orderbook(newAsset, asset).call();
-  return response.bids[0];
+  return response.asks[0];
 }
 
 export async function convertUSDtoXLM(USDAmount: number) {
