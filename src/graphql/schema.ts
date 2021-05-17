@@ -21,6 +21,7 @@ import RemoveEntry from './remove-entry';
 import WithdrawToExternalWallet from './withdraw-to-external-wallet';
 import UpdatePricing from './update-pricing';
 import YoutubeUpload from './youtube-upload';
+import EntryPrice from './get-entry-price';
 
 const Query = new GraphQLObjectType({
   name: 'Query',
@@ -29,6 +30,7 @@ const Query = new GraphQLObjectType({
     return {
       authenticatedUser: AuthenticatedUser,
       entryLikes: EntryLikes,
+      entryPrice: EntryPrice,
       entries: Entries,
       paymentsInfo: PaymentsInfo,
       recentlyActive: RecentlyActive,
