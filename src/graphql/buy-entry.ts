@@ -44,6 +44,10 @@ const buyEntry = {
     // fetch price from offer
     if (credits >= total) {
       // // send payment from buyer to owner of entry
+      console.log('dest', userSeed);
+      console.log('amount', amount);
+      console.log('price', price / amount);
+      console.log('asset', assetCode);
       try {
         let transactionRecord = await manageBuyOffer(
           userSeed,
