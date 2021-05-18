@@ -156,6 +156,11 @@ export async function manageBuyOffer(
   price: number,
   assetCode: string
 ) {
+  console.log('dest', destinationSeed);
+  console.log('amount', amount);
+  console.log('price', price);
+  console.log('asset', assetCode);
+
   const destinationKeys = StellarSdk.Keypair.fromSecret(destinationSeed);
   const account = await stellarServer.loadAccount(sourceKeys.publicKey());
   const newAsset = new StellarSdk.Asset(assetCode, sourceKeys.publicKey());
