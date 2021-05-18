@@ -171,6 +171,22 @@ export async function manageBuyOffer(
       })
     )
     .addOperation(
+      StellarSdk.Operation.changeTrust({
+        asset: newAsset,
+        source: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.endSponsoringFutureReserves({
+        source: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
+      StellarSdk.Operation.beginSponsoringFutureReserves({
+        sponsoredId: destinationKeys.publicKey(),
+      })
+    )
+    .addOperation(
       StellarSdk.Operation.manageBuyOffer({
         selling: asset,
         buying: newAsset,
