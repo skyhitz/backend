@@ -9,7 +9,7 @@ export async function checkOrCreateTestAccount() {
     console.log('test account not active, create and fund a new test account');
     return;
   }
-  console.log('account exists and has funds');
+  console.log('account exists and has funds: ', sourceKeys.publicKey());
 }
 
 checkOrCreateTestAccount();

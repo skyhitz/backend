@@ -18,7 +18,7 @@ function deleteFromCloudinary(cloudinaryPublicId: string) {
           reject();
           return;
         }
-        resolve();
+        resolve(true);
         return;
       }
     );
@@ -63,17 +63,9 @@ const removeEntry = {
       return deleteAccount(entry, cloudinaryPublicId);
     }
 
-    try {
-      const result = getAll(`owners:entries:${id}`);
-      const [ownerId] = Object.keys(result);
-      if (user.id !== ownerId) {
-        return false;
-      }
-    } catch (e) {
-      return false;
-    }
+    // give permision if user is owner
 
-    return deleteAccount(entry, cloudinaryPublicId);
+    return false;
   },
 };
 

@@ -8,22 +8,48 @@ import Entry from './types/entry';
 import { getAuthenticatedUser } from '../auth/logic';
 import { entriesIndex } from '../algolia/algolia';
 import { checkIfEntryOwnerHasStripeAccount } from '../payments/subscription';
-import { redisClient } from '../redis';
+import { issueAssetAndOpenSellOffer } from '../payments/stellar';
+import { scard, redisClient } from '../redis';
 
 async function checkPaymentsAccount(forSale: boolean, email: string) {
   if (forSale) {
     try {
-      await checkIfEntryOwnerHasStripeAccount(email);
+      return await checkIfEntryOwnerHasStripeAccount(email);
     } catch (e) {
       console.log(e);
       throw 'could not check if entry owner has stripe account';
     }
-    return;
   }
   return;
 }
 
-async function setEntry(entry, testing, userId) {
+async function mapAssetIdToEntryId(entry, testing, assetCode) {
+  let key = testing ? 'testing:all-assets' : 'all-assets';
+
+  return new Promise((resolve, reject) => {
+    redisClient
+      .multi()
+      .hmset(`assets:entry:${entry.id}`, assetCode, 1)
+      .hmset(`assets:code:${assetCode}`, entry.id, 1)
+      .sadd(`${key}`, assetCode)
+      .exec((err) => {
+        if (err) {
+          console.log(err);
+          return reject();
+        }
+        return resolve(true);
+      });
+  });
+}
+
+function generateAssetCode(totalEntries) {
+  const res = 10000000000 + totalEntries;
+  const newStr = res.toString().substring(1);
+
+  return `SK${newStr}`;
+}
+
+async function setEntry(entry, testing): Promise<number> {
   let key = testing ? 'testing:all-entries' : 'all-entries';
 
   return new Promise((resolve, reject) => {
@@ -53,18 +79,19 @@ async function setEntry(entry, testing, userId) {
         parseInt(entry.price),
         'forSale',
         entry.forSale,
+        'equityForSale',
+        parseInt(entry.equityForSale),
         'artist',
         entry.artist
       )
       .sadd(`${key}`, entry.id)
-      .hmset(`owners:entry:${entry.id}`, userId, 1)
-      .hmset(`owners:user:${userId}`, entry.id, 1)
-      .exec((err) => {
+      .exec(async (err) => {
         if (err) {
           console.log(err);
           return reject();
         }
-        return resolve(true);
+        const totalEntries = await scard(key);
+        return resolve(totalEntries);
       });
   });
 }
@@ -99,6 +126,9 @@ const createEntry = {
     price: {
       type: new GraphQLNonNull(GraphQLInt),
     },
+    equityForSale: {
+      type: new GraphQLNonNull(GraphQLInt),
+    },
   },
   async resolve(_: any, args: any, ctx: any) {
     let user = await getAuthenticatedUser(ctx);
@@ -112,6 +142,7 @@ const createEntry = {
       id,
       forSale,
       price,
+      equityForSale,
     } = args;
     let entry = {
       id: id,
@@ -125,19 +156,35 @@ const createEntry = {
       publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
       forSale: forSale,
       price: price,
+      equityForSale: equityForSale,
     };
 
-    await setEntry(entry, user.testing === 'true', user.id);
+    const testing = user.testing === 'true';
 
     let entryIndex: any = entry;
     entryIndex.userDisplayName = user.displayName;
     entryIndex.userUsername = user.username;
     entryIndex.objectID = id;
-    entryIndex.testing = user.testing === 'true';
-    [
+    entryIndex.testing = testing;
+
+    const [totalEntries, , { publicAddress, seed }] = [
+      await setEntry(entry, testing),
       await entriesIndex.addObject(entryIndex),
       await checkPaymentsAccount(entry.forSale, user.email),
     ];
+
+    // create offer to sale for equity percentage. Match asset id with entry id
+    if (publicAddress && forSale) {
+      const assetCode = generateAssetCode(totalEntries);
+      await issueAssetAndOpenSellOffer(
+        seed,
+        assetCode,
+        equityForSale,
+        price / equityForSale
+      );
+      await mapAssetIdToEntryId(entry, testing, assetCode);
+    }
+
     return entry;
   },
 };
