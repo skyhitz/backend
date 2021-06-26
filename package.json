@@ -36,8 +36,7 @@
     "node-fetch": "^1.6.3",
     "redis": "^3.0.2",
     "stellar-sdk": "7.0.0",
-    "stripe": "8.90.0",
-    "youtube-video-api": "^0.3.7"
+    "stripe": "8.90.0"
   },
   "devDependencies": {
     "@vercel/node": "^1.8.1",
