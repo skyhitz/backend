@@ -2,7 +2,6 @@ import { GraphQLString, GraphQLBoolean, GraphQLNonNull } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { entriesIndex } from '../algolia/algolia';
 import { cloudinary } from '../cloudinary/cloudinary';
-import { deleteVideoFromYoutube } from '../youtube/youtube-upload';
 import { getAll, hdel } from '../redis';
 const adminId = '-LbM3m6WKdVQAsY3zrAd';
 
@@ -32,7 +31,6 @@ async function deleteAccount(entry: any, cloudinaryPublicId: any) {
       await hdel(`entries:${entry.id}`),
       await entriesIndex.deleteObject(entry.id),
       await deleteFromCloudinary(cloudinaryPublicId),
-      await deleteVideoFromYoutube(entry.youtubeId),
     ];
   } catch (e) {
     console.log('error deleting entry:', e);
