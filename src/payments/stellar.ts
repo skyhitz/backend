@@ -4,19 +4,8 @@ export const BASE_FEE = '102';
 export const stellarServer = new StellarSdkLibrary.Server(Config.HORIZON_URL);
 export const StellarSdk = StellarSdkLibrary;
 export const sourceKeys = StellarSdk.Keypair.fromSecret(Config.ISSUER_SEED);
-let assetCode;
-let asset;
-
-if (Config.ENV === 'production') {
-  assetCode = 'USD';
-  asset = new StellarSdk.Asset(
-    'USD',
-    'GDUKMGUGDZQK6YHYA5Z6AY2G4XDSZPSZ3SW5UN3ARVMO6QSRDWP5YLEX'
-  );
-} else {
-  assetCode = 'USDTEST';
-  asset = new StellarSdk.Asset(assetCode, sourceKeys.publicKey());
-}
+let assetCode = 'SKYHITZ';
+let asset = new StellarSdk.Asset(assetCode, sourceKeys.publicKey());
 
 const XLM = StellarSdk.Asset.native();
 
@@ -461,16 +450,6 @@ export async function getAsks(assetCode) {
   const newAsset = new StellarSdk.Asset(assetCode, sourceKeys.publicKey());
   let response = await stellarServer.orderbook(newAsset, asset).call();
   return response.asks[0];
-}
-
-export async function convertUSDtoXLM(USDAmount: number) {
-  if (Config.ENV === 'production') {
-    const currentPrice = await getUSDPrice();
-    const XLMAmount = USDAmount * parseInt(currentPrice);
-    return XLMAmount;
-  }
-  // using 12.5 cents as reference
-  return USDAmount * 12.5;
 }
 
 export async function withdrawalFromAccount(seed: string, amount: number) {
