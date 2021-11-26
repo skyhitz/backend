@@ -20,7 +20,6 @@ import UpdateUser from './update-user';
 import RemoveEntry from './remove-entry';
 import WithdrawToExternalWallet from './withdraw-to-external-wallet';
 import UpdatePricing from './update-pricing';
-import YoutubeUpload from './youtube-upload';
 import EntryPrice from './get-entry-price';
 
 const Query = new GraphQLObjectType({
@@ -59,7 +58,6 @@ const Mutation = new GraphQLObjectType({
       updateUser: UpdateUser,
       updatePricing: UpdatePricing,
       withdrawToExternalWallet: WithdrawToExternalWallet,
-      youtubeUpload: YoutubeUpload,
     };
   },
 });
