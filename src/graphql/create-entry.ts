@@ -73,8 +73,6 @@ async function setEntry(entry, testing): Promise<number> {
         entry.publishedAt,
         'publishedAtTimestamp',
         parseInt(entry.publishedAtTimestamp),
-        'youtubeId',
-        '',
         'price',
         parseInt(entry.price),
         'forSale',
