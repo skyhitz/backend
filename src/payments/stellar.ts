@@ -452,16 +452,6 @@ export async function getAsks(assetCode) {
   return response.asks[0];
 }
 
-export async function convertUSDtoXLM(USDAmount: number) {
-  if (Config.ENV === 'production') {
-    const currentPrice = await getUSDPrice();
-    const XLMAmount = USDAmount * parseInt(currentPrice);
-    return XLMAmount;
-  }
-  // using 12.5 cents as reference
-  return USDAmount * 12.5;
-}
-
 export async function withdrawalFromAccount(seed: string, amount: number) {
   const sourceKeypair = StellarSdk.Keypair.fromSecret(seed);
   const sourcePublicKey = sourceKeypair.publicKey();
