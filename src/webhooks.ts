@@ -119,6 +119,10 @@ async function onChargeSucceeded({ object }: any, response) {
   let amountInDollars = amountWithDiscountedTransactionFees / 100;
   let totalAmount = amountInDollars.toFixed(6).toString();
 
+  if (!publicAddress) {
+    return response.send(200);
+  }
+
   await sendSubscriptionTokens(publicAddress, totalAmount);
   if (pendingCharge) {
     await cleanPendingChargeMetadata(id);

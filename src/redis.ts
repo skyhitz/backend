@@ -95,8 +95,6 @@ export function updateEntry(entry) {
         entry.publishedAt,
         'publishedAtTimestamp',
         parseInt(entry.publishedAtTimestamp),
-        'youtubeId',
-        entry.youtubeId,
         'price',
         parseInt(entry.price),
         'forSale',

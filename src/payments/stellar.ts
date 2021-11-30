@@ -4,19 +4,8 @@ export const BASE_FEE = '102';
 export const stellarServer = new StellarSdkLibrary.Server(Config.HORIZON_URL);
 export const StellarSdk = StellarSdkLibrary;
 export const sourceKeys = StellarSdk.Keypair.fromSecret(Config.ISSUER_SEED);
-let assetCode;
-let asset;
-
-if (Config.ENV === 'production') {
-  assetCode = 'USD';
-  asset = new StellarSdk.Asset(
-    'USD',
-    'GDUKMGUGDZQK6YHYA5Z6AY2G4XDSZPSZ3SW5UN3ARVMO6QSRDWP5YLEX'
-  );
-} else {
-  assetCode = 'USDTEST';
-  asset = new StellarSdk.Asset(assetCode, sourceKeys.publicKey());
-}
+let assetCode = 'SKYHITZ';
+let asset = new StellarSdk.Asset(assetCode, sourceKeys.publicKey());
 
 const XLM = StellarSdk.Asset.native();
 
