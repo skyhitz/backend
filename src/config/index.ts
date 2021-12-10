@@ -22,4 +22,6 @@ export const Config: IConfig = {
   UNIVERSAL_LINK_SCHEME: process.env.UNIVERSAL_LINK_SCHEME || '',
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '',
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',
+  PINATA_API_KEY: process.env.PINATA_API_KEY || '',
+  PINATA_API_SECRET: process.env.PINATA_API_SECRET || '',
 };

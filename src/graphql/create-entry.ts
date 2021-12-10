@@ -4,12 +4,15 @@ import {
   GraphQLBoolean,
   GraphQLInt,
 } from 'graphql';
+import { GraphQLUpload } from 'graphql-upload';
+
 import Entry from './types/entry';
 import { getAuthenticatedUser } from '../auth/logic';
 import { entriesIndex } from '../algolia/algolia';
 import { checkIfEntryOwnerHasStripeAccount } from '../payments/subscription';
 import { issueAssetAndOpenSellOffer } from '../payments/stellar';
 import { scard, redisClient } from '../redis';
+import { buildNFT } from '../ipfs/storage';
 
 async function checkPaymentsAccount(forSale: boolean, email: string) {
   if (forSale) {
@@ -97,11 +100,11 @@ async function setEntry(entry, testing): Promise<number> {
 const createEntry = {
   type: Entry,
   args: {
-    etag: {
-      type: new GraphQLNonNull(GraphQLString),
+    image: {
+      type: new GraphQLNonNull(GraphQLUpload),
     },
-    imageUrl: {
-      type: new GraphQLNonNull(GraphQLString),
+    video: {
+      type: new GraphQLNonNull(GraphQLUpload),
     },
     description: {
       type: new GraphQLNonNull(GraphQLString),
@@ -110,9 +113,6 @@ const createEntry = {
       type: new GraphQLNonNull(GraphQLString),
     },
     artist: {
-      type: new GraphQLNonNull(GraphQLString),
-    },
-    videoUrl: {
       type: new GraphQLNonNull(GraphQLString),
     },
     id: {
@@ -128,28 +128,63 @@ const createEntry = {
       type: new GraphQLNonNull(GraphQLInt),
     },
   },
-  async resolve(_: any, args: any, ctx: any) {
-    let user = await getAuthenticatedUser(ctx);
-    let {
-      etag,
-      imageUrl,
+  async resolve(
+    _: any,
+    {
+      image,
+      video,
       description,
       title,
       artist,
-      videoUrl,
       id,
       forSale,
       price,
       equityForSale,
-    } = args;
+    }: any,
+    ctx: any
+  ) {
+    let user = await getAuthenticatedUser(ctx);
+
+    const [
+      { mimetype: videoMimetype, createReadStream: videoCreateReadStream },
+      { mimetype: imgMimetype, createReadStream: imgCreateReadStream },
+    ] = [await video, await image];
+
+    const name = `${artist} - ${title}`;
+
+    const {
+      code,
+      issuer,
+      xdr,
+      image: imageIpfs,
+      video: videoIpfs,
+    } = await buildNFT(
+      '',
+      {
+        name: name,
+        description: description,
+        code: `${title}${artist}`
+          .normalize('NFD')
+          .replace(/\p{Diacritic}/gu, '')
+          .replace(/ /g, '')
+          .replace(/-/g, '')
+          .replace(/[^0-9a-z]/gi, '')
+          .substr(0, 12)
+          .toUpperCase(),
+        domain: 'skyhitz.io',
+        supply: 1,
+      },
+      { imgMimetype, imgCreateReadStream },
+      { videoMimetype, videoCreateReadStream }
+    );
+
     let entry = {
       id: id,
-      etag: etag,
-      imageUrl: imageUrl,
+      imageUrl: imageIpfs,
       description: description,
       title: title,
       artist: artist,
-      videoUrl: videoUrl,
+      videoUrl: videoIpfs,
       publishedAt: new Date().toISOString(),
       publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
       forSale: forSale,
