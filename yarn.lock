@@ -3544,10 +3544,10 @@ stellar-base@^4.0.0:
   optionalDependencies:
     sodium-native "^2.3.0"
 
-stellar-nft.storage@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/stellar-nft.storage/-/stellar-nft.storage-1.5.0.tgz#08570c483998ce497835672f57a2d95297467678"
-  integrity sha512-L92M/WDciDy0jwRrUMYDSv1o61tKN1eujQHve4yNRunTgqv2XQlIISHtzikKoS3mnUm7el0RDGrNdm+Thr0ojQ==
+stellar-nft.storage@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/stellar-nft.storage/-/stellar-nft.storage-1.5.1.tgz#6ce5feb72977d53b57f1a42300f867ffa6fb31c5"
+  integrity sha512-84UgrU65mpgoTRCdmOahjTydA7DU3AzCOLyoty1Jp0YU0EV5QqbR61oBLX9hP3Wni02c7rrZT9cadh2X4YD2AA==
   dependencies:
     "@types/node" "12.12.11"
     "@types/stellar-base" "0.13.4"

@@ -73,70 +73,33 @@ export async function createAndFundAccount() {
   };
 }
 
-export async function issueAssetAndOpenSellOffer(
-  destinationSeed: string,
-  assetCode: string,
+export async function openSellOffer(
+  transaction,
+  issuerKey,
+  code: string,
+  publicAddress: string,
   amount: number,
   price: number
 ) {
-  const limitOfShares = '100';
-  const newAsset = new StellarSdk.Asset(assetCode, sourceKeys.publicKey());
-  const destinationKeys = StellarSdk.Keypair.fromSecret(destinationSeed);
-  const account = await stellarServer.loadAccount(sourceKeys.publicKey());
-  const transaction = new StellarSdk.TransactionBuilder(account, {
-    fee: BASE_FEE,
-    networkPassphrase: NETWORK_PASSPHRASE,
-  })
-    .addOperation(
-      StellarSdk.Operation.beginSponsoringFutureReserves({
-        sponsoredId: destinationKeys.publicKey(),
-      })
-    )
-    .addOperation(
-      StellarSdk.Operation.changeTrust({
-        asset: newAsset,
-        limit: limitOfShares,
-        source: destinationKeys.publicKey(),
-      })
-    )
-    .addOperation(
-      StellarSdk.Operation.endSponsoringFutureReserves({
-        source: destinationKeys.publicKey(),
-      })
-    )
-    .addOperation(
-      StellarSdk.Operation.payment({
-        destination: destinationKeys.publicKey(),
-        asset: newAsset,
-        amount: limitOfShares,
-      })
-    )
-    .addOperation(
-      StellarSdk.Operation.beginSponsoringFutureReserves({
-        sponsoredId: destinationKeys.publicKey(),
-      })
-    )
+  const newAsset = new StellarSdk.Asset(code, issuerKey.publicKey());
+  transaction
     .addOperation(
       StellarSdk.Operation.manageSellOffer({
         selling: newAsset,
-        buying: asset,
+        buying: XLM,
         amount: amount.toString(),
         price: price.toString(),
-        source: destinationKeys.publicKey(),
+        source: publicAddress,
         offerId: 0,
-      })
-    )
-    .addOperation(
-      StellarSdk.Operation.endSponsoringFutureReserves({
-        source: destinationKeys.publicKey(),
       })
     )
     .setTimeout(0)
     .build();
 
-  transaction.sign(sourceKeys, destinationKeys);
-  let transactionResult = await stellarServer.submitTransaction(transaction);
-  return transactionResult;
+  transaction.sign(issuerKey.secret());
+
+  const xdr = transaction.toEnvelope().toXDR('base64');
+  return xdr;
 }
 
 export async function manageBuyOffer(
