@@ -4,24 +4,27 @@ import {
   GraphQLBoolean,
   GraphQLInt,
 } from 'graphql';
-import Entry from './types/entry';
+import { GraphQLUpload } from 'graphql-upload';
+
 import { getAuthenticatedUser } from '../auth/logic';
 import { entriesIndex } from '../algolia/algolia';
-import { checkIfEntryOwnerHasStripeAccount } from '../payments/subscription';
-import { issueAssetAndOpenSellOffer } from '../payments/stellar';
+// import { checkIfEntryOwnerHasStripeAccount } from '../payments/subscription';
+import { openSellOffer } from '../payments/stellar';
 import { scard, redisClient } from '../redis';
+import { buildNFT } from '../ipfs/storage';
+import XDR from './types/xdr';
 
-async function checkPaymentsAccount(forSale: boolean, email: string) {
-  if (forSale) {
-    try {
-      return await checkIfEntryOwnerHasStripeAccount(email);
-    } catch (e) {
-      console.log(e);
-      throw 'could not check if entry owner has stripe account';
-    }
-  }
-  return;
-}
+// async function checkPaymentsAccount(forSale: boolean, email: string) {
+//   if (forSale) {
+//     try {
+//       return await checkIfEntryOwnerHasStripeAccount(email);
+//     } catch (e) {
+//       console.log(e);
+//       throw 'could not check if entry owner has stripe account';
+//     }
+//   }
+//   return;
+// }
 
 async function mapAssetIdToEntryId(entry, testing, assetCode) {
   let key = testing ? 'testing:all-assets' : 'all-assets';
@@ -40,13 +43,6 @@ async function mapAssetIdToEntryId(entry, testing, assetCode) {
         return resolve(true);
       });
   });
-}
-
-function generateAssetCode(totalEntries) {
-  const res = 10000000000 + totalEntries;
-  const newStr = res.toString().substring(1);
-
-  return `SK${newStr}`;
 }
 
 async function setEntry(entry, testing): Promise<number> {
@@ -95,13 +91,16 @@ async function setEntry(entry, testing): Promise<number> {
 }
 
 const createEntry = {
-  type: Entry,
+  type: XDR,
   args: {
-    etag: {
+    publicAddress: {
       type: new GraphQLNonNull(GraphQLString),
     },
-    imageUrl: {
-      type: new GraphQLNonNull(GraphQLString),
+    image: {
+      type: new GraphQLNonNull(GraphQLUpload),
+    },
+    video: {
+      type: new GraphQLNonNull(GraphQLUpload),
     },
     description: {
       type: new GraphQLNonNull(GraphQLString),
@@ -110,9 +109,6 @@ const createEntry = {
       type: new GraphQLNonNull(GraphQLString),
     },
     artist: {
-      type: new GraphQLNonNull(GraphQLString),
-    },
-    videoUrl: {
       type: new GraphQLNonNull(GraphQLString),
     },
     id: {
@@ -128,33 +124,72 @@ const createEntry = {
       type: new GraphQLNonNull(GraphQLInt),
     },
   },
-  async resolve(_: any, args: any, ctx: any) {
-    let user = await getAuthenticatedUser(ctx);
-    let {
-      etag,
-      imageUrl,
+  async resolve(
+    _: any,
+    {
+      publicAddress,
+      image,
+      video,
       description,
       title,
       artist,
-      videoUrl,
       id,
       forSale,
       price,
       equityForSale,
-    } = args;
+    }: any,
+    ctx: any
+  ) {
+    let user = await getAuthenticatedUser(ctx);
+
+    const [
+      { mimetype: videoMimetype, createReadStream: videoCreateReadStream },
+      { mimetype: imgMimetype, createReadStream: imgCreateReadStream },
+    ] = [await video, await image];
+
+    const name = `${artist} - ${title}`;
+
+    const {
+      code,
+      transaction,
+      xdr,
+      issuerKey,
+      image: imageIpfs,
+      video: videoIpfs,
+    } = await buildNFT(
+      publicAddress,
+      {
+        name: name,
+        description: description,
+        code: `${title}${artist}`
+          .normalize('NFD')
+          .replace(/\p{Diacritic}/gu, '')
+          .replace(/ /g, '')
+          .replace(/-/g, '')
+          .replace(/[^0-9a-z]/gi, '')
+          .substr(0, 12)
+          .toUpperCase(),
+        domain: 'skyhitz.io',
+        supply: 1,
+      },
+      { imgMimetype, imgCreateReadStream },
+      { videoMimetype, videoCreateReadStream }
+    );
+
     let entry = {
       id: id,
-      etag: etag,
-      imageUrl: imageUrl,
+      imageUrl: imageIpfs,
       description: description,
       title: title,
       artist: artist,
-      videoUrl: videoUrl,
+      videoUrl: videoIpfs,
       publishedAt: new Date().toISOString(),
       publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
       forSale: forSale,
       price: price,
       equityForSale: equityForSale,
+      code: code,
+      issuer: issuerKey.publicKey(),
     };
 
     const testing = user.testing === 'true';
@@ -165,25 +200,27 @@ const createEntry = {
     entryIndex.objectID = id;
     entryIndex.testing = testing;
 
-    const [totalEntries, , { publicAddress, seed }] = [
+    await Promise.all([
       await setEntry(entry, testing),
       await entriesIndex.addObject(entryIndex),
-      await checkPaymentsAccount(entry.forSale, user.email),
-    ];
+      // await checkPaymentsAccount(entry.forSale, user.email),
+    ]);
 
     // create offer to sale for equity percentage. Match asset id with entry id
     if (publicAddress && forSale) {
-      const assetCode = generateAssetCode(totalEntries);
-      await issueAssetAndOpenSellOffer(
-        seed,
-        assetCode,
+      const sellXdr = await openSellOffer(
+        transaction,
+        issuerKey,
+        code,
+        publicAddress,
         equityForSale,
         price / equityForSale
       );
-      await mapAssetIdToEntryId(entry, testing, assetCode);
+      await mapAssetIdToEntryId(entry, testing, code);
+      return sellXdr;
     }
 
-    return entry;
+    return xdr;
   },
 };
 

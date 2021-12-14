@@ -31,10 +31,12 @@
     "express-jwt": "^5.3.0",
     "graphiql": "^0.9.3",
     "graphql": "^0.9.3",
+    "graphql-upload": "^12.0.0",
     "jsonwebtoken": "^8.1.0",
     "memory-cache": "^0.2.0",
     "node-fetch": "^1.6.3",
     "redis": "^3.0.2",
+    "stellar-nft.storage": "^1.5.1",
     "stellar-sdk": "7.0.0",
     "stripe": "8.90.0"
   },

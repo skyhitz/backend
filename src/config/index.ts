@@ -22,4 +22,5 @@ export const Config: IConfig = {
   UNIVERSAL_LINK_SCHEME: process.env.UNIVERSAL_LINK_SCHEME || '',
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '',
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',
+  NFT_STORAGE_API_KEY: process.env.NFT_STORAGE_API_KEY || '',
 };
