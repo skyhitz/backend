@@ -36,8 +36,8 @@
     "memory-cache": "^0.2.0",
     "node-fetch": "^1.6.3",
     "redis": "^3.0.2",
-    "stellar-nft.storage": "^1.5.3",
-    "stellar-sdk": "7.0.0",
+    "stellar-nft.storage": "^1.5.5",
+    "stellar-base": "stellar/js-stellar-base#upgrade-nacl",
     "stripe": "8.90.0"
   },
   "devDependencies": {
