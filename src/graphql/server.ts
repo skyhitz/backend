@@ -9,7 +9,6 @@ const RedisStore = require('../passwordless/store');
 
 import passwordless from '../passwordless/passwordless';
 import { stripeWebhook } from '../webhooks';
-import { corsOptions } from '../cors';
 import { getAll } from '../redis';
 
 let cors = require('cors');
@@ -55,8 +54,8 @@ passwordless.init(new RedisStore());
 const setupGraphQLServer = () => {
   const graphQLServer = express();
 
-  graphQLServer.options('*', cors(corsOptions));
-  graphQLServer.use(cors(corsOptions));
+  graphQLServer.options('*', cors());
+  graphQLServer.use(cors());
 
   graphQLServer.use(
     '/api/graphql',
