@@ -1,5 +1,5 @@
-import { storeIpfsBuildTx } from 'stellar-nft.storage';
-import { NFTPayload } from 'stellar-nft.storage/src/types';
+import { storeIpfsBuildTx } from './index';
+import { NFTPayload } from './types';
 
 export async function getBufferFromStream(createReadStream): Promise<Buffer> {
   const stream = createReadStream();

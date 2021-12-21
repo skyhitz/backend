@@ -5,6 +5,7 @@
   "author": "Alejo Mendoza",
   "license": "MIT",
   "scripts": {
+    "y:install": "yarn --ignore-optional",
     "dev": "NODE_ENV=development node -r ts-node/register --inspect ./src/graphql/server.ts",
     "prod": "NODE_ENV=production node -r ts-node/register --inspect ./src/graphql/server.ts",
     "stellar:check-test-account": "node -r ts-node/register ./src/testing/verify-stellar-test-account.ts"
@@ -20,6 +21,7 @@
     "algoliasearch": "^3.32.0",
     "apollo-server-express": "^1.1.2",
     "async": "^3.2.0",
+    "axios": "0.24.0",
     "bcrypt": "4.0.1",
     "bs58": "^4.0.1",
     "cloudinary": "^1.13.2",
@@ -34,10 +36,10 @@
     "graphql-upload": "^12.0.0",
     "jsonwebtoken": "^8.1.0",
     "memory-cache": "^0.2.0",
+    "nft.storage": "5.0.0",
     "node-fetch": "^1.6.3",
     "redis": "^3.0.2",
-    "stellar-nft.storage": "^1.5.5",
-    "stellar-base": "stellar/js-stellar-base#upgrade-nacl",
+    "stellar-base": "^6.0.6",
     "stripe": "8.90.0"
   },
   "devDependencies": {

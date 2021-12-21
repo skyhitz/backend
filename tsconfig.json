@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
+    "lib": ["ESNext"],
     "sourceMap": true,
     "noUnusedLocals": true,
     "esModuleInterop": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "target": "es2015",
+    "target": "ESNext",
     "jsx": "react",
     "experimentalDecorators": true,
     "typeRoots": ["./node_modules/@types/**/*.d.ts"],
