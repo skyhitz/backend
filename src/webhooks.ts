@@ -114,7 +114,9 @@ async function onCustomerUpdated(
 async function onChargeSucceeded({ object }: any, response) {
   const { receipt_email, amount } = object;
   console.log('receipt', receipt_email);
-  const { metadata, id } = await findCustomer(receipt_email);
+  const customer = await findCustomer(receipt_email);
+  console.log('customer', customer);
+  const { metadata, id } = customer;
   const { publicAddress, pendingCharge, subscribe } = metadata;
   let amountWithDiscountedTransactionFees = amount * (100 / 103);
   let amountInDollars = amountWithDiscountedTransactionFees / 100;
