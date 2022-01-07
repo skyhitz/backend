@@ -7,7 +7,7 @@ import {
   AuthImmutableFlag,
   Account,
   BASE_FEE,
-} from 'stellar-base';
+} from 'skyhitz-stellar-base';
 import { NFTStorage, File } from 'nft.storage';
 import { NFTMetadata, NFTPayload } from './types';
 import { getConfig, getAccount } from './utils';

@@ -8,7 +8,7 @@ import {
   Networks,
   Transaction,
   BASE_FEE,
-} from 'stellar-base';
+} from 'skyhitz-stellar-base';
 import { Config } from '../config';
 export const sourceKeys = Keypair.fromSecret(Config.ISSUER_SEED);
 const assetCode = 'SKYHITZ';

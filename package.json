@@ -38,7 +38,7 @@
     "nft.storage": "5.0.0",
     "node-fetch": "^1.6.3",
     "redis": "^3.0.2",
-    "stellar-base": "stellar/js-stellar-base#upgrade-nacl",
+    "skyhitz-stellar-base": "^6.0.6",
     "stripe": "8.90.0"
   },
   "devDependencies": {
