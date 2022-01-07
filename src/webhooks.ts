@@ -112,6 +112,8 @@ async function onCustomerUpdated(
 }
 
 async function onChargeSucceeded({ object }: any, response) {
+  console.log('object', object);
+
   const { receipt_email, amount } = object;
   console.log('receipt', receipt_email);
   const customer = await findCustomer(receipt_email);
