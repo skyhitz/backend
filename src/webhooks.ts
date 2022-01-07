@@ -7,6 +7,7 @@ import {
   startSubscription,
   cleanPendingChargeMetadata,
   cleanSubscriptionMetadata,
+  findCustomerById,
 } from './payments/stripe';
 import {
   sendSubscriptionTokens,
@@ -112,13 +113,11 @@ async function onCustomerUpdated(
 }
 
 async function onChargeSucceeded({ object }: any, response) {
-  console.log('object', object);
+  console.log('charge: ', object);
 
-  const { receipt_email, amount } = object;
-  console.log('receipt', receipt_email);
-  const customer = await findCustomer(receipt_email);
-  console.log('customer', customer);
-  const { metadata, id } = customer;
+  const { customer, amount } = object;
+  const { metadata, id }: any = await findCustomerById(customer);
+  console.log('id: ', id);
   const { publicAddress, pendingCharge, subscribe } = metadata;
   let amountWithDiscountedTransactionFees = amount * (100 / 103);
   let amountInDollars = amountWithDiscountedTransactionFees / 100;

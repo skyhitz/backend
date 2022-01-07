@@ -134,6 +134,10 @@ export async function createCustomerWithEmail(
   });
 }
 
+export async function findCustomerById(id: string) {
+  return await stripe.customers.retrieve(id);
+}
+
 export async function findCustomer(email: string) {
   let match = await stripe.customers.list({
     limit: 1,
