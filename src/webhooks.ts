@@ -113,11 +113,8 @@ async function onCustomerUpdated(
 }
 
 async function onChargeSucceeded({ object }: any, response) {
-  console.log('charge: ', object);
-
   const { customer, amount } = object;
   const { metadata, id }: any = await findCustomerById(customer);
-  console.log('id: ', id);
   const { publicAddress, pendingCharge, subscribe } = metadata;
   let amountWithDiscountedTransactionFees = amount * (100 / 103);
   let amountInDollars = amountWithDiscountedTransactionFees / 100;
