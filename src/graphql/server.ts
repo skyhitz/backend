@@ -77,8 +77,8 @@ const setupGraphQLServer = () => {
       credentialsRequired: false,
     }),
     bodyParser.urlencoded({ extended: false }),
-    graphqlExpress(buildOptions),
-    graphqlUploadExpress({ maxFileSize: 100000000, maxFiles: 2 })
+    graphqlUploadExpress({ maxFileSize: 100000000, maxFiles: 2 }),
+    graphqlExpress(buildOptions)
   );
 
   stripeWebhook(graphQLServer);
