@@ -4,6 +4,7 @@ import { Schema } from './schema';
 import { Config } from '../config';
 import jwt from 'express-jwt';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
+import { graphqlUploadExpress } from 'graphql-upload';
 const compression = require('compression');
 const RedisStore = require('../passwordless/store');
 
@@ -76,7 +77,8 @@ const setupGraphQLServer = () => {
       credentialsRequired: false,
     }),
     bodyParser.urlencoded({ extended: false }),
-    graphqlExpress(buildOptions)
+    graphqlExpress(buildOptions),
+    graphqlUploadExpress({ maxFileSize: 100000000, maxFiles: 2 })
   );
 
   stripeWebhook(graphQLServer);
