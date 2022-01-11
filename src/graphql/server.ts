@@ -1,5 +1,4 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import { Schema } from './schema';
 import { Config } from '../config';
 import jwt from 'express-jwt';
@@ -68,7 +67,7 @@ const setupGraphQLServer = () => {
       if (req.originalUrl === '/api/stripe-webhooks') {
         next();
       } else {
-        bodyParser.json()(req, res, next);
+        express.json({ limit: '100mb' })(req, res, next);
       }
     },
     compression(),
@@ -76,7 +75,7 @@ const setupGraphQLServer = () => {
       secret: Config.JWT_SECRET,
       credentialsRequired: false,
     }),
-    bodyParser.urlencoded({ extended: false }),
+    express.urlencoded({ extended: false, limit: '100mb' }),
     graphqlUploadExpress({ maxFileSize: 100000000, maxFiles: 2 }),
     graphqlExpress(buildOptions)
   );

@@ -16,12 +16,11 @@ import {
 } from './payments/stellar';
 import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
-import bodyParser from 'body-parser';
 
 export function stripeWebhook(graphQLServer) {
   graphQLServer.post(
     '/api/stripe-webhooks',
-    bodyParser.raw({ type: 'application/json' }),
+    express.raw({ type: 'application/json' }),
     (request: express.Request, response: express.Response) => {
       let sig = request.headers['stripe-signature'];
 
