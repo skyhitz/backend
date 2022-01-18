@@ -4,15 +4,15 @@ import {
   GraphQLBoolean,
   GraphQLInt,
 } from 'graphql';
-import { GraphQLUpload } from 'graphql-upload';
 
 import { getAuthenticatedUser } from '../auth/logic';
 import { entriesIndex } from '../algolia/algolia';
 // import { checkIfEntryOwnerHasStripeAccount } from '../payments/subscription';
 import { openSellOffer } from '../payments/stellar';
-import { scard, redisClient } from '../redis';
-import { buildNFT } from '../ipfs/storage';
+import { scard, redisClient, getAll } from '../redis';
+import { buildNFTTransaction } from '../ipfs/index';
 import XDR from './types/xdr';
+import { Keypair } from 'skyhitz-stellar-base';
 
 // async function checkPaymentsAccount(forSale: boolean, email: string) {
 //   if (forSale) {
@@ -93,14 +93,17 @@ async function setEntry(entry, testing): Promise<number> {
 const createEntry = {
   type: XDR,
   args: {
-    publicAddress: {
+    cid: {
       type: new GraphQLNonNull(GraphQLString),
     },
-    image: {
-      type: new GraphQLNonNull(GraphQLUpload),
+    imageCid: {
+      type: new GraphQLNonNull(GraphQLString),
     },
-    video: {
-      type: new GraphQLNonNull(GraphQLUpload),
+    videoCid: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
+    code: {
+      type: new GraphQLNonNull(GraphQLString),
     },
     description: {
       type: new GraphQLNonNull(GraphQLString),
@@ -109,9 +112,6 @@ const createEntry = {
       type: new GraphQLNonNull(GraphQLString),
     },
     artist: {
-      type: new GraphQLNonNull(GraphQLString),
-    },
-    id: {
       type: new GraphQLNonNull(GraphQLString),
     },
     forSale: {
@@ -127,9 +127,10 @@ const createEntry = {
   async resolve(
     _: any,
     {
-      publicAddress,
-      image,
-      video,
+      cid,
+      imageCid,
+      videoCid,
+      code,
       description,
       title,
       artist,
@@ -142,47 +143,27 @@ const createEntry = {
   ) {
     let user = await getAuthenticatedUser(ctx);
 
-    const [
-      { mimetype: videoMimetype, createReadStream: videoCreateReadStream },
-      { mimetype: imgMimetype, createReadStream: imgCreateReadStream },
-    ] = [await video, await image];
+    const issuer = await getAll(`issuer:${user.id}`);
+    if (!issuer) {
+      throw 'issuer not set';
+    }
+    const issuerKey = Keypair.fromSecret(issuer.seed);
 
-    const name = `${artist} - ${title}`;
-
-    const {
-      code,
-      transaction,
-      xdr,
+    const { transaction, xdr } = await buildNFTTransaction(
+      user.pk,
       issuerKey,
-      image: imageIpfs,
-      video: videoIpfs,
-    } = await buildNFT(
-      publicAddress,
-      {
-        name: name,
-        description: description,
-        code: `${title}${artist}`
-          .normalize('NFD')
-          .replace(/\p{Diacritic}/gu, '')
-          .replace(/ /g, '')
-          .replace(/-/g, '')
-          .replace(/[^0-9a-z]/gi, '')
-          .substr(0, 12)
-          .toUpperCase(),
-        domain: 'skyhitz.io',
-        supply: 1,
-      },
-      { imgMimetype, imgCreateReadStream },
-      { videoMimetype, videoCreateReadStream }
+      code,
+      1,
+      cid
     );
 
     let entry = {
       id: id,
-      imageUrl: imageIpfs,
+      imageUrl: imageCid,
       description: description,
       title: title,
       artist: artist,
-      videoUrl: videoIpfs,
+      videoUrl: videoCid,
       publishedAt: new Date().toISOString(),
       publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
       forSale: forSale,
@@ -207,12 +188,12 @@ const createEntry = {
     ]);
 
     // create offer to sale for equity percentage. Match asset id with entry id
-    if (publicAddress && forSale) {
+    if (user.pk && forSale) {
       const sellXdr = await openSellOffer(
         transaction,
         issuerKey,
         code,
-        publicAddress,
+        user.pk,
         equityForSale,
         price / equityForSale
       );

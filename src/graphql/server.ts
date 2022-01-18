@@ -3,7 +3,6 @@ import { Schema } from './schema';
 import { Config } from '../config';
 import jwt from 'express-jwt';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
-import { graphqlUploadExpress } from 'graphql-upload';
 const compression = require('compression');
 const RedisStore = require('../passwordless/store');
 
@@ -67,7 +66,7 @@ const setupGraphQLServer = () => {
       if (req.originalUrl === '/api/stripe-webhooks') {
         next();
       } else {
-        express.json({ limit: '100mb' })(req, res, next);
+        express.json()(req, res, next);
       }
     },
     compression(),
@@ -75,8 +74,7 @@ const setupGraphQLServer = () => {
       secret: Config.JWT_SECRET,
       credentialsRequired: false,
     }),
-    express.urlencoded({ extended: false, limit: '100mb' }),
-    graphqlUploadExpress({ maxFileSize: 100000000, maxFiles: 2 }),
+    express.urlencoded({ extended: false }),
     graphqlExpress(buildOptions)
   );
 

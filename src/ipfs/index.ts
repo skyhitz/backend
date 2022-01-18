@@ -8,50 +8,15 @@ import {
   Account,
   BASE_FEE,
 } from 'skyhitz-stellar-base';
-import { NFTStorage, File } from 'nft.storage';
-import { NFTMetadata, NFTPayload } from './types';
 import { getConfig, getAccount } from './utils';
-
-const client = new NFTStorage({ token: process.env.NFT_STORAGE_API_KEY });
-
-export async function storeNFT(payload: NFTPayload) {
-  const { image, video } = payload;
-  const { data, ipnft } = await client.store({
-    name: payload.name,
-    description: payload.description,
-    code: payload.code,
-    issuer: payload.issuer,
-    domain: payload.domain,
-    supply: payload.supply,
-    image: new File([image.data], image.fileName, {
-      type: image.type,
-    }),
-    properties: {
-      video: new File([video.data], video.fileName, {
-        type: video.type,
-      }),
-    },
-  });
-
-  return {
-    name: data.name,
-    description: data.description,
-    code: data.code,
-    issuer: data.issuer,
-    domain: data.domain,
-    supply: data.supply,
-    image: data.image as unknown as string,
-    video: data.properties.video as unknown as string,
-    ipnft: ipnft as unknown as string,
-  } as NFTMetadata;
-}
 
 export async function buildNFTTransaction(
   accountPublicKey: string,
   issuerKey: Keypair,
-  nftMetadata: NFTMetadata
+  code: string,
+  supply: number,
+  cid: string
 ) {
-  const { code, supply, ipnft } = nftMetadata;
   const issuerPublicKey = issuerKey.publicKey();
   const asset = new Asset(code, issuerPublicKey);
 
@@ -92,7 +57,7 @@ export async function buildNFTTransaction(
     Operation.manageData({
       source: issuerPublicKey,
       name: `ipfshash`,
-      value: ipnft,
+      value: cid,
     })
   );
 
@@ -128,17 +93,13 @@ export async function buildNFTTransaction(
   const xdr = transactionBuilt.toEnvelope().toXDR('base64');
   console.log(`Transaction built: ${xdr}`);
 
-  return { code, issuer: issuerPublicKey, issuerKey, transaction, xdr };
-}
-
-export async function storeIpfsBuildTx(
-  accountPublicKey: string,
-  nftPayload: NFTPayload
-) {
-  let issuerKey = Keypair.random();
-  nftPayload.issuer = issuerKey.publicKey();
-  let metadata = await storeNFT(nftPayload);
-
-  const res = await buildNFTTransaction(accountPublicKey, issuerKey, metadata);
-  return { ...metadata, ...res };
+  return {
+    code,
+    issuer: issuerPublicKey,
+    issuerKey,
+    transaction,
+    xdr,
+    supply,
+    cid,
+  };
 }
