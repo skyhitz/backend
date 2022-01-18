@@ -48,7 +48,7 @@ async function mapAssetIdToEntryId(entry, testing, assetCode) {
 
 async function setEntry(entry, testing): Promise<number> {
   let key = testing ? 'testing:all-entries' : 'all-entries';
-
+  console.log('entry', entry);
   return new Promise((resolve, reject) => {
     redisClient
       .multi()
@@ -137,7 +137,6 @@ const createEntry = {
       description,
       title,
       artist,
-      id,
       forSale,
       price,
       equityForSale,
@@ -161,7 +160,7 @@ const createEntry = {
     );
 
     let entry = {
-      id: id,
+      id: cid,
       imageUrl: imageUrl,
       description: description,
       title: title,
@@ -181,7 +180,7 @@ const createEntry = {
     let entryIndex: any = entry;
     entryIndex.userDisplayName = user.displayName;
     entryIndex.userUsername = user.username;
-    entryIndex.objectID = id;
+    entryIndex.objectID = cid;
     entryIndex.testing = testing;
 
     await Promise.all([
