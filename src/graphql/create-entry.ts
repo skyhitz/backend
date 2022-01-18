@@ -63,8 +63,6 @@ async function setEntry(entry, testing): Promise<number> {
         entry.videoUrl,
         'imageUrl',
         entry.imageUrl,
-        'etag',
-        entry.etag,
         'publishedAt',
         entry.publishedAt,
         'publishedAtTimestamp',
@@ -76,7 +74,11 @@ async function setEntry(entry, testing): Promise<number> {
         'equityForSale',
         parseInt(entry.equityForSale),
         'artist',
-        entry.artist
+        entry.artist,
+        'code',
+        entry.code,
+        'issuer',
+        entry.issuer
       )
       .sadd(`${key}`, entry.id)
       .exec(async (err) => {
