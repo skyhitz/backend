@@ -3,6 +3,7 @@ import {
   GraphQLNonNull,
   GraphQLBoolean,
   GraphQLInt,
+  GraphQLFloat,
 } from 'graphql';
 
 import { getAuthenticatedUser } from '../auth/logic';
@@ -123,7 +124,7 @@ const createEntry = {
       type: new GraphQLNonNull(GraphQLInt),
     },
     equityForSale: {
-      type: new GraphQLNonNull(GraphQLInt),
+      type: new GraphQLNonNull(GraphQLFloat),
     },
   },
   async resolve(
