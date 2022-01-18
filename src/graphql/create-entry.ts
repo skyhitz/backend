@@ -96,10 +96,10 @@ const createEntry = {
     cid: {
       type: new GraphQLNonNull(GraphQLString),
     },
-    imageCid: {
+    imageUrl: {
       type: new GraphQLNonNull(GraphQLString),
     },
-    videoCid: {
+    videoUrl: {
       type: new GraphQLNonNull(GraphQLString),
     },
     code: {
@@ -128,8 +128,8 @@ const createEntry = {
     _: any,
     {
       cid,
-      imageCid,
-      videoCid,
+      imageUrl,
+      videoUrl,
       code,
       description,
       title,
@@ -159,11 +159,11 @@ const createEntry = {
 
     let entry = {
       id: id,
-      imageUrl: imageCid,
+      imageUrl: imageUrl,
       description: description,
       title: title,
       artist: artist,
-      videoUrl: videoCid,
+      videoUrl: videoUrl,
       publishedAt: new Date().toISOString(),
       publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
       forSale: forSale,
