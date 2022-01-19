@@ -14,7 +14,7 @@ import { scard, redisClient, getAll } from '../redis';
 import { buildNFTTransaction } from '../stellar/index';
 import XDR from './types/xdr';
 import { Keypair } from 'skyhitz-stellar-base';
-import { generateTomlFile } from 'src/stellar/toml';
+import { generateTomlFile } from '../stellar/toml';
 
 // async function checkPaymentsAccount(forSale: boolean, email: string) {
 //   if (forSale) {
