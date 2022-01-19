@@ -8,7 +8,7 @@ import {
   Account,
   BASE_FEE,
 } from 'skyhitz-stellar-base';
-import { Config } from 'src/config';
+import { Config } from '../config';
 import { getConfig, getAccount } from './utils';
 
 export async function buildNFTTransaction(
