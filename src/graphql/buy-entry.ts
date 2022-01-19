@@ -6,7 +6,7 @@ import {
 } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { findCustomer } from '../payments/stripe';
-import { accountCredits, manageBuyOffer } from '../payments/stellar';
+import { accountCredits, manageBuyOffer } from '../stellar/operations';
 import { getAll } from '../redis';
 
 async function customerInfo(user: any) {

@@ -5,7 +5,11 @@ import {
   findCustomer,
   createCustomerWithEmail,
 } from './stripe';
-import { createAndFundAccount, mergeAccount, allowTrust } from './stellar';
+import {
+  createAndFundAccount,
+  mergeAccount,
+  allowTrust,
+} from '../stellar/operations';
 
 export async function buyCreditsWithCard(payload: BuyCreditsPayload) {
   try {

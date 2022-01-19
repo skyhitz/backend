@@ -2,7 +2,7 @@ import { GraphQLString } from 'graphql';
 import EntryPrice from './types/entry-price';
 import { getAuthenticatedUser } from '../auth/logic';
 import { getAll } from '../redis';
-import { getAsks } from '../payments/stellar';
+import { getAsks } from '../stellar/operations';
 
 const getEntryAsk = async (id) => {
   let res = await getAll(`assets:entry:${id}`);

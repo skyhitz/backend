@@ -9,11 +9,12 @@ import {
 import { getAuthenticatedUser } from '../auth/logic';
 import { entriesIndex } from '../algolia/algolia';
 // import { checkIfEntryOwnerHasStripeAccount } from '../payments/subscription';
-import { openSellOffer } from '../payments/stellar';
+import { openSellOffer } from '../stellar/operations';
 import { scard, redisClient, getAll } from '../redis';
-import { buildNFTTransaction } from '../ipfs/index';
+import { buildNFTTransaction } from '../stellar/index';
 import XDR from './types/xdr';
 import { Keypair } from 'skyhitz-stellar-base';
+import { generateTomlFile } from 'src/stellar/toml';
 
 // async function checkPaymentsAccount(forSale: boolean, email: string) {
 //   if (forSale) {
@@ -46,12 +47,13 @@ async function mapAssetIdToEntryId(entry, testing, assetCode) {
   });
 }
 
-async function setEntry(entry, testing): Promise<number> {
+async function setEntry(entry, testing, toml): Promise<number> {
   let key = testing ? 'testing:all-entries' : 'all-entries';
   console.log('entry', entry);
   return new Promise((resolve, reject) => {
     redisClient
       .multi()
+      .hmset(`toml:${entry.id}`, 'toml', toml)
       .hmset(
         `entries:${entry.id}`,
         'description',
@@ -89,6 +91,21 @@ async function setEntry(entry, testing): Promise<number> {
         }
         const totalEntries = await scard(key);
         return resolve(totalEntries);
+      });
+  });
+}
+
+async function setTomlFile(cid, toml) {
+  return new Promise((resolve, reject) => {
+    redisClient
+      .multi()
+      .hmset(`toml:${cid}`, 'toml', toml)
+      .exec(async (err) => {
+        if (err) {
+          console.log(err);
+          return reject(false);
+        }
+        return resolve(true);
       });
   });
 }
@@ -150,12 +167,13 @@ const createEntry = {
       throw 'issuer not set';
     }
     const issuerKey = Keypair.fromSecret(issuer.seed);
+    const supply = 1;
 
     const { transaction, xdr } = await buildNFTTransaction(
       user.pk,
       issuerKey,
       code,
-      1,
+      supply,
       cid
     );
 
@@ -184,7 +202,18 @@ const createEntry = {
     entryIndex.testing = testing;
 
     await Promise.all([
-      await setEntry(entry, testing),
+      await setEntry(
+        entry,
+        testing,
+        generateTomlFile({
+          code,
+          issuer,
+          description,
+          name: `${artist} - ${title}`,
+          image: imageUrl,
+          supply,
+        })
+      ),
       await entriesIndex.addObject(entryIndex),
       // await checkPaymentsAccount(entry.forSale, user.email),
     ]);

@@ -1,4 +1,4 @@
-import { accountExists, sourceKeys } from '../payments/stellar';
+import { accountExists, sourceKeys } from '../stellar/operations';
 
 // test command line node -r ts-node/register ./src/testing/verify-stellar-test-account.ts
 export async function checkOrCreateTestAccount() {

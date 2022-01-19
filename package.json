@@ -10,6 +10,7 @@
     "stellar:check-test-account": "node -r ts-node/register ./src/testing/verify-stellar-test-account.ts"
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
     "@sendgrid/mail": "^6.1.4",
     "@types/express-jwt": "^0.0.38",
     "@types/graphql": "^0.9.0",

@@ -3,7 +3,7 @@ import Entry from './types/entry';
 import { getAuthenticatedUser } from '../auth/logic';
 import { getAll } from '../redis';
 import { findCustomer } from '../payments/stripe';
-import { loadSkyhitzAssets } from '../payments/stellar';
+import { loadSkyhitzAssets } from '../stellar/operations';
 import { each } from 'async';
 
 function getEntriesWithAssetCodes(assetCodes) {

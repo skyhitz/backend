@@ -8,7 +8,7 @@ import { getAuthenticatedUser } from '../auth/logic';
 import { partialUpdateObject } from '../algolia/algolia';
 import { checkIfEntryOwnerHasStripeAccount } from '../payments/subscription';
 import { getAll, updateEntry } from '../redis';
-import { manageSellOffer, getOfferId } from '../payments/stellar';
+import { manageSellOffer, getOfferId } from '../stellar/operations';
 
 const updatePricing = {
   type: GraphQLBoolean,

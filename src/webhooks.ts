@@ -13,7 +13,7 @@ import {
   sendSubscriptionTokens,
   createAndFundAccount,
   allowTrust,
-} from './payments/stellar';
+} from './stellar/operations';
 import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
 

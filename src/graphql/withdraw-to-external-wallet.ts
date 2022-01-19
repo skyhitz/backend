@@ -9,7 +9,7 @@ import { findCustomer } from '../payments/stripe';
 import {
   accountCredits,
   withdrawToExternalAddressAnchorUSD,
-} from '../payments/stellar';
+} from '../stellar/operations';
 
 /**
  * Withdraws user balance to external address in XLM
