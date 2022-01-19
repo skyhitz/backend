@@ -95,21 +95,6 @@ async function setEntry(entry, testing, toml): Promise<number> {
   });
 }
 
-async function setTomlFile(cid, toml) {
-  return new Promise((resolve, reject) => {
-    redisClient
-      .multi()
-      .hmset(`toml:${cid}`, 'toml', toml)
-      .exec(async (err) => {
-        if (err) {
-          console.log(err);
-          return reject(false);
-        }
-        return resolve(true);
-      });
-  });
-}
-
 const createEntry = {
   type: XDR,
   args: {
