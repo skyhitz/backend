@@ -5,7 +5,7 @@ import { getAll } from './redis';
 
 export function assets(graphQLServer) {
   graphQLServer.get(
-    '/assets/:cid/.well-known/stellar.toml',
+    '/api/assets/:cid/.well-known/stellar.toml',
     express.raw({ type: 'application/toml' }),
     async (request: express.Request, response: express.Response) => {
       const cid = request.params.cid;

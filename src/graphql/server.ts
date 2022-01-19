@@ -49,7 +49,7 @@ const buildOptions: any = async (req: any) => {
   };
 };
 
-const restEndpoints = ['/api/stripe-webhooks', '/assets'];
+const restEndpoints = ['/api/stripe-webhooks', '/api/assets'];
 
 passwordless.init(new RedisStore());
 
