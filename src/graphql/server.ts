@@ -9,6 +9,7 @@ const RedisStore = require('../passwordless/store');
 import passwordless from '../passwordless/passwordless';
 import { stripeWebhook } from '../webhooks';
 import { getAll } from '../redis';
+import { assets } from '../assets';
 
 let cors = require('cors');
 const cache = require('memory-cache');
@@ -48,6 +49,8 @@ const buildOptions: any = async (req: any) => {
   };
 };
 
+const restEndpoints = ['/api/stripe-webhooks', '/assets'];
+
 passwordless.init(new RedisStore());
 
 const setupGraphQLServer = () => {
@@ -63,7 +66,11 @@ const setupGraphQLServer = () => {
       res: express.Response,
       next: express.NextFunction
     ): void => {
-      if (req.originalUrl === '/api/stripe-webhooks') {
+      const match = restEndpoints.find((endpoint) =>
+        req.originalUrl.startsWith(endpoint)
+      );
+      console.log(match);
+      if (!!match) {
         next();
       } else {
         express.json()(req, res, next);
@@ -77,6 +84,8 @@ const setupGraphQLServer = () => {
     express.urlencoded({ extended: false }),
     graphqlExpress(buildOptions)
   );
+
+  assets(graphQLServer);
 
   stripeWebhook(graphQLServer);
 

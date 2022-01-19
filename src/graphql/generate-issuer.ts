@@ -1,7 +1,7 @@
 import { GraphQLString } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { Keypair } from 'skyhitz-stellar-base';
-import { redisClient } from 'src/redis';
+import { redisClient } from '../redis';
 
 async function setIssuer(user, seed): Promise<boolean> {
   return new Promise((resolve, reject) => {
