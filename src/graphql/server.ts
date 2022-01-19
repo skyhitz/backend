@@ -69,7 +69,6 @@ const setupGraphQLServer = () => {
       const match = restEndpoints.find((endpoint) =>
         req.originalUrl.startsWith(endpoint)
       );
-      console.log(match);
       if (!!match) {
         next();
       } else {
