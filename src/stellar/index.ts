@@ -88,8 +88,8 @@ export async function buildNFTTransaction(
       highThreshold: 0,
       homeDomain:
         Config.ENV === 'production'
-          ? `api.skyhitz.io/assets/${cid}`
-          : `api-staging.skyhitz.io/assets/${cid}`,
+          ? `api.skyhitz.io/api/assets/${cid}`
+          : `api-staging.skyhitz.io/api/assets/${cid}`,
     })
   );
 
