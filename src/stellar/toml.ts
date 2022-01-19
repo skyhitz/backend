@@ -25,7 +25,7 @@ export function generateTomlFile({
         issuer: issuer,
         name: name,
         desc: description,
-        image: image,
+        image: image.replace('ipfs://', 'https://cloudflare-ipfs.com/ipfs/'),
         fixed_number: supply,
       },
     ],
