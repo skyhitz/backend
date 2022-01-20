@@ -25,7 +25,10 @@ export function generateTomlFile({
         issuer: issuer,
         name: name,
         desc: description,
-        image: image.replace('ipfs://', 'https://cloudflare-ipfs.com/ipfs/'),
+        image: image.replace(
+          'ipfs://',
+          'https://skyhitz.io/cdn-cgi/image/width=200/https://cloudflare-ipfs.com/ipfs/'
+        ),
         fixed_number: supply,
       },
     ],
