@@ -9,6 +9,7 @@ export function assets(graphQLServer) {
       const cid = request.params.cid;
       const toml = await getAll(`toml:${cid}`);
       if (toml) {
+        response.type('txt');
         return response.send(toml.toml);
       }
       return response.send(404);
