@@ -192,7 +192,7 @@ const createEntry = {
         testing,
         generateTomlFile({
           code,
-          issuer,
+          issuer: issuerKey.publicKey(),
           description,
           name: `${artist} - ${title}`,
           image: imageUrl,
