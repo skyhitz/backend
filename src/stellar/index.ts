@@ -8,6 +8,7 @@ import {
   Account,
   BASE_FEE,
 } from 'skyhitz-stellar-base';
+import { Config } from 'src/config';
 // import { Config } from '../config';
 import { getConfig, getAccount } from './utils';
 
@@ -86,10 +87,10 @@ export async function buildNFTTransaction(
       lowThreshold: 0,
       medThreshold: 0,
       highThreshold: 0,
-      // homeDomain:
-      //   Config.ENV === 'production'
-      //     ? `api.skyhitz.io/api/assets/${cid}`
-      //     : `api-staging.skyhitz.io/api/assets/${cid}`,
+      homeDomain:
+        Config.ENV === 'production'
+          ? `api.skyhitz.io/api/${cid.substring(0, 12)}`
+          : `spi.skyhitz.io/api/${cid.substring(0, 12)}`,
     })
   );
 

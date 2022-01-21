@@ -48,7 +48,9 @@ const buildOptions: any = async (req: any) => {
   };
 };
 
-const restEndpoints = ['/webhooks', '/id'];
+const graphiqlUrl = '/api/graphiql';
+const graphqlUrl = '/api/graphql';
+const graphEndpoints = [graphiqlUrl, graphqlUrl];
 
 passwordless.init(new RedisStore());
 
@@ -59,16 +61,16 @@ const setupGraphQLServer = () => {
   graphQLServer.use(cors());
 
   graphQLServer.use(
-    '/graphql',
+    graphqlUrl,
     (
       req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ): void => {
-      const match = restEndpoints.find((endpoint) =>
+      const match = graphEndpoints.find((endpoint) =>
         req.originalUrl.startsWith(endpoint)
       );
-      if (!!match) {
+      if (!match) {
         next();
       } else {
         express.json()(req, res, next);
@@ -87,7 +89,7 @@ const setupGraphQLServer = () => {
 
   stripeWebhook(graphQLServer);
 
-  graphQLServer.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+  graphQLServer.use(graphiqlUrl, graphiqlExpress({ endpointURL: graphqlUrl }));
   return graphQLServer;
 };
 

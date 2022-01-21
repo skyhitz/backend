@@ -53,7 +53,7 @@ async function setEntry(entry, testing, toml): Promise<number> {
   return new Promise((resolve, reject) => {
     redisClient
       .multi()
-      .hmset(`toml:${entry.id.substr(0, 14)}`, 'toml', toml)
+      .hmset(`toml:${entry.id.substr(0, 12)}`, 'toml', toml)
       .hmset(
         `entries:${entry.id}`,
         'description',
