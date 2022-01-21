@@ -5,7 +5,6 @@ import jwt from 'express-jwt';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 const compression = require('compression');
 const RedisStore = require('../passwordless/store');
-
 import passwordless from '../passwordless/passwordless';
 import { stripeWebhook } from '../webhooks';
 import { getAll } from '../redis';
@@ -49,7 +48,7 @@ const buildOptions: any = async (req: any) => {
   };
 };
 
-const restEndpoints = ['/api/stripe-webhooks', '/api/assets'];
+const restEndpoints = ['/webhooks', '/id'];
 
 passwordless.init(new RedisStore());
 
@@ -60,7 +59,7 @@ const setupGraphQLServer = () => {
   graphQLServer.use(cors());
 
   graphQLServer.use(
-    '/api/graphql',
+    '/graphql',
     (
       req: express.Request,
       res: express.Response,
@@ -88,10 +87,7 @@ const setupGraphQLServer = () => {
 
   stripeWebhook(graphQLServer);
 
-  graphQLServer.use(
-    '/api/graphiql',
-    graphiqlExpress({ endpointURL: '/api/graphql' })
-  );
+  graphQLServer.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
   return graphQLServer;
 };
 

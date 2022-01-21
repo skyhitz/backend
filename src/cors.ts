@@ -15,7 +15,7 @@ if (Config.ENV === 'production') {
     'http://localhost:3000',
     'http://localhost:4000',
     'http://localhost:19006',
-    'https://api-staging.skyhitz.io',
+    'https://spi.skyhitz.io',
     'https://api.stripe.com',
   ];
 }
