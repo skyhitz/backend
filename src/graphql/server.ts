@@ -48,8 +48,8 @@ const buildOptions: any = async (req: any) => {
   };
 };
 
-const graphiqlUrl = '/api/graphiql';
-const graphqlUrl = '/api/graphql';
+const graphiqlUrl = '/graphiql';
+const graphqlUrl = '/graphql';
 const graphEndpoints = [graphiqlUrl, graphqlUrl];
 
 passwordless.init(new RedisStore());
