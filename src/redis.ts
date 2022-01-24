@@ -55,8 +55,6 @@ export function updateUser(user) {
         user.resetPasswordExpires,
         'description',
         user.description,
-        'phone',
-        user.phone,
         'testing',
         user.testing,
         'publishedAtTimestamp',

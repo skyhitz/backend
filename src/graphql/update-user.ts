@@ -22,13 +22,10 @@ const updateUserEndpoint = {
     email: {
       type: GraphQLString,
     },
-    phone: {
-      type: GraphQLString,
-    },
   },
   async resolve(
     _: any,
-    { avatarUrl, displayName, description, username, email, phone }: any,
+    { avatarUrl, displayName, description, username, email }: any,
     ctx: any
   ) {
     let user = await getAuthenticatedUser(ctx);
@@ -41,7 +38,6 @@ const updateUserEndpoint = {
     user.description = description;
     user.username = username.toLowerCase();
     user.email = email;
-    user.phone = phone;
     let userIndexObject: any = {
       avatarUrl: user.avatarUrl,
       displayName: user.displayName,

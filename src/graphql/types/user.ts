@@ -64,12 +64,6 @@ const User: GraphQLObjectType = new GraphQLObjectType({
           return user.description;
         },
       },
-      phone: {
-        type: GraphQLString,
-        resolve(user: any) {
-          return user.phone;
-        },
-      },
       testing: {
         type: GraphQLBoolean,
         resolve(user: any) {

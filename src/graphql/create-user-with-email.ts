@@ -32,8 +32,6 @@ function setUser(user) {
         user.version,
         'description',
         user.description,
-        'phone',
-        user.phone,
         'testing',
         user.testing,
         'publishedAtTimestamp',
@@ -104,7 +102,6 @@ const createUserWithEmail = {
       version: 1,
       publishedAt: new Date().toISOString(),
       publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
-      phone: '',
       testing: args.testing ? true : false,
     };
     let user: any = await setUser(userPayload);

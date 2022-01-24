@@ -35,8 +35,6 @@ export function importUsers() {
           data.resetPasswordExpires,
           'description',
           data.description,
-          'phone',
-          data.phone,
           'testing',
           (data.testing === 't').toString(),
           'publishedAtTimestamp',
