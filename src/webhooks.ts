@@ -19,7 +19,7 @@ import { Config } from './config/index';
 
 export function stripeWebhook(graphQLServer) {
   graphQLServer.post(
-    '/stripe-webhooks',
+    '/api/stripe-webhooks',
     express.raw({ type: 'application/json' }),
     (request: express.Request, response: express.Response) => {
       let sig = request.headers['stripe-signature'];

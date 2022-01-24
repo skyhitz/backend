@@ -3,7 +3,7 @@ import { getAll } from './redis';
 
 export function assets(graphQLServer) {
   graphQLServer.get(
-    '/:cid/.well-known/stellar.toml',
+    '/api/:cid/.well-known/stellar.toml',
     express.raw({ type: 'text/plain' }),
     async (request: express.Request, response: express.Response) => {
       const cid = request.params.cid;
