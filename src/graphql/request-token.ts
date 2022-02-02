@@ -18,8 +18,10 @@ const RequestToken = {
     let userId;
     let currentUser;
     const errorMessage = `Sorry, your ${
-      publicKey ? 'public key' : 'email'
-    } does not exist. Sign up to create an account.`;
+      publicKey
+        ? 'public key is not connected with any account.'
+        : 'email does not exist.'
+    } Sign up to create an account.`;
     if (publicKey) {
       userId = await smembers('publicKeys:' + publicKey);
     } else {
