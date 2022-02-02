@@ -14,7 +14,5 @@ export interface IConfig {
   ALGOLIA_ADMIN_API_KEY: string;
   SENDGRID_API_KEY: string;
   UNIVERSAL_LINK_SCHEME: string;
-  CLOUDINARY_API_KEY: string;
-  CLOUDINARY_API_SECRET: string;
   NFT_STORAGE_API_KEY: string;
 }

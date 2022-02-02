@@ -1,36 +1,15 @@
 import { GraphQLString, GraphQLBoolean, GraphQLNonNull } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { entriesIndex } from '../algolia/algolia';
-import { cloudinary } from '../cloudinary/cloudinary';
 import { getAll, hdel } from '../redis';
 const adminId = '-LbM3m6WKdVQAsY3zrAd';
 
-function deleteFromCloudinary(cloudinaryPublicId: string) {
-  return new Promise((resolve, reject) => {
-    cloudinary.v2.api.delete_resources(
-      [cloudinaryPublicId],
-      { resource_type: 'video' },
-      (err: any, res: any) => {
-        console.log('error', err);
-        console.log('response', res);
-        if (err) {
-          reject();
-          return;
-        }
-        resolve(true);
-        return;
-      }
-    );
-  });
-}
-
 // TO DO: delete onwers of entry as well
-async function deleteAccount(entry: any, cloudinaryPublicId: any) {
+async function deleteEntry(entry: any) {
   try {
     [
       await hdel(`entries:${entry.id}`),
       await entriesIndex.deleteObject(entry.id),
-      await deleteFromCloudinary(cloudinaryPublicId),
     ];
   } catch (e) {
     console.log('error deleting entry:', e);
@@ -46,19 +25,13 @@ const removeEntry = {
     id: {
       type: new GraphQLNonNull(GraphQLString),
     },
-    cloudinaryPublicId: {
-      type: new GraphQLNonNull(GraphQLString),
-    },
   },
-  async resolve(_: any, { id, cloudinaryPublicId }: any, ctx: any) {
-    // TO DO: id and cloudinaryPublicId are the same and should be the same
-    // remove cloudinaryPublicId and replace it with id
-
+  async resolve(_: any, { id }: any, ctx: any) {
     const user = await getAuthenticatedUser(ctx);
     let entry = await getAll(`entries:${id}`);
 
     if (user.id === adminId) {
-      return deleteAccount(entry, cloudinaryPublicId);
+      return deleteEntry(entry);
     }
 
     // give permision if user is owner
