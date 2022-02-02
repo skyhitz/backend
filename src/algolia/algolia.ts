@@ -4,8 +4,9 @@ const client = algoliasearch(
   Config.ALGOLIA_APP_ID,
   Config.ALGOLIA_ADMIN_API_KEY
 );
-export const entriesIndex = client.initIndex(`${Config.APP_URL}:entries`);
-export const usersIndex = client.initIndex(`${Config.APP_URL}:users`);
+const appDomain = Config.APP_URL.replace('https://', '');
+export const entriesIndex = client.initIndex(`${appDomain}:entries`);
+export const usersIndex = client.initIndex(`${appDomain}:users`);
 
 // Always pass objectID
 export async function partialUpdateObject(obj: any) {
