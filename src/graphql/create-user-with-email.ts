@@ -12,40 +12,82 @@ function setUser(user) {
   let key = user.testing ? 'testing:all-users' : 'all-users';
 
   return new Promise((resolve, reject) => {
-    redisClient
-      .multi()
-      .hmset(
-        `users:${user.id}`,
-        'avatarUrl',
-        user.avatarUrl,
-        'displayName',
-        user.displayName,
-        'email',
-        user.email,
-        'publishedAt',
-        user.publishedAt,
-        'username',
-        user.username.toLowerCase(),
-        'id',
-        user.id,
-        'version',
-        user.version,
-        'description',
-        user.description,
-        'testing',
-        user.testing,
-        'publishedAtTimestamp',
-        user.publishedAtTimestamp
-      )
-      .sadd(`usernames:${user.username.toLowerCase()}`, user.id)
-      .sadd(`emails:${user.email}`, user.id)
-      .sadd(key, user.id)
-      .exec((err) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(user);
-      });
+    if (user.publicKey) {
+      redisClient
+        .multi()
+        .hmset(
+          `users:${user.id}`,
+          'avatarUrl',
+          user.avatarUrl,
+          'displayName',
+          user.displayName,
+          'email',
+          user.email,
+          'publishedAt',
+          user.publishedAt,
+          'username',
+          user.username.toLowerCase(),
+          'id',
+          user.id,
+          'version',
+          user.version,
+          'description',
+          user.description,
+          'testing',
+          user.testing,
+          'publishedAtTimestamp',
+          user.publishedAtTimestamp,
+          'publicKey',
+          user.publicKey
+        )
+        .sadd(`usernames:${user.username.toLowerCase()}`, user.id)
+        .sadd(`emails:${user.email}`, user.id)
+        .sadd(`publicKeys:${user.publicKey}`, user.publicKey)
+        .sadd(key, user.id)
+        .exec((err) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(user);
+        });
+    } else {
+      redisClient
+        .multi()
+        .hmset(
+          `users:${user.id}`,
+          'avatarUrl',
+          user.avatarUrl,
+          'displayName',
+          user.displayName,
+          'email',
+          user.email,
+          'publishedAt',
+          user.publishedAt,
+          'username',
+          user.username.toLowerCase(),
+          'id',
+          user.id,
+          'version',
+          user.version,
+          'description',
+          user.description,
+          'testing',
+          user.testing,
+          'publishedAtTimestamp',
+          user.publishedAtTimestamp,
+          'publicKey',
+          ''
+        )
+        .sadd(`usernames:${user.username.toLowerCase()}`, user.id)
+        .sadd(`emails:${user.email}`, user.id)
+        .sadd(key, user.id)
+        .exec((err) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(user);
+        });
+    }
   });
 }
 
@@ -76,20 +118,27 @@ const createUserWithEmail = {
     username: {
       type: new GraphQLNonNull(GraphQLString),
     },
+    publicKey: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
     testing: {
       type: new GraphQLNonNull(GraphQLBoolean),
     },
   },
   async resolve(_: any, args: any, ctx: any) {
-    let [[emailId], [usernameId]] = [
+    let [[emailId], [usernameId], [publicKeyId]] = [
       await smembers(`emails:${args.email}`),
       await smembers(`usernames:${args.username}`),
+      await smembers(`publicKeys:${args.publicKey}`),
     ];
     if (emailId) {
-      throw 'Email already exists, please sign in';
+      throw 'Email already exists, please sign in.';
     }
     if (usernameId) {
-      throw 'Username is taken';
+      throw 'Username is taken.';
+    }
+    if (publicKeyId) {
+      throw 'Public Key is connected to another account, please sign in.';
     }
 
     let userPayload: any = {
@@ -102,6 +151,7 @@ const createUserWithEmail = {
       version: 1,
       publishedAt: new Date().toISOString(),
       publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
+      publicKey: args.publicKey,
       testing: args.testing ? true : false,
     };
     let user: any = await setUser(userPayload);
