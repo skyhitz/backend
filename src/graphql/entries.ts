@@ -50,10 +50,15 @@ const Entries = {
     }
 
     let user = await getAll(`users:${userId}`);
-    let customer = await findCustomer(user.email);
-    let { metadata } = customer;
-    let { publicAddress } = metadata;
-    const assetCodes = await loadSkyhitzAssets(publicAddress);
+    if (!user.publicAddress) {
+      let customer = await findCustomer(user.email);
+      let { metadata } = customer;
+      let { publicAddress } = metadata;
+      const assetCodes = await loadSkyhitzAssets(publicAddress);
+      return getEntriesWithAssetCodes(assetCodes);
+    }
+
+    const assetCodes = await loadSkyhitzAssets(user.publicAddress);
     return getEntriesWithAssetCodes(assetCodes);
   },
 };
