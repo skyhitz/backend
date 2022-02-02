@@ -155,7 +155,7 @@ const createEntry = {
     const supply = 1;
 
     const { transaction, xdr } = await buildNFTTransaction(
-      user.pk,
+      user.publicKey,
       issuerKey,
       code,
       supply,
@@ -204,12 +204,12 @@ const createEntry = {
     ]);
 
     // create offer to sale for equity percentage. Match asset id with entry id
-    if (user.pk && forSale) {
+    if (user.publicKey && forSale) {
       const sellXdr = await openSellOffer(
         transaction,
         issuerKey,
         code,
-        user.pk,
+        user.publicKey,
         equityForSale,
         price / equityForSale
       );
