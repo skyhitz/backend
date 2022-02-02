@@ -40,7 +40,7 @@ function setUser(user) {
         )
         .sadd(`usernames:${user.username.toLowerCase()}`, user.id)
         .sadd(`emails:${user.email}`, user.id)
-        .sadd(`publicKeys:${user.publicKey}`, user.publicKey)
+        .sadd(`publicKeys:${user.publicKey}`, user.id)
         .sadd(key, user.id)
         .exec((err) => {
           if (err) {
