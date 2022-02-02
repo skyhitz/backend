@@ -10,13 +10,21 @@ const RequestToken = {
     usernameOrEmail: {
       type: new GraphQLNonNull(GraphQLString),
     },
+    publicKey: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
   },
-  async resolve(_: any, { usernameOrEmail }: any, ctx: any) {
-    let emailId = await smembers('emails:' + usernameOrEmail);
+  async resolve(_: any, { usernameOrEmail, publicKey }: any, ctx: any) {
+    let userId;
     let currentUser;
-    if (emailId) {
+    if (publicKey) {
+      userId = await smembers('publicKeys:' + publicKey);
+    } else {
+      userId = await smembers('emails:' + usernameOrEmail);
+    }
+    if (userId) {
       try {
-        currentUser = await getAll('users:' + emailId);
+        currentUser = await getAll('users:' + userId);
       } catch (e) {
         throw 'Sorry, your email does not exist. Sign up to create an account.';
       }
