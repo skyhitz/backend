@@ -17,6 +17,9 @@ const RequestToken = {
   async resolve(_: any, { usernameOrEmail, publicKey }: any, ctx: any) {
     let userId;
     let currentUser;
+    const errorMessage = `Sorry, your ${
+      publicKey ? 'public key' : 'email'
+    } does not exist. Sign up to create an account.`;
     if (publicKey) {
       userId = await smembers('publicKeys:' + publicKey);
     } else {
@@ -26,12 +29,12 @@ const RequestToken = {
       try {
         currentUser = await getAll('users:' + userId);
       } catch (e) {
-        throw 'Sorry, your email does not exist. Sign up to create an account.';
+        throw errorMessage;
       }
     }
 
     if (!currentUser) {
-      throw 'Sorry, your email does not exist. Sign up to create an account.';
+      throw errorMessage;
     }
 
     let token = passwordless._generateToken()();
