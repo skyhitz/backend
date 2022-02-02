@@ -28,8 +28,8 @@ import { generateTomlFile } from '../stellar/toml';
 //   return;
 // }
 
-async function mapAssetIdToEntryId(entry, testing, assetCode) {
-  let key = testing ? 'testing:all-assets' : 'all-assets';
+async function mapAssetIdToEntryId(entry, assetCode) {
+  let key = 'all-assets';
 
   return new Promise((resolve, reject) => {
     redisClient
@@ -47,8 +47,8 @@ async function mapAssetIdToEntryId(entry, testing, assetCode) {
   });
 }
 
-async function setEntry(entry, testing, toml): Promise<number> {
-  let key = testing ? 'testing:all-entries' : 'all-entries';
+async function setEntry(entry, toml): Promise<number> {
+  let key = 'all-entries';
   console.log('entry', entry);
   return new Promise((resolve, reject) => {
     redisClient
@@ -178,18 +178,14 @@ const createEntry = {
       issuer: issuerKey.publicKey(),
     };
 
-    const testing = user.testing === 'true';
-
     let entryIndex: any = entry;
     entryIndex.userDisplayName = user.displayName;
     entryIndex.userUsername = user.username;
     entryIndex.objectID = cid;
-    entryIndex.testing = testing;
 
     await Promise.all([
       await setEntry(
         entry,
-        testing,
         generateTomlFile({
           code,
           issuer: issuerKey.publicKey(),
@@ -213,7 +209,7 @@ const createEntry = {
         equityForSale,
         price / equityForSale
       );
-      await mapAssetIdToEntryId(entry, testing, code);
+      await mapAssetIdToEntryId(entry, code);
       return sellXdr;
     }
 

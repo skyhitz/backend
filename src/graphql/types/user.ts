@@ -1,9 +1,4 @@
-import {
-  GraphQLObjectType,
-  GraphQLInt,
-  GraphQLString,
-  GraphQLBoolean,
-} from 'graphql';
+import { GraphQLObjectType, GraphQLInt, GraphQLString } from 'graphql';
 
 const User: GraphQLObjectType = new GraphQLObjectType({
   name: 'User',
@@ -62,12 +57,6 @@ const User: GraphQLObjectType = new GraphQLObjectType({
         type: GraphQLString,
         resolve(user: any) {
           return user.description;
-        },
-      },
-      testing: {
-        type: GraphQLBoolean,
-        resolve(user: any) {
-          return user.testing;
         },
       },
     };

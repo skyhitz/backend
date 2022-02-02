@@ -7,8 +7,8 @@ import { sendCommand } from '../redis';
 const TopChart = {
   type: new GraphQLList(Entry),
   async resolve(root: any, args: any, ctx: any) {
-    let user = await getAuthenticatedUser(ctx);
-    let key = user.testing === 'true' ? 'testing:all-entries' : 'all-entries';
+    await getAuthenticatedUser(ctx);
+    let key = 'all-entries';
     let entries = await sendCommand('sort', [
       key,
       'by',

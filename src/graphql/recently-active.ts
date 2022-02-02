@@ -7,8 +7,8 @@ import { sendCommand } from '../redis';
 const RecentlyActive = {
   type: new GraphQLList(PublicUser),
   async resolve(root: any, args: any, ctx: any) {
-    let user = await getAuthenticatedUser(ctx);
-    let key = user.testing === 'true' ? 'testing:all-users' : 'all-users';
+    await getAuthenticatedUser(ctx);
+    let key = 'all-users';
     let users = await sendCommand('sort', [
       key,
       'limit',

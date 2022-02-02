@@ -1,4 +1,4 @@
-import { GraphQLString, GraphQLNonNull, GraphQLBoolean } from 'graphql';
+import { GraphQLString, GraphQLNonNull } from 'graphql';
 
 import User from './types/user';
 import UniqueIdGenerator from '../auth/unique-id-generator';
@@ -9,7 +9,7 @@ import { redisClient, smembers } from '../redis';
 import { sendGridService } from '../sendgrid/sendgrid';
 
 function setUser(user) {
-  let key = user.testing ? 'testing:all-users' : 'all-users';
+  let key = 'all-users';
 
   return new Promise((resolve, reject) => {
     if (user.publicKey) {
@@ -33,8 +33,6 @@ function setUser(user) {
           user.version,
           'description',
           user.description,
-          'testing',
-          user.testing,
           'publishedAtTimestamp',
           user.publishedAtTimestamp,
           'publicKey',
@@ -71,8 +69,6 @@ function setUser(user) {
           user.version,
           'description',
           user.description,
-          'testing',
-          user.testing,
           'publishedAtTimestamp',
           user.publishedAtTimestamp,
           'publicKey',
@@ -121,9 +117,6 @@ const createUserWithEmail = {
     publicKey: {
       type: new GraphQLNonNull(GraphQLString),
     },
-    testing: {
-      type: new GraphQLNonNull(GraphQLBoolean),
-    },
   },
   async resolve(_: any, args: any, ctx: any) {
     let [[emailId], [usernameId], [publicKeyId]] = [
@@ -152,7 +145,6 @@ const createUserWithEmail = {
       publishedAt: new Date().toISOString(),
       publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
       publicKey: args.publicKey,
-      testing: args.testing ? true : false,
     };
     let user: any = await setUser(userPayload);
 
@@ -169,7 +161,6 @@ const createUserWithEmail = {
       publishedAt: userPayload.publishedAt,
       publishedAtTimestamp: userPayload.publishedAtTimestamp,
       objectID: userPayload.id,
-      testing: userPayload.testing,
     };
     await usersIndex.addObject(userIndexObject);
     sendWelcomeEmail(email);

@@ -49,7 +49,6 @@ const updateUserEndpoint = {
       publishedAt: user.publishedAt,
       publishedAtTimestamp: user.publishedAtTimestamp,
       objectID: user.id,
-      testing: user.testing === 'true',
     };
     [
       await updateUser(user),
