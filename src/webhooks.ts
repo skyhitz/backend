@@ -2,7 +2,6 @@ import express from 'express';
 import {
   chargeCustomer,
   stripe,
-  updateCustomer,
   startSubscription,
   cleanPendingChargeMetadata,
   cleanSubscriptionMetadata,
@@ -10,11 +9,11 @@ import {
 } from './payments/stripe';
 import {
   sendSubscriptionTokens,
-  createAndFundAccount,
   getXlmInUsdDexPrice,
 } from './stellar/operations';
 import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
+import { getAll, smembers } from './redis';
 
 export function stripeWebhook(graphQLServer) {
   graphQLServer.post(
@@ -29,10 +28,6 @@ export function stripeWebhook(graphQLServer) {
         Config.STRIPE_WEBHOOK_SECRET
       );
 
-      if (event.type === 'customer.created') {
-        return onCustomerCreated(event.data, response);
-      }
-
       if (event.type === 'charge.succeeded') {
         return onChargeSucceeded(event.data, response);
       }
@@ -42,35 +37,6 @@ export function stripeWebhook(graphQLServer) {
       }
     }
   );
-}
-
-async function onCustomerCreated({ object }: any, response) {
-  let keyPair: { secret: string; publicAddress: string };
-  const { id, metadata } = object;
-
-  // Returns ok response if customer already has an stellar account
-  if (metadata.publicAddress) {
-    return response.send(200);
-  }
-
-  // Create account and allow trust should be executed independently, once the account is created it has to trust the asset
-  try {
-    keyPair = await createAndFundAccount();
-  } catch (e) {
-    throw e;
-  }
-
-  try {
-    await updateCustomer({
-      customerId: id,
-      publicAddress: keyPair.publicAddress,
-      seed: keyPair.secret,
-    });
-    return response.send(200);
-  } catch (e) {
-    console.error('error updating customer and sending tokens', e);
-    throw e;
-  }
 }
 
 async function onCustomerUpdated(
@@ -103,21 +69,21 @@ async function onCustomerUpdated(
 
 async function onChargeSucceeded({ object }: any, response) {
   const { customer, amount } = object;
-  const { metadata, id }: any = await findCustomerById(customer);
-  const { publicAddress, pendingCharge, subscribe } = metadata;
+  const { metadata, id, email }: any = await findCustomerById(customer);
+  const { pendingCharge, subscribe } = metadata;
   const transactionalFees = 106;
   let amountWithDiscountedTransactionFees = amount * (100 / transactionalFees);
   let amountInDollars = amountWithDiscountedTransactionFees / 100;
 
-  if (!publicAddress) {
-    return response.send(200);
-  }
-
   let { price } = await getXlmInUsdDexPrice();
   let floatPrice = parseFloat(price);
   let finalAmount = amountInDollars / floatPrice;
+
+  const userId = await smembers('emails:' + email);
+  const { publicKey } = await getAll('users:' + userId);
+
   // toFixed leaves four decimals
-  await sendSubscriptionTokens(publicAddress, finalAmount.toFixed(4));
+  await sendSubscriptionTokens(publicKey, finalAmount.toFixed(4));
   if (pendingCharge) {
     await cleanPendingChargeMetadata(id);
     return response.send(200);

@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { CustomerPayload, UpdateCustomerPayload } from './types';
+import { CustomerPayload } from './types';
 import { Config } from '../config';
 export const stripe = new Stripe(Config.STRIPE_SECRET_KEY, {
   apiVersion: null,
@@ -11,19 +11,6 @@ export const stripe = new Stripe(Config.STRIPE_SECRET_KEY, {
   protocol: 'https',
   telemetry: true,
 });
-
-export async function updateCustomer({
-  customerId,
-  publicAddress,
-  seed,
-}: UpdateCustomerPayload) {
-  return stripe.customers.update(customerId, {
-    metadata: {
-      publicAddress: publicAddress,
-      seed: seed,
-    },
-  });
-}
 
 export async function updateCustomerWithPendingCharge(
   customerId: string,

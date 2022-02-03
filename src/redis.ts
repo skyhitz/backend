@@ -1,6 +1,7 @@
 const { promisify } = require('util');
 import { Config } from './config';
 import { RedisClient, createClient } from 'redis';
+import { UserPayload } from './util/types';
 
 export const redisClient: RedisClient = createClient({
   host: Config.REDIS_HOST,
@@ -27,6 +28,89 @@ export const hdel = promisify(redisClient.hdel).bind(redisClient);
 export const hmset = promisify(redisClient.hmset).bind(redisClient);
 export const scard = promisify(redisClient.scard).bind(redisClient);
 
+export function setUser(user: UserPayload) {
+  let key = 'all-users';
+
+  return new Promise((resolve, reject) => {
+    if (user.publicKey) {
+      redisClient
+        .multi()
+        .hmset(
+          `users:${user.id}`,
+          'avatarUrl',
+          user.avatarUrl,
+          'displayName',
+          user.displayName,
+          'email',
+          user.email,
+          'publishedAt',
+          user.publishedAt,
+          'username',
+          user.username.toLowerCase(),
+          'id',
+          user.id,
+          'version',
+          user.version,
+          'description',
+          user.description,
+          'publishedAtTimestamp',
+          user.publishedAtTimestamp,
+          'publicKey',
+          user.publicKey,
+          'seed',
+          user.seed ? user.seed : ''
+        )
+        .sadd(`usernames:${user.username.toLowerCase()}`, user.id)
+        .sadd(`emails:${user.email}`, user.id)
+        .sadd(`publicKeys:${user.publicKey}`, user.id)
+        .sadd(key, user.id)
+        .exec((err) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(user);
+        });
+    } else {
+      redisClient
+        .multi()
+        .hmset(
+          `users:${user.id}`,
+          'avatarUrl',
+          user.avatarUrl,
+          'displayName',
+          user.displayName,
+          'email',
+          user.email,
+          'publishedAt',
+          user.publishedAt,
+          'username',
+          user.username.toLowerCase(),
+          'id',
+          user.id,
+          'version',
+          user.version,
+          'description',
+          user.description,
+          'publishedAtTimestamp',
+          user.publishedAtTimestamp,
+          'publicKey',
+          '',
+          'seed',
+          user.seed ? user.seed : ''
+        )
+        .sadd(`usernames:${user.username.toLowerCase()}`, user.id)
+        .sadd(`emails:${user.email}`, user.id)
+        .sadd(key, user.id)
+        .exec((err) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(user);
+        });
+    }
+  });
+}
+
 export function updateUser(user) {
   return new Promise((resolve, reject) => {
     redisClient
@@ -49,10 +133,6 @@ export function updateUser(user) {
         user.password,
         'version',
         user.version,
-        'resetPasswordToken',
-        user.resetPasswordToken,
-        'resetPasswordExpires',
-        user.resetPasswordExpires,
         'description',
         user.description,
         'publishedAtTimestamp',

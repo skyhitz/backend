@@ -10,11 +10,3 @@ export type BuyCreditsPayload = {
   cardToken: string;
   amount: number;
 };
-
-export type UpdateCustomerPayload = {
-  customerId: string;
-  publicAddress: string;
-  seed: string;
-  pendingCharge?: string;
-  subscribe?: string;
-};

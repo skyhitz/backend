@@ -18,3 +18,18 @@ class SendGridService {
 }
 
 export const sendGridService = new SendGridService();
+
+export function sendWelcomeEmail(email) {
+  const msg = {
+    to: email,
+    from: 'alejandro@skyhitzmusic.com',
+    subject: 'Welcome to Skyhitz',
+    html: `<p>Hi,
+        <br><p>Thanks for joining Skyhitz, we are on a mission to encourage music creation and production around the world.<br>
+        <br>
+        <br><br>If you did not sign up for an account, please send us an email.
+        <br>
+        <br><br>Keep making music, <br>Skyhitz Team</p>`,
+  };
+  sendGridService.sendEmail(msg);
+}
