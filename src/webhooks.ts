@@ -3,7 +3,6 @@ import {
   chargeCustomer,
   stripe,
   updateCustomer,
-  updateCustomerWithAllowedTrust,
   startSubscription,
   cleanPendingChargeMetadata,
   cleanSubscriptionMetadata,
@@ -12,7 +11,7 @@ import {
 import {
   sendSubscriptionTokens,
   createAndFundAccount,
-  allowTrust,
+  getXlmInUsdDexPrice,
 } from './stellar/operations';
 import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
@@ -66,7 +65,6 @@ async function onCustomerCreated({ object }: any, response) {
       customerId: id,
       publicAddress: keyPair.publicAddress,
       seed: keyPair.secret,
-      allowedTrust: false,
     });
     return response.send(200);
   } catch (e) {
@@ -86,26 +84,18 @@ async function onCustomerUpdated(
 
   const { email } = object;
   const { metadata, id } = await findCustomer(email);
-  const { pendingCharge, subscribe, allowedTrust, seed } = metadata;
+  const { pendingCharge, subscribe } = metadata;
 
-  if (allowedTrust === 'false') {
-    await allowTrust(seed);
-    await updateCustomerWithAllowedTrust(id);
+  // charge user with one time amount
+  if (pendingCharge) {
+    await chargeCustomer(id, parseFloat(pendingCharge));
     return response.send(200);
   }
 
-  if (allowedTrust === 'true') {
-    // charge user with one time amount
-    if (pendingCharge) {
-      await chargeCustomer(id, parseFloat(pendingCharge));
-      return response.send(200);
-    }
-
-    // subscribe user to plan
-    if (subscribe) {
-      await startSubscription(id);
-      return response.send(200);
-    }
+  // subscribe user to plan
+  if (subscribe) {
+    await startSubscription(id);
+    return response.send(200);
   }
 
   return response.send(200);
@@ -115,15 +105,19 @@ async function onChargeSucceeded({ object }: any, response) {
   const { customer, amount } = object;
   const { metadata, id }: any = await findCustomerById(customer);
   const { publicAddress, pendingCharge, subscribe } = metadata;
-  let amountWithDiscountedTransactionFees = amount * (100 / 103);
+  const transactionalFees = 106;
+  let amountWithDiscountedTransactionFees = amount * (100 / transactionalFees);
   let amountInDollars = amountWithDiscountedTransactionFees / 100;
-  let totalAmount = amountInDollars.toFixed(6).toString();
 
   if (!publicAddress) {
     return response.send(200);
   }
 
-  await sendSubscriptionTokens(publicAddress, totalAmount);
+  let { price } = await getXlmInUsdDexPrice();
+  let floatPrice = parseFloat(price);
+  let finalAmount = amountInDollars / floatPrice;
+  // toFixed leaves four decimals
+  await sendSubscriptionTokens(publicAddress, finalAmount.toFixed(4));
   if (pendingCharge) {
     await cleanPendingChargeMetadata(id);
     return response.send(200);

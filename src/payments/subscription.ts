@@ -5,11 +5,7 @@ import {
   findCustomer,
   createCustomerWithEmail,
 } from './stripe';
-import {
-  createAndFundAccount,
-  mergeAccount,
-  allowTrust,
-} from '../stellar/operations';
+import { createAndFundAccount } from '../stellar/operations';
 
 export async function buyCreditsWithCard(payload: BuyCreditsPayload) {
   try {
@@ -35,8 +31,7 @@ export async function subscribe(customerPayload: CustomerPayload) {
 }
 
 export async function cancel(email: string) {
-  let { seed } = await cancelSubscription(email);
-  await mergeAccount(seed);
+  await cancelSubscription(email);
 }
 
 // TODO: use Redis as main source for encrypted info
@@ -53,15 +48,11 @@ export async function checkIfEntryOwnerHasStripeAccount(email: string) {
       throw 'could not create and fund stellar account';
     }
     try {
-      let [, newCus] = [
-        await allowTrust(keyPairNewAcct.secret),
-        await createCustomerWithEmail(
-          email,
-          keyPairNewAcct.publicAddress,
-          keyPairNewAcct.secret
-        ),
-      ];
-      newCustomer = newCus;
+      newCustomer = await createCustomerWithEmail(
+        email,
+        keyPairNewAcct.publicAddress,
+        keyPairNewAcct.secret
+      );
     } catch (e) {
       console.log(e);
       throw 'could not create stripe customer';

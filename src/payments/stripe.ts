@@ -12,25 +12,15 @@ export const stripe = new Stripe(Config.STRIPE_SECRET_KEY, {
   telemetry: true,
 });
 
-export async function updateCustomerWithAllowedTrust(customerId: string) {
-  return stripe.customers.update(customerId, {
-    metadata: {
-      allowedTrust: 'true',
-    },
-  });
-}
-
 export async function updateCustomer({
   customerId,
   publicAddress,
   seed,
-  allowedTrust,
 }: UpdateCustomerPayload) {
   return stripe.customers.update(customerId, {
     metadata: {
       publicAddress: publicAddress,
       seed: seed,
-      allowedTrust: allowedTrust.toString(),
     },
   });
 }

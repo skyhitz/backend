@@ -15,7 +15,6 @@ export type UpdateCustomerPayload = {
   customerId: string;
   publicAddress: string;
   seed: string;
-  allowedTrust: boolean;
   pendingCharge?: string;
   subscribe?: string;
 };

@@ -8,7 +8,7 @@ import { getAuthenticatedUser } from '../auth/logic';
 import { findCustomer } from '../payments/stripe';
 import {
   accountCredits,
-  withdrawToExternalAddressAnchorUSD,
+  withdrawToExternalAddress,
 } from '../stellar/operations';
 
 /**
@@ -39,17 +39,11 @@ export default {
       return false;
     }
 
-    // 10%
-    const skyhitzFee = amount * 0.07;
-    const remainingBalance = amount - skyhitzFee;
-    // 1 per dollar
     try {
       console.log(
-        `withdrawal to address ${address}, amount ${remainingBalance.toFixed(
-          6
-        )}`
+        `withdrawal to address ${address}, amount ${amount.toFixed(6)}`
       );
-      await withdrawToExternalAddressAnchorUSD(address, remainingBalance, seed);
+      await withdrawToExternalAddress(address, amount, seed);
       return true;
     } catch (e) {
       console.log(`error`, e);

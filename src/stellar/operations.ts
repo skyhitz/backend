@@ -11,8 +11,6 @@ import {
 } from 'skyhitz-stellar-base';
 import { Config } from '../config';
 export const sourceKeys = Keypair.fromSecret(Config.ISSUER_SEED);
-const assetCode = 'SKYHITZ';
-const asset = new Asset(assetCode, sourceKeys.publicKey());
 
 const XLM = Asset.native();
 
@@ -53,13 +51,11 @@ export async function getOffers(seller, sellingAsset, sellingIssuer) {
 
 export async function getOrderbook(
   sellingAssetCode: string,
-  sellingIssuer: string,
-  buyingAssetCode: string,
-  buyingIssuer: string
+  sellingIssuer: string
 ) {
   let account = await axios
     .get(
-      `${Config.HORIZON_URL}/order_book?selling_asset_type=credit_alphanum12&selling_asset_code=${sellingAssetCode}&selling_asset_issuer=${sellingIssuer}&buying_asset_type=credit_alphanum12&buying_asset_code=${buyingAssetCode}&buying_asset_issuer=${buyingIssuer}`
+      `${Config.HORIZON_URL}/order_book?selling_asset_type=credit_alphanum12&selling_asset_code=${sellingAssetCode}&selling_asset_issuer=${sellingIssuer}&buying_asset_type=native`
     )
     .then(({ data }) => data);
   return account;
@@ -200,7 +196,7 @@ export async function manageBuyOffer(
     )
     .addOperation(
       Operation.manageBuyOffer({
-        selling: asset,
+        selling: XLM,
         buying: newAsset,
         buyAmount: amount.toString(),
         price: price.toString(),
@@ -258,44 +254,11 @@ export async function manageSellOffer(
     .addOperation(
       Operation.manageSellOffer({
         selling: newAsset,
-        buying: asset,
+        buying: XLM,
         amount: amount.toString(),
         price: price.toString(),
         source: destinationKeys.publicKey(),
         offerId: offerId,
-      })
-    )
-    .addOperation(
-      Operation.endSponsoringFutureReserves({
-        source: destinationKeys.publicKey(),
-      })
-    )
-    .setTimeout(0)
-    .build();
-
-  transaction.sign(sourceKeys, destinationKeys);
-  let transactionResult = await submitTransaction(transaction);
-  return transactionResult;
-}
-
-export async function allowTrust(destinationSeed: string) {
-  const destinationKeys = Keypair.fromSecret(destinationSeed);
-  const transaction = new TransactionBuilder(
-    await getAccount(sourceKeys.publicKey()),
-    {
-      fee: BASE_FEE,
-      networkPassphrase: NETWORK_PASSPHRASE,
-    }
-  )
-    .addOperation(
-      Operation.beginSponsoringFutureReserves({
-        sponsoredId: destinationKeys.publicKey(),
-      })
-    )
-    .addOperation(
-      Operation.changeTrust({
-        asset: asset,
-        source: destinationKeys.publicKey(),
       })
     )
     .addOperation(
@@ -371,7 +334,7 @@ export async function sendSubscriptionTokens(
     .addOperation(
       Operation.payment({
         destination: destinationKey,
-        asset: asset,
+        asset: XLM,
         amount: amount,
       })
     )
@@ -382,52 +345,11 @@ export async function sendSubscriptionTokens(
   return submitTransaction(transaction);
 }
 
-export async function mergeAccount(accountSeed: string) {
-  const destinationKeys = Keypair.fromSecret(accountSeed);
-  const account = await getAccountData(destinationKeys.publicKey());
-  let remainingCredits;
-  account.balances.forEach((balance: any) => {
-    if (balance.asset_code === assetCode) {
-      remainingCredits = balance.balance;
-    }
-  });
-  const transaction = new TransactionBuilder(
-    new Account(account.id, account.sequence),
-    {
-      fee: BASE_FEE,
-      networkPassphrase: NETWORK_PASSPHRASE,
-    }
-  )
-    .addOperation(
-      Operation.payment({
-        destination: sourceKeys.publicKey(),
-        asset: asset,
-        amount: remainingCredits,
-      })
-    )
-    .addOperation(
-      Operation.changeTrust({
-        asset: asset,
-        limit: '0',
-      })
-    )
-    .addOperation(
-      Operation.accountMerge({
-        destination: sourceKeys.publicKey(),
-      })
-    )
-    .setTimeout(0)
-    .build();
-
-  transaction.sign(destinationKeys);
-  return submitTransaction(transaction);
-}
-
 export async function accountCredits(publicAddress: string) {
   const { balances }: any = await getAccountData(publicAddress);
 
   const [currentBalance] = balances.filter(
-    (balance: any) => balance.asset_code === assetCode
+    (balance: any) => balance.asset_type === 'native'
   );
   if (currentBalance && currentBalance.balance) {
     return parseFloat(currentBalance.balance);
@@ -450,7 +372,7 @@ export async function payment(
     .addOperation(
       Operation.payment({
         destination: publicAddress,
-        asset: asset,
+        asset: XLM,
         amount: amount.toString(),
       })
     )
@@ -464,44 +386,24 @@ export async function payment(
 }
 
 export async function getAsks(newAssetCode) {
-  let response = await getOrderbook(
-    newAssetCode,
-    sourceKeys.publicKey(),
-    assetCode,
-    sourceKeys.publicKey()
-  );
+  let response = await getOrderbook(newAssetCode, sourceKeys.publicKey());
   return response.asks[0];
 }
 
-export async function withdrawalFromAccount(seed: string, amount: number) {
-  const sourceKeypair = Keypair.fromSecret(seed);
-  const sourcePublicKey = sourceKeypair.publicKey();
-
-  let transaction = new TransactionBuilder(await getAccount(sourcePublicKey), {
-    fee: BASE_FEE,
-    networkPassphrase: NETWORK_PASSPHRASE,
-  })
-    .addOperation(
-      Operation.payment({
-        destination: sourceKeys.publicKey(),
-        asset: asset,
-        amount: amount.toString(),
-      })
+export async function getXlmInUsdDexPrice() {
+  let response = await axios
+    .get(
+      `https://horizon.stellar.org/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USDC&buying_asset_issuer=GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN`
     )
-    .setTimeout(0)
-    .build();
-
-  transaction.sign(sourceKeypair);
-  let transactionResult = await submitTransaction(transaction);
-  console.log('\nSuccess! View the transaction at: ', transactionResult);
-  return transactionResult;
+    .then(({ data }) => data);
+  return response.bids[0];
 }
 
 export async function loadSkyhitzAssets(sourcePublicKey) {
   let { balances } = await getAccountData(sourcePublicKey);
   const assetCodes = balances
     .filter((balance: any) => {
-      if (balance.asset_code !== assetCode && balance.asset_type !== 'native') {
+      if (balance.asset_type !== 'native') {
         return true;
       }
       return false;
@@ -533,7 +435,7 @@ export async function payUserInXLM(address: string, amount: number) {
   return transactionResult;
 }
 
-export async function withdrawToExternalAddressAnchorUSD(
+export async function withdrawToExternalAddress(
   address: string,
   amount: number,
   seed: string
@@ -548,7 +450,7 @@ export async function withdrawToExternalAddressAnchorUSD(
     .addOperation(
       Operation.payment({
         destination: address,
-        asset: asset,
+        asset: XLM,
         amount: amount.toFixed(6).toString(),
       })
     )
