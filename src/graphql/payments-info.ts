@@ -20,6 +20,14 @@ const PaymentsInfo = {
     try {
       customer = await findCustomer(user.email);
       if (!customer) {
+        if (user.publicKey) {
+          let credits = await accountCredits(user.publicKey);
+          return {
+            subscribed: false,
+            credits: credits,
+          };
+        }
+
         return {
           subscribed: false,
           credits: 0,
