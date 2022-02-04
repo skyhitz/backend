@@ -4,14 +4,14 @@ import {
   GraphQLInt,
   GraphQLBoolean,
 } from 'graphql';
+import ConditionalXDR from './types/conditional-xdr';
 import { getAuthenticatedUser } from '../auth/logic';
 import { partialUpdateObject } from '../algolia/algolia';
-import { checkIfEntryOwnerHasStripeAccount } from '../payments/subscription';
 import { getAll, updateEntry } from '../redis';
 import { manageSellOffer, getOfferId } from '../stellar/operations';
 
 const updatePricing = {
-  type: GraphQLBoolean,
+  type: ConditionalXDR,
   args: {
     id: {
       type: new GraphQLNonNull(GraphQLString),
@@ -30,38 +30,33 @@ const updatePricing = {
     let { id, price, forSale, equityForSale } = args;
 
     let user = await getAuthenticatedUser(ctx);
-    let [entry, res] = [
-      await getAll(`entries:${id}`),
-      await getAll(`assets:entry:${id}`),
-    ];
-    const [assetCode] = Object.keys(res);
+    let entry = await getAll(`entries:${id}`);
+
+    let transactionResult = { success: false, xdr: '', submitted: false };
 
     if (entry.forSale) {
-      const { publicAddress, seed } = await checkIfEntryOwnerHasStripeAccount(
-        user.email
-      );
-      const offerId = await getOfferId(publicAddress, assetCode);
+      const { publicKey, seed } = user;
+      const offerId = await getOfferId(publicKey, entry.code);
 
-      await manageSellOffer(
-        seed,
+      transactionResult = await manageSellOffer(
+        publicKey,
         equityForSale,
         price / equityForSale,
-        assetCode,
-        typeof offerId === 'string' ? parseInt(offerId) : offerId
+        entry.code,
+        typeof offerId === 'string' ? parseInt(offerId) : offerId,
+        seed
       );
     }
-
     entry.price = price;
     entry.forSale = forSale;
-    [
+    await Promise.all([
       await updateEntry(entry),
       await partialUpdateObject({
         objectID: entry.id,
-        price: entry.price,
         forSale: entry.forSale,
       }),
-    ];
-    return true;
+    ]);
+    return transactionResult;
   },
 };
 

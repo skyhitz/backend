@@ -303,13 +303,13 @@ export async function getOfferId(sellingAccount, assetCode) {
 }
 
 export async function manageSellOffer(
-  destinationSeed: string,
+  destinationPublicKey: string,
   amount: number,
   price: number,
   assetCode: string,
-  offerId = 0
+  offerId = 0,
+  destinationSeed
 ) {
-  const destinationKeys = Keypair.fromSecret(destinationSeed);
   const newAsset = new Asset(assetCode, sourceKeys.publicKey());
 
   // price of 1 unit in terms of buying, 100 will be 100 usd per one share
@@ -322,7 +322,7 @@ export async function manageSellOffer(
   )
     .addOperation(
       Operation.beginSponsoringFutureReserves({
-        sponsoredId: destinationKeys.publicKey(),
+        sponsoredId: destinationPublicKey,
       })
     )
     .addOperation(
@@ -331,21 +331,31 @@ export async function manageSellOffer(
         buying: XLM,
         amount: amount.toString(),
         price: price.toString(),
-        source: destinationKeys.publicKey(),
+        source: destinationPublicKey,
         offerId: offerId,
       })
     )
     .addOperation(
       Operation.endSponsoringFutureReserves({
-        source: destinationKeys.publicKey(),
+        source: destinationPublicKey,
       })
     )
     .setTimeout(0)
     .build();
 
-  transaction.sign(sourceKeys, destinationKeys);
-  let transactionResult = await submitTransaction(transaction);
-  return transactionResult;
+  if (destinationSeed) {
+    const destinationKeys = Keypair.fromSecret(destinationSeed);
+    transaction.sign(sourceKeys, destinationKeys);
+    let { status, result_xdr } = await submitTransaction(transaction);
+    return { xdr: result_xdr, success: status === 200, submitted: true };
+  }
+
+  transaction.sign(sourceKeys);
+  return {
+    xdr: transaction.toEnvelope().toXDR('base64'),
+    success: true,
+    submitted: false,
+  };
 }
 
 export async function sendOwnershipOfAsset(

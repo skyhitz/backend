@@ -8,25 +8,12 @@ import {
 
 import { getAuthenticatedUser } from '../auth/logic';
 import { entriesIndex } from '../algolia/algolia';
-// import { checkIfEntryOwnerHasStripeAccount } from '../payments/subscription';
 import { openSellOffer } from '../stellar/operations';
 import { scard, redisClient, getAll } from '../redis';
 import { buildNFTTransaction } from '../stellar/index';
 import XDR from './types/xdr';
 import { Keypair } from 'skyhitz-stellar-base';
 import { generateTomlFile } from '../stellar/toml';
-
-// async function checkPaymentsAccount(forSale: boolean, email: string) {
-//   if (forSale) {
-//     try {
-//       return await checkIfEntryOwnerHasStripeAccount(email);
-//     } catch (e) {
-//       console.log(e);
-//       throw 'could not check if entry owner has stripe account';
-//     }
-//   }
-//   return;
-// }
 
 async function mapAssetIdToEntryId(entry, assetCode) {
   let key = 'all-assets';
@@ -196,10 +183,8 @@ const createEntry = {
         })
       ),
       await entriesIndex.addObject(entryIndex),
-      // await checkPaymentsAccount(entry.forSale, user.email),
     ]);
 
-    // create offer to sale for equity percentage. Match asset id with entry id
     if (user.publicKey && forSale) {
       const sellXdr = await openSellOffer(
         transaction,
