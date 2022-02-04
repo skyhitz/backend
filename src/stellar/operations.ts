@@ -156,14 +156,88 @@ export async function openSellOffer(
   return xdr;
 }
 
+export async function buyViaPathPayment(
+  destinationPublicKey: string,
+  amount: number,
+  price: number,
+  assetCode: string,
+  issuer: string,
+  destinationSeed?: string
+) {
+  const nftAsset = new Asset(assetCode, issuer);
+  const sendMax = amount * price;
+  const sendMaxString = sendMax.toString();
+  // price of 1 unit in terms of buying, 100 will be 100 usd per one share
+  const transaction = new TransactionBuilder(
+    await getAccount(sourceKeys.publicKey()),
+    {
+      fee: BASE_FEE,
+      networkPassphrase: NETWORK_PASSPHRASE,
+    }
+  )
+    .addOperation(
+      Operation.beginSponsoringFutureReserves({
+        sponsoredId: destinationPublicKey,
+      })
+    )
+    .addOperation(
+      Operation.changeTrust({
+        asset: nftAsset,
+        source: destinationPublicKey,
+      })
+    )
+    .addOperation(
+      Operation.endSponsoringFutureReserves({
+        source: destinationPublicKey,
+      })
+    )
+    .addOperation(
+      Operation.beginSponsoringFutureReserves({
+        sponsoredId: destinationPublicKey,
+      })
+    )
+    .addOperation(
+      Operation.pathPaymentStrictReceive({
+        sendAsset: XLM,
+        sendMax: sendMaxString,
+        source: destinationPublicKey,
+        destination: destinationPublicKey,
+        destAsset: nftAsset,
+        destAmount: amount.toString(),
+      })
+    )
+    .addOperation(
+      Operation.endSponsoringFutureReserves({
+        source: destinationPublicKey,
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  if (destinationSeed) {
+    const destinationKeys = Keypair.fromSecret(destinationSeed);
+    transaction.sign(sourceKeys, destinationKeys);
+    let { status, result_xdr } = await submitTransaction(transaction);
+    return { xdr: result_xdr, success: status === 200, submitted: true };
+  }
+
+  transaction.sign(sourceKeys);
+  return {
+    xdr: transaction.toEnvelope().toXDR('base64'),
+    success: true,
+    submitted: false,
+  };
+}
+
 export async function manageBuyOffer(
   destinationSeed: string,
   amount: number,
   price: number,
-  assetCode: string
+  assetCode: string,
+  issuer: string
 ) {
   const destinationKeys = Keypair.fromSecret(destinationSeed);
-  const newAsset = new Asset(assetCode, sourceKeys.publicKey());
+  const newAsset = new Asset(assetCode, issuer);
 
   // price of 1 unit in terms of buying, 100 will be 100 usd per one share
   const transaction = new TransactionBuilder(

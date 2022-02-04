@@ -1,23 +1,18 @@
-import {
-  GraphQLString,
-  GraphQLNonNull,
-  GraphQLBoolean,
-  GraphQLInt,
-} from 'graphql';
+import { GraphQLString, GraphQLNonNull, GraphQLInt } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
-import { findCustomer } from '../payments/stripe';
-import { accountCredits, manageBuyOffer } from '../stellar/operations';
+import { accountCredits, buyViaPathPayment } from '../stellar/operations';
 import { getAll } from '../redis';
+import { decrypt } from '../util/encryption';
+import ConditionalXDR from './types/conditional-xdr';
 
 async function customerInfo(user: any) {
-  let customer = await findCustomer(user.email);
-  let credits = await accountCredits(customer.metadata.publicAddress);
-  let userSeed = customer.metadata.seed;
-  return { credits, userSeed };
+  let credits = await accountCredits(user.publicKey);
+  let userSeed = decrypt(user.seed);
+  return { credits, seed: userSeed };
 }
 
 const buyEntry = {
-  type: GraphQLBoolean,
+  type: ConditionalXDR,
   args: {
     id: {
       type: new GraphQLNonNull(GraphQLString),
@@ -33,32 +28,42 @@ const buyEntry = {
     let { id, amount, price } = args;
     let user = await getAuthenticatedUser(ctx);
 
-    let [{ credits, userSeed }, res] = [
+    let [{ credits, seed }, { code, issuer }] = [
       await customerInfo(user),
-      await getAll(`assets:entry:${id}`),
+      await getAll(`entries:${id}`),
     ];
 
-    const [assetCode] = Object.keys(res);
     const total = price * amount;
 
     // fetch price from offer
     if (credits >= total) {
       // // send payment from buyer to owner of entry
       try {
-        let transactionRecord = await manageBuyOffer(
-          userSeed,
+        if (seed) {
+          return await buyViaPathPayment(
+            user.publicKey,
+            amount,
+            price,
+            code,
+            issuer,
+            seed
+          );
+        }
+
+        return await buyViaPathPayment(
+          user.publicKey,
           amount,
           price,
-          assetCode
+          code,
+          issuer
         );
-        console.log(transactionRecord);
       } catch (e) {
         console.log(e);
         throw 'could not complete transaction';
       }
     }
 
-    return true;
+    return { xdr: '', success: false, submitted: false };
   },
 };
 
