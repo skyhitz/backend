@@ -186,3 +186,50 @@ export function updateEntry(entry) {
       });
   });
 }
+
+export async function setEntry(entry, toml): Promise<number> {
+  let key = 'all-entries';
+  return new Promise((resolve, reject) => {
+    redisClient
+      .multi()
+      .hmset(`toml:${entry.id.substr(0, 12)}`, 'toml', toml)
+      .hmset(
+        `entries:${entry.id}`,
+        'description',
+        entry.description,
+        'title',
+        entry.title,
+        'id',
+        entry.id,
+        'videoUrl',
+        entry.videoUrl,
+        'imageUrl',
+        entry.imageUrl,
+        'publishedAt',
+        entry.publishedAt,
+        'publishedAtTimestamp',
+        parseInt(entry.publishedAtTimestamp),
+        'price',
+        parseInt(entry.price),
+        'forSale',
+        entry.forSale,
+        'equityForSale',
+        parseInt(entry.equityForSale),
+        'artist',
+        entry.artist,
+        'code',
+        entry.code,
+        'issuer',
+        entry.issuer
+      )
+      .sadd(`${key}`, entry.id)
+      .exec(async (err) => {
+        if (err) {
+          console.log(err);
+          return reject();
+        }
+        const totalEntries = await scard(key);
+        return resolve(totalEntries);
+      });
+  });
+}
