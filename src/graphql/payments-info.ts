@@ -7,7 +7,6 @@ const PaymentsInfo = {
   type: PaymentsInfoObject,
   async resolve(root: any, args: any, ctx: any) {
     let user;
-    let customer;
     try {
       user = await getAuthenticatedUser(ctx);
     } catch (e) {
@@ -17,42 +16,15 @@ const PaymentsInfo = {
       };
     }
 
-    try {
-      customer = await findCustomer(user.email);
-      if (!customer) {
-        if (user.publicKey) {
-          let credits = await accountCredits(user.publicKey);
-          return {
-            subscribed: false,
-            credits: credits,
-          };
-        }
+    const [{ subscriptions }, credits] = await Promise.all([
+      await findCustomer(user.email),
+      await accountCredits(user.publicKey),
+    ]);
 
-        return {
-          subscribed: false,
-          credits: 0,
-        };
-      }
-      let credits = await accountCredits(customer.metadata.publicAddress);
-
-      let subscriptions = customer.subscriptions.data;
-
-      if (subscriptions.length > 0) {
-        return {
-          subscribed: true,
-          credits: credits,
-        };
-      }
-      return {
-        subscribed: false,
-        credits: credits,
-      };
-    } catch (e) {
-      return {
-        subscribed: false,
-        credits: 0,
-      };
-    }
+    return {
+      credits: credits,
+      subscribed: subscriptions.data.length > 0,
+    };
   },
 };
 
