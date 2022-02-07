@@ -32,7 +32,10 @@ export function stripeWebhook(graphQLServer) {
         return onChargeSucceeded(event.data, response);
       }
 
-      if (event.type === 'customer.updated') {
+      if (
+        event.type === 'customer.updated' ||
+        event.type === 'customer.created'
+      ) {
         return onCustomerUpdated(event.data, response);
       }
     }
