@@ -182,7 +182,7 @@ export async function startSubscription(customerId: string) {
 
 export async function chargeCustomer(customerId: string, amount: number) {
   await stripe.charges.create({
-    amount: amount * 100,
+    amount: Math.floor(amount * 100),
     currency: 'usd',
     customer: customerId,
   });
