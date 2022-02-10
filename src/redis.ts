@@ -281,6 +281,46 @@ export async function recentlyAdded() {
 
 // ft.search idx:entries * sortby publishedAtTimestamp desc return 2 title id limit 0 200
 
+export async function assetsMetaSortedByPublishedTimestamp(
+  limit = 200,
+  order = 'desc',
+  cursor = 0
+) {
+  return chunk(
+    await sendCommand('ft.search', [
+      'idx:entries',
+      '*',
+      'sortby',
+      'publishedAtTimestamp',
+      order,
+      'limit',
+      cursor,
+      limit,
+      'return',
+      '6',
+      'issuer',
+      'code',
+      'description',
+      'image',
+      'artist',
+      'title',
+    ]),
+    6
+  ).map(([issuer, code, description, image, artist, title]: string[]) => {
+    return {
+      issuer: issuer,
+      code: code,
+      description: description,
+      name: `${artist} - ${title}`,
+      image: image.replace(
+        'ipfs://',
+        'https://skyhitz.io/cdn-cgi/image/width=200/https://cloudflare-ipfs.com/ipfs/'
+      ),
+      fixed_number: 1,
+    };
+  });
+}
+
 export async function assetsMeta(
   publishedAtTimestamp,
   limit = 200,

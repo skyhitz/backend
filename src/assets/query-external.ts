@@ -1,4 +1,8 @@
-import { assetsMeta, findAssetMeta } from 'src/redis';
+import {
+  assetsMeta,
+  assetsMetaSortedByPublishedTimestamp,
+  findAssetMeta,
+} from 'src/redis';
 
 /**
  * Query assets metadata from external resource.
@@ -24,5 +28,5 @@ export async function queryExternal(queryParams) {
     return (await assetsMeta(publishedAtTimestamp, limit + 1, order)).shift();
   }
 
-  return Promise.resolve([]);
+  return await assetsMetaSortedByPublishedTimestamp(limit, order);
 }
