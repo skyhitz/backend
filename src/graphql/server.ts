@@ -8,7 +8,7 @@ const RedisStore = require('../passwordless/store');
 import passwordless from '../passwordless/passwordless';
 import { stripeWebhook } from '../webhooks';
 import { getAll } from '../redis';
-import { assets } from '../assets';
+import { assets } from '../assets/assets';
 
 let cors = require('cors');
 const cache = require('memory-cache');

@@ -2,6 +2,7 @@ const { promisify } = require('util');
 import { Config } from './config';
 import { RedisClient, createClient } from 'redis';
 import { UserPayload } from './util/types';
+import { chunk } from './util/chunk';
 
 export const redisClient: RedisClient = createClient({
   host: Config.REDIS_HOST,
@@ -232,4 +233,138 @@ export async function setEntry(entry, toml): Promise<number> {
         return resolve(totalEntries);
       });
   });
+}
+
+export async function recentlyAdded() {
+  return chunk(
+    await sendCommand('sort', [
+      'all-entries',
+      'limit',
+      '0',
+      '20',
+      'by',
+      'entries:*->publishedAtTimestamp',
+      'desc',
+      'get',
+      'entries:*->imageUrl',
+      'get',
+      'entries:*->videoUrl',
+      'get',
+      'entries:*->description',
+      'get',
+      'entries:*->title',
+      'get',
+      'entries:*->id',
+      'get',
+      'entries:*->forSale',
+      'get',
+      'entries:*->price',
+      'get',
+      'entries:*->artist',
+    ]),
+    8
+  ).map(
+    ([imageUrl, videoUrl, description, title, id, forSale, price, artist]) => {
+      return {
+        imageUrl: imageUrl,
+        videoUrl: videoUrl,
+        description: description,
+        title: title,
+        id: id,
+        forSale: forSale === 'true',
+        price: parseInt(price),
+        artist: artist,
+      };
+    }
+  );
+}
+
+// ft.search idx:entries * sortby publishedAtTimestamp desc return 2 title id limit 0 200
+
+export async function assetsMeta(
+  publishedAtTimestamp,
+  limit = 200,
+  order = 'desc'
+) {
+  return chunk(
+    await sendCommand('ft.search', [
+      'idx:entries',
+      order === 'asc'
+        ? `@publishedAtTimestamp:[${publishedAtTimestamp} 5000000000]`
+        : `@publishedAtTimestamp:[0 ${publishedAtTimestamp}]`,
+      'sortby',
+      'publishedAtTimestamp',
+      order,
+      'limit',
+      '0',
+      limit,
+      'return',
+      '6',
+      'issuer',
+      'code',
+      'description',
+      'image',
+      'artist',
+      'title',
+    ]),
+    6
+  ).map(([issuer, code, description, image, artist, title]: string[]) => {
+    return {
+      issuer: issuer,
+      code: code,
+      description: description,
+      name: `${artist} - ${title}`,
+      image: image.replace(
+        'ipfs://',
+        'https://skyhitz.io/cdn-cgi/image/width=200/https://cloudflare-ipfs.com/ipfs/'
+      ),
+      fixed_number: 1,
+    };
+  });
+}
+
+export async function findAssetMeta(code?: string, issuer?: string) {
+  return chunk(
+    await sendCommand('ft.search', [
+      'idx:entries',
+      code && issuer
+        ? `@code:${code} @issuer:${issuer}`
+        : code
+        ? `@code:${code}`
+        : `@issuer:${issuer}`,
+      'return',
+      '7',
+      'issuer',
+      'code',
+      'description',
+      'image',
+      'artist',
+      'title',
+      'publishedAtTimestamp',
+    ]),
+    7
+  ).map(
+    ([
+      issuer,
+      code,
+      description,
+      image,
+      artist,
+      title,
+      publishedAtTimestamp,
+    ]: string[]) => {
+      return {
+        issuer: issuer,
+        code: code,
+        description: description,
+        name: `${artist} - ${title}`,
+        image: image.replace(
+          'ipfs://',
+          'https://skyhitz.io/cdn-cgi/image/width=200/https://cloudflare-ipfs.com/ipfs/'
+        ),
+        fixed_number: 1,
+        publishedAtTimestamp: publishedAtTimestamp,
+      };
+    }
+  );
 }
