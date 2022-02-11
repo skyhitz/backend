@@ -2,7 +2,7 @@ import {
   assetsMeta,
   assetsMetaSortedByPublishedTimestamp,
   findAssetMeta,
-} from 'src/redis';
+} from '../redis';
 
 /**
  * Query assets metadata from external resource.

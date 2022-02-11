@@ -7,64 +7,66 @@ import {
 } from 'graphql';
 
 import { getAuthenticatedUser } from '../auth/logic';
-import { entriesIndex } from '../algolia/algolia';
+// import { entriesIndex } from '../algolia/algolia';
 import { openSellOffer } from '../stellar/operations';
-import { setEntry, getAll } from '../redis';
+// import { setEntry, getAll } from '../redis';
+import { getAll } from '../redis';
+
 import { buildNFTTransaction } from '../stellar/index';
 import XDR from './types/xdr';
 import { Keypair } from 'skyhitz-stellar-base';
-import { generateTomlFile } from '../stellar/toml';
+// import { generateTomlFile } from '../stellar/toml';
 
-async function indexEntryToDb({
-  cid,
-  imageUrl,
-  description,
-  title,
-  artist,
-  videoUrl,
-  forSale,
-  price,
-  equityForSale,
-  code,
-  issuer,
-  supply,
-  user,
-}) {
-  let entry = {
-    id: cid,
-    imageUrl: imageUrl,
-    description: description,
-    title: title,
-    artist: artist,
-    videoUrl: videoUrl,
-    publishedAt: new Date().toISOString(),
-    publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
-    forSale: forSale,
-    price: price,
-    equityForSale: equityForSale,
-    code: code,
-    issuer: issuer,
-  };
-  let entryIndex: any = entry;
-  entryIndex.userDisplayName = user.displayName;
-  entryIndex.userUsername = user.username;
-  entryIndex.objectID = cid;
+// async function indexEntryToDb({
+//   cid,
+//   imageUrl,
+//   description,
+//   title,
+//   artist,
+//   videoUrl,
+//   forSale,
+//   price,
+//   equityForSale,
+//   code,
+//   issuer,
+//   supply,
+//   user,
+// }) {
+//   let entry = {
+//     id: cid,
+//     imageUrl: imageUrl,
+//     description: description,
+//     title: title,
+//     artist: artist,
+//     videoUrl: videoUrl,
+//     publishedAt: new Date().toISOString(),
+//     publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
+//     forSale: forSale,
+//     price: price,
+//     equityForSale: equityForSale,
+//     code: code,
+//     issuer: issuer,
+//   };
+//   let entryIndex: any = entry;
+//   entryIndex.userDisplayName = user.displayName;
+//   entryIndex.userUsername = user.username;
+//   entryIndex.objectID = cid;
 
-  await Promise.all([
-    await setEntry(
-      entry,
-      generateTomlFile({
-        code,
-        issuer: issuer,
-        description,
-        name: `${artist} - ${title}`,
-        image: imageUrl,
-        supply,
-      })
-    ),
-    await entriesIndex.addObject(entryIndex),
-  ]);
-}
+//   await Promise.all([
+//     await setEntry(
+//       entry,
+//       generateTomlFile({
+//         code,
+//         issuer: issuer,
+//         description,
+//         name: `${artist} - ${title}`,
+//         image: imageUrl,
+//         supply,
+//       })
+//     ),
+//     await entriesIndex.addObject(entryIndex),
+//   ]);
+// }
 
 const createEntry = {
   type: XDR,
