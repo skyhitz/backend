@@ -1,7 +1,7 @@
 import { GraphQLString, GraphQLNonNull, GraphQLInt } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { accountCredits, buyViaPathPayment } from '../stellar/operations';
-import { getAll } from '../redis';
+// import { getAll } from '../redis';
 import { decrypt } from '../util/encryption';
 import ConditionalXDR from './types/conditional-xdr';
 
@@ -26,11 +26,13 @@ const buyEntry = {
   },
   async resolve(_: any, args: any, ctx: any) {
     let { id, amount, price } = args;
+    console.log(id);
     let user = await getAuthenticatedUser(ctx);
 
     let [{ credits, seed }, { code, issuer }] = [
       await customerInfo(user),
-      await getAll(`entries:${id}`),
+      // await getAll(`entries:${id}`),
+      await Promise.resolve(null),
     ];
 
     const total = price * amount;

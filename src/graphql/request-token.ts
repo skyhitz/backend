@@ -1,5 +1,5 @@
 import { GraphQLBoolean, GraphQLString, GraphQLNonNull } from 'graphql';
-import { smembers, getAll } from '../redis';
+// import { smembers, getAll } from '../redis';
 import passwordless from '../passwordless/passwordless';
 import { Config } from '../config';
 import { sendGridService } from '../sendgrid/sendgrid';
@@ -23,13 +23,16 @@ const RequestToken = {
         : 'email does not exist.'
     } Sign up to create an account.`;
     if (publicKey) {
-      userId = await smembers('publicKeys:' + publicKey);
+      // userId = await smembers('publicKeys:' + publicKey);
+      userId = '';
     } else {
-      userId = await smembers('emails:' + usernameOrEmail);
+      // userId = await smembers('emails:' + usernameOrEmail);
+      userId = '';
     }
     if (userId) {
       try {
-        currentUser = await getAll('users:' + userId);
+        // currentUser = await getAll('users:' + userId);
+        currentUser = await Promise.resolve(null);
       } catch (e) {
         throw errorMessage;
       }

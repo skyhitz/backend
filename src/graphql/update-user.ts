@@ -2,7 +2,7 @@ import { GraphQLString } from 'graphql';
 import User from './types/user';
 import { getAuthenticatedUser } from '../auth/logic';
 import { usersIndex } from '../algolia/algolia';
-import { updateUser } from '../redis';
+// import { updateUser } from '../redis';
 
 const updateUserEndpoint = {
   type: User,
@@ -51,7 +51,7 @@ const updateUserEndpoint = {
       objectID: user.id,
     };
     [
-      await updateUser(user),
+      // await updateUser(user),
       await usersIndex.partialUpdateObject(userIndexObject),
     ];
     return user;

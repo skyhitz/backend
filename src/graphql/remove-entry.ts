@@ -1,14 +1,14 @@
 import { GraphQLString, GraphQLBoolean, GraphQLNonNull } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { entriesIndex } from '../algolia/algolia';
-import { getAll, hdel } from '../redis';
+// import { getAll, hdel } from '../redis';
 const adminId = '-LbM3m6WKdVQAsY3zrAd';
 
 // TO DO: delete onwers of entry as well
 async function deleteEntry(entry: any) {
   try {
     [
-      await hdel(`entries:${entry.id}`),
+      // await hdel(`entries:${entry.id}`),
       await entriesIndex.deleteObject(entry.id),
     ];
   } catch (e) {
@@ -28,7 +28,8 @@ const removeEntry = {
   },
   async resolve(_: any, { id }: any, ctx: any) {
     const user = await getAuthenticatedUser(ctx);
-    let entry = await getAll(`entries:${id}`);
+    // let entry = await getAll(`entries:${id}`);
+    let entry = await Promise.resolve(null);
 
     if (user.id === adminId) {
       return deleteEntry(entry);

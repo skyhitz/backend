@@ -13,13 +13,17 @@ export type UserPayload = {
 };
 
 export type AlgoliaUserObject = {
-  avatarUrl: null | string;
+  avatarUrl: string;
   displayName: string;
-  description: null | string;
+  description: string;
+  email: string;
   username: string;
   id: string;
   publishedAt: string;
   publishedAtTimestamp: number;
   objectID: string;
   publicKey: string;
+  seed: string;
+  version: number;
+  jwt?: string;
 };

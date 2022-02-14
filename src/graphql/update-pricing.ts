@@ -7,7 +7,7 @@ import {
 import ConditionalXDR from './types/conditional-xdr';
 import { getAuthenticatedUser } from '../auth/logic';
 import { partialUpdateObject } from '../algolia/algolia';
-import { getAll, updateEntry } from '../redis';
+// import { getAll, updateEntry } from '../redis';
 import { manageSellOffer, getOfferId } from '../stellar/operations';
 
 const updatePricing = {
@@ -30,7 +30,9 @@ const updatePricing = {
     let { id, price, forSale, equityForSale } = args;
 
     let user = await getAuthenticatedUser(ctx);
-    let entry = await getAll(`entries:${id}`);
+    // let entry = await getAll(`entries:${id}`);
+    let entry = await Promise.resolve(null);
+    console.log(id);
 
     let transactionResult = { success: false, xdr: '', submitted: false };
 
@@ -50,7 +52,7 @@ const updatePricing = {
     entry.price = price;
     entry.forSale = forSale;
     await Promise.all([
-      await updateEntry(entry),
+      // await updateEntry(entry),
       await partialUpdateObject({
         objectID: entry.id,
         forSale: entry.forSale,

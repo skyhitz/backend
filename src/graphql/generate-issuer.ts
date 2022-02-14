@@ -1,21 +1,22 @@
 import { GraphQLString } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { Keypair } from 'skyhitz-stellar-base';
-import { redisClient } from '../redis';
+// import { redisClient } from '../redis';
 
 async function setIssuer(user, seed): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    redisClient
-      .multi()
-      .hmset(`issuer:${user.id}`, 'seed', seed)
-      .exec(async (err) => {
-        if (err) {
-          console.log(err);
-          return reject(false);
-        }
-        return resolve(true);
-      });
-  });
+  // return new Promise((resolve, reject) => {
+  //   redisClient
+  //     .multi()
+  //     .hmset(`issuer:${user.id}`, 'seed', seed)
+  //     .exec(async (err) => {
+  //       if (err) {
+  //         console.log(err);
+  //         return reject(false);
+  //       }
+  //       return resolve(true);
+  //     });
+  // });
+  return true;
 }
 
 const generateIssuer = {

@@ -1,7 +1,7 @@
 import { GraphQLNonNull, GraphQLString } from 'graphql';
 import EntryLikes from './types/entry-likes';
 import { getAuthenticatedUser } from '../auth/logic';
-import { sendCommand } from '../redis';
+// import { sendCommand } from '../redis';
 import { chunk } from '../util/chunk';
 
 const entryLikes = {
@@ -13,23 +13,23 @@ const entryLikes = {
   },
   async resolve(_: any, { id }: any, ctx: any) {
     await getAuthenticatedUser(ctx);
-    let users = await sendCommand('sort', [
-      `likes:entry:${id}`,
-      'by',
-      'nosort',
-      'get',
-      'users:*->avatarUrl',
-      'get',
-      'users:*->displayName',
-      'get',
-      'users:*->username',
-      'get',
-      'users:*->id',
-      'get',
-      'users:*->description',
-    ]);
+    // let users = await sendCommand('sort', [
+    //   `likes:entry:${id}`,
+    //   'by',
+    //   'nosort',
+    //   'get',
+    //   'users:*->avatarUrl',
+    //   'get',
+    //   'users:*->displayName',
+    //   'get',
+    //   'users:*->username',
+    //   'get',
+    //   'users:*->id',
+    //   'get',
+    //   'users:*->description',
+    // ]);
 
-    let usersArr = chunk(users, 5).map(
+    let usersArr = chunk([], 5).map(
       ([avatarUrl, displayName, username, id, description]) => {
         return {
           avatarUrl: avatarUrl,

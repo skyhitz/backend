@@ -1,5 +1,5 @@
 import { GraphQLString, GraphQLNonNull } from 'graphql';
-import { getAll } from '../redis';
+// import { getAll } from '../redis';
 import User from './types/user';
 import passwordless from '../passwordless/passwordless';
 import * as jwt from 'jsonwebtoken';
@@ -22,7 +22,8 @@ const SignIn = {
         uid,
         async function (error, valid, referrer) {
           if (valid) {
-            let user = await getAll('users:' + uid);
+            // let user = await getAll('users:' + uid);
+            let user = await Promise.resolve(null);
             const token = jwt.sign(
               {
                 id: user.id,
