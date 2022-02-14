@@ -51,9 +51,9 @@ const createUserWithEmail = {
     const newId = UniqueIdGenerator.generate();
 
     let user: AlgoliaUserObject = {
-      avatarUrl: null,
+      avatarUrl: '',
       displayName: args.displayName,
-      description: null,
+      description: '',
       username: args.username,
       email: args.email,
       version: 1,
