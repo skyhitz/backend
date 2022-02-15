@@ -8,12 +8,12 @@ import {
   findCustomerById,
 } from './payments/stripe';
 import {
-  // sendSubscriptionTokens,
+  sendSubscriptionTokens,
   getXlmInUsdDexPrice,
 } from './stellar/operations';
 import { findCustomer } from './payments/stripe';
 import { Config } from './config/index';
-// import { getAll, smembers } from './redis';
+import { getUserByEmail } from './algolia/algolia';
 
 export function stripeWebhook(graphQLServer) {
   graphQLServer.post(
@@ -84,11 +84,10 @@ async function onChargeSucceeded({ object }: any, response) {
   console.log(email);
   console.log(finalAmount);
 
-  // const userId = await smembers('emails:' + email);
-  // const { publicKey } = await getAll('users:' + userId);
+  const { publicKey } = await getUserByEmail(email);
 
   // toFixed leaves four decimals
-  // await sendSubscriptionTokens(publicKey, finalAmount.toFixed(4));
+  await sendSubscriptionTokens(publicKey, finalAmount.toFixed(4));
   if (pendingCharge) {
     await cleanPendingChargeMetadata(id);
     return response.send(200);

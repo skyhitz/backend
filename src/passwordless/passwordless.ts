@@ -1,4 +1,4 @@
-'use strict';
+import { TokenStore } from './store';
 
 var cryptox = require('crypto');
 var base58 = require('bs58');
@@ -11,7 +11,7 @@ var base58 = require('bs58');
  * @constructor
  */
 class Passwordless {
-  _tokenStore = undefined;
+  _tokenStore: TokenStore = undefined;
   _userProperty = undefined;
   _deliveryMethods = {};
   _defaultDelivery = undefined;

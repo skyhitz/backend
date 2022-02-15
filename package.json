@@ -5,7 +5,7 @@
   "author": "Alejo Mendoza",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development node -r ts-node/register --inspect ./src/graphql/server.ts",
+    "dev": "NODE_ENV=development node -r ts-node/register -r tsconfig-paths/register --inspect ./src/graphql/server.ts",
     "prod": "NODE_ENV=production node -r ts-node/register --inspect ./src/graphql/server.ts",
     "stellar:check-test-account": "node -r ts-node/register ./src/testing/verify-stellar-test-account.ts"
   },

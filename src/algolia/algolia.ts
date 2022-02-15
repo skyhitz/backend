@@ -1,4 +1,5 @@
 import algoliasearch from 'algoliasearch';
+import { User } from 'src/util/types';
 import { Config } from '../config/index';
 const client = algoliasearch(
   Config.ALGOLIA_APP_ID,
@@ -7,6 +8,8 @@ const client = algoliasearch(
 const appDomain = Config.APP_URL.replace('https://', '');
 export const entriesIndex = client.initIndex(`${appDomain}:entries`);
 export const usersIndex = client.initIndex(`${appDomain}:users`);
+export const passwordlessIndex = client.initIndex(`${appDomain}:pwdless`);
+export const issuersIndex = client.initIndex(`${appDomain}:issuers`);
 
 usersIndex.setSettings({
   searchableAttributes: ['username', 'email', 'publicKey'],
@@ -31,6 +34,10 @@ export async function partialUpdateObject(obj: any) {
   });
 }
 
+export async function getUser(id): Promise<User> {
+  return usersIndex.getObject(id);
+}
+
 export async function getByUsernameOrEmailOrPublicKey(
   username: string,
   email: string,
@@ -45,6 +52,23 @@ export async function getByUsernameOrEmailOrPublicKey(
   return user;
 }
 
+export async function getUserByEmail(email: string) {
+  const res = await usersIndex.search('', {
+    filters: `email:${email}`,
+  });
+  const [user] = res.hits;
+  return user as User;
+}
+
 export async function saveUser(user) {
   await usersIndex.saveObject(user);
+}
+
+export async function setIssuer(user, seed): Promise<boolean> {
+  try {
+    await issuersIndex.saveObject({ seed: seed, objectID: user.id });
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
