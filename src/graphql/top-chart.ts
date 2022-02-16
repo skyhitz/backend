@@ -1,40 +1,16 @@
 import { GraphQLList } from 'graphql';
 import Entry from './types/entry';
 import { getAuthenticatedUser } from '../auth/logic';
-import { chunk } from '../util/chunk';
-// import { sendCommand } from '../redis';
+import { entriesByLikeCount } from 'src/algolia/algolia';
 
 const TopChart = {
   type: new GraphQLList(Entry),
   async resolve(root: any, args: any, ctx: any) {
     await getAuthenticatedUser(ctx);
-    // let key = 'all-entries';
-    // let entries = await sendCommand('sort', [
-    //   key,
-    //   'by',
-    //   'entries:*->likesCount',
-    //   'desc',
-    //   'get',
-    //   'entries:*->imageUrl',
-    //   'get',
-    //   'entries:*->videoUrl',
-    //   'get',
-    //   'entries:*->description',
-    //   'get',
-    //   'entries:*->title',
-    //   'get',
-    //   'entries:*->id',
-    //   'get',
-    //   'entries:*->forSale',
-    //   'get',
-    //   'entries:*->price',
-    //   'get',
-    //   'entries:*->artist',
-    // ]);
-    let entries = [];
+    let entries = await entriesByLikeCount();
 
-    return chunk(entries, 8).map(
-      ([
+    return entries.map(
+      ({
         imageUrl,
         videoUrl,
         description,
@@ -43,15 +19,15 @@ const TopChart = {
         forSale,
         price,
         artist,
-      ]) => {
+      }) => {
         return {
           imageUrl: imageUrl,
           videoUrl: videoUrl,
           description: description,
           title: title,
           id: id,
-          forSale: forSale === 'true',
-          price: parseInt(price),
+          forSale: forSale,
+          price: price,
           artist: artist,
         };
       }

@@ -13,3 +13,25 @@ export type User = {
   version: number;
   jwt?: string;
 };
+
+export type Entry = {
+  id: string;
+  imageUrl: string;
+  description: string;
+  title: string;
+  artist: string;
+  videoUrl: string;
+  publishedAt: string;
+  publishedAtTimestamp: number;
+  forSale: boolean;
+  price: number;
+  equityForSale: number;
+  code: string;
+  issuer: string;
+  likeCount: number;
+};
+
+export type Issuer = {
+  seed: string;
+  objectID: string;
+};

@@ -1,15 +1,13 @@
 import { GraphQLString } from 'graphql';
 import EntryPrice from './types/entry-price';
 import { getAuthenticatedUser } from '../auth/logic';
-// import { getAll } from '../redis';
 import { getAsks } from '../stellar/operations';
+import { getEntry } from 'src/algolia/algolia';
 
 const getEntryAsk = async (id) => {
-  // let res = await getAll(`assets:entry:${id}`);
-  let res = await Promise.resolve(null);
-  if (res) {
-    const [assetCode] = Object.keys(res);
-    let { price, amount } = await getAsks(assetCode);
+  let { code } = await getEntry(id);
+  if (code) {
+    let { price, amount } = await getAsks(code);
     return { price: price, amount: amount };
   }
   return { price: 0, amount: 0 };

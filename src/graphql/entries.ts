@@ -1,10 +1,10 @@
 import { GraphQLList, GraphQLString } from 'graphql';
 import Entry from './types/entry';
 import { getAuthenticatedUser } from '../auth/logic';
-// import { getAll } from '../redis';
 import { findCustomer } from '../payments/stripe';
 import { loadSkyhitzAssets } from '../stellar/operations';
 import { each } from 'async';
+import { getEntry, getEntryByCode, getUser } from 'src/algolia/algolia';
 
 function getEntriesWithAssetCodes(assetCodes) {
   let entries = [];
@@ -12,12 +12,8 @@ function getEntriesWithAssetCodes(assetCodes) {
     each(
       assetCodes,
       async (id, cb) => {
-        // let res = await getAll(`assets:code:${id}`);
-        let res = await Promise.resolve(null);
-        if (res) {
-          // const [entryId] = Object.keys(res);
-          const entry = await Promise.resolve(null);
-          // const entry = await getAll(`entries:${entryId}`);
+        let entry = await getEntryByCode(id);
+        if (entry) {
           entries.push(entry);
           cb();
         } else {
@@ -48,12 +44,11 @@ const Entries = {
   async resolve(root: any, { id, userId }: any, ctx: any) {
     await getAuthenticatedUser(ctx);
     if (!userId) {
-      // return getAll(`entries:${id}`);
-      return await Promise.resolve(null);
+      const entry = await getEntry(id);
+      return [entry];
     }
 
-    // let user = await getAll(`users:${userId}`);
-    let user = await Promise.resolve(null);
+    let user = await getUser(userId);
     if (!user.publicKey) {
       let customer = await findCustomer(user.email);
       let { metadata } = customer;

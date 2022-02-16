@@ -1,42 +1,6 @@
 import { GraphQLString, GraphQLBoolean, GraphQLNonNull } from 'graphql';
+import { likeMulti, unlikeMulti } from 'src/algolia/algolia';
 import { getAuthenticatedUser } from '../auth/logic';
-// import { redisClient, getAll } from '../redis';
-
-async function likeMulti(userId, entryId) {
-  // let { likesCount } = await getAll(`entries:${entryId}`);
-  // let likeCountNumber = parseInt(likesCount) + 1;
-  // return new Promise((resolve, reject) => {
-  //   redisClient
-  //     .multi()
-  //     .sadd(`likes:user:${userId}`, entryId)
-  //     .sadd(`likes:entry:${entryId}`, userId)
-  //     .hset(`entry:${entryId}`, 'likeCount', likeCountNumber.toString())
-  //     .exec((err) => {
-  //       if (err) {
-  //         return reject(err);
-  //       }
-  //       resolve(true);
-  //     });
-  // });
-}
-
-async function unlikeMulti(userId, entryId) {
-  // let { likesCount } = await getAll(`entries:${entryId}`);
-  // let likeCountNumber = parseInt(likesCount) - 1;
-  // return new Promise((resolve, reject) => {
-  //   redisClient
-  //     .multi()
-  //     .srem(`likes:user:${userId}`, entryId)
-  //     .srem(`likes:entry:${entryId}`, userId)
-  //     .hset(`entry:${entryId}`, 'likeCount', likeCountNumber.toString())
-  //     .exec((err) => {
-  //       if (err) {
-  //         return reject(err);
-  //       }
-  //       resolve(true);
-  //     });
-  // });
-}
 
 const likeEntry = {
   type: GraphQLBoolean,
