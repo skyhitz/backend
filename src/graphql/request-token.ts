@@ -34,6 +34,8 @@ const RequestToken = {
       throw errorMessage;
     }
 
+    console.log('current user', currentUser);
+
     let token = passwordless._generateToken()();
     let ttl = 60 * 60 * 1000;
     return new Promise((resolve, reject) => {
