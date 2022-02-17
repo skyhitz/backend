@@ -26,7 +26,6 @@ const buyEntry = {
   },
   async resolve(_: any, args: any, ctx: any) {
     let { id, amount, price } = args;
-    console.log(id);
     let user = await getAuthenticatedUser(ctx);
 
     let [{ credits, seed }, { code, issuer }] = [
