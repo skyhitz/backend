@@ -1,12 +1,12 @@
 import { GraphQLString, GraphQLNonNull } from 'graphql';
-import { getAll } from '../redis';
-import User from './types/user';
+import GraphQLUser from './types/user';
 import passwordless from '../passwordless/passwordless';
 import * as jwt from 'jsonwebtoken';
 import { Config } from '../config';
+import { getUser } from 'src/algolia/algolia';
 
 const SignIn = {
-  type: User,
+  type: GraphQLUser,
   args: {
     token: {
       type: new GraphQLNonNull(GraphQLString),
@@ -22,12 +22,13 @@ const SignIn = {
         uid,
         async function (error, valid, referrer) {
           if (valid) {
-            let user = await getAll('users:' + uid);
+            let user = await getUser(uid);
+
             const token = jwt.sign(
               {
                 id: user.id,
                 email: user.email,
-                version: parseInt(user.version),
+                version: user.version,
               } as any,
               Config.JWT_SECRET
             );

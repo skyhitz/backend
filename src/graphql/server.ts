@@ -4,11 +4,10 @@ import { Config } from '../config';
 import jwt from 'express-jwt';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 const compression = require('compression');
-const RedisStore = require('../passwordless/store');
-import passwordless from '../passwordless/passwordless';
+import { TokenStore } from 'src/passwordless/store';
+import passwordless from 'src/passwordless/passwordless';
 import { stripeWebhook } from '../webhooks';
-import { getAll } from '../redis';
-import { assets } from '../assets/assets';
+import { usersIndex } from 'src/algolia/algolia';
 
 let cors = require('cors');
 const cache = require('memory-cache');
@@ -29,7 +28,7 @@ const buildOptions: any = async (req: any) => {
     return {
       schema: Schema,
       context: {
-        user: getAll('users:' + req.user.id).then((user) => {
+        user: usersIndex.getObject(req.user.id).then((user: any) => {
           if (!user) return null;
           if (req.user.version === parseInt(user.version)) {
             cacheInstance.put(req.user.id, user);
@@ -52,7 +51,7 @@ const graphiqlUrl = '/api/graphiql';
 const graphqlUrl = '/api/graphql';
 const graphEndpoints = [graphiqlUrl, graphqlUrl];
 
-passwordless.init(new RedisStore());
+passwordless.init(new TokenStore());
 
 const setupGraphQLServer = () => {
   const graphQLServer = express();
@@ -84,8 +83,6 @@ const setupGraphQLServer = () => {
     express.urlencoded({ extended: false }),
     graphqlExpress(buildOptions)
   );
-
-  assets(graphQLServer);
 
   stripeWebhook(graphQLServer);
 

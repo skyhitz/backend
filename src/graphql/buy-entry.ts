@@ -1,7 +1,7 @@
 import { GraphQLString, GraphQLNonNull, GraphQLInt } from 'graphql';
+import { getEntry } from 'src/algolia/algolia';
 import { getAuthenticatedUser } from '../auth/logic';
 import { accountCredits, buyViaPathPayment } from '../stellar/operations';
-import { getAll } from '../redis';
 import { decrypt } from '../util/encryption';
 import ConditionalXDR from './types/conditional-xdr';
 
@@ -30,7 +30,7 @@ const buyEntry = {
 
     let [{ credits, seed }, { code, issuer }] = [
       await customerInfo(user),
-      await getAll(`entries:${id}`),
+      await getEntry(id),
     ];
 
     const total = price * amount;

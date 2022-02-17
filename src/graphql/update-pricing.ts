@@ -6,8 +6,7 @@ import {
 } from 'graphql';
 import ConditionalXDR from './types/conditional-xdr';
 import { getAuthenticatedUser } from '../auth/logic';
-import { partialUpdateObject } from '../algolia/algolia';
-import { getAll, updateEntry } from '../redis';
+import { getEntry, partialUpdateObject } from '../algolia/algolia';
 import { manageSellOffer, getOfferId } from '../stellar/operations';
 
 const updatePricing = {
@@ -30,7 +29,8 @@ const updatePricing = {
     let { id, price, forSale, equityForSale } = args;
 
     let user = await getAuthenticatedUser(ctx);
-    let entry = await getAll(`entries:${id}`);
+    let entry = await getEntry(id);
+    console.log(id);
 
     let transactionResult = { success: false, xdr: '', submitted: false };
 
@@ -49,13 +49,10 @@ const updatePricing = {
     }
     entry.price = price;
     entry.forSale = forSale;
-    await Promise.all([
-      await updateEntry(entry),
-      await partialUpdateObject({
-        objectID: entry.id,
-        forSale: entry.forSale,
-      }),
-    ]);
+    await partialUpdateObject({
+      objectID: entry.id,
+      forSale: entry.forSale,
+    });
     return transactionResult;
   },
 };

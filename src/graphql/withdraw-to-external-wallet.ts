@@ -4,12 +4,12 @@ import {
   GraphQLBoolean,
   GraphQLNonNull,
 } from 'graphql';
-import { getAuthenticatedUser } from '../auth/logic';
-import { findCustomer } from '../payments/stripe';
+import { getAuthenticatedUser } from 'src/auth/logic';
+import { findCustomer } from 'src/payments/stripe';
 import {
   accountCredits,
   withdrawToExternalAddress,
-} from '../stellar/operations';
+} from 'src/stellar/operations';
 
 /**
  * Withdraws user balance to external address in XLM

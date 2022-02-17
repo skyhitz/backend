@@ -10,11 +10,12 @@ import { getAuthenticatedUser } from '../auth/logic';
 // import { entriesIndex } from '../algolia/algolia';
 import { openSellOffer } from '../stellar/operations';
 // import { setEntry, getAll } from '../redis';
-import { getAll } from '../redis';
+// import { getAll } from '../redis';
 
 import { buildNFTTransaction } from '../stellar/index';
 import XDR from './types/xdr';
 import { Keypair } from 'skyhitz-stellar-base';
+import { getIssuer } from 'src/algolia/algolia';
 // import { generateTomlFile } from '../stellar/toml';
 
 // async function indexEntryToDb({
@@ -120,7 +121,7 @@ const createEntry = {
   ) {
     let user = await getAuthenticatedUser(ctx);
 
-    const issuer = await getAll(`issuer:${user.id}`);
+    const issuer = await getIssuer(user.id);
     if (!issuer) {
       throw 'issuer not set';
     }
