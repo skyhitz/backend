@@ -7,7 +7,7 @@ const compression = require('compression');
 import { TokenStore } from '../passwordless/store';
 import passwordless from '../passwordless/passwordless';
 import { stripeWebhook } from '../webhooks';
-import { usersIndex } from '../algolia/algolia';
+import { getUser } from '../algolia/algolia';
 
 let cors = require('cors');
 const cache = require('memory-cache');
@@ -28,9 +28,11 @@ const buildOptions: any = async (req: any) => {
     return {
       schema: Schema,
       context: {
-        user: usersIndex.getObject(req.user.id).then((user: any) => {
+        user: getUser(req.user.id).then((user: any) => {
           if (!user) return null;
-          if (req.user.version === parseInt(user.version)) {
+          console.log(req);
+          console.log(user);
+          if (req.user.version === user.version) {
             cacheInstance.put(req.user.id, user);
             return user;
           }
