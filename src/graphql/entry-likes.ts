@@ -1,7 +1,7 @@
 import { GraphQLNonNull, GraphQLString } from 'graphql';
 import EntryLikes from './types/entry-likes';
 import { getAuthenticatedUser } from '../auth/logic';
-import { getUsersLikesWithEntryId } from 'src/algolia/algolia';
+import { getUsersLikesWithEntryId } from '../algolia/algolia';
 
 const entryLikes = {
   type: EntryLikes,

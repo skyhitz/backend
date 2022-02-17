@@ -15,7 +15,7 @@ import { openSellOffer } from '../stellar/operations';
 import { buildNFTTransaction } from '../stellar/index';
 import XDR from './types/xdr';
 import { Keypair } from 'skyhitz-stellar-base';
-import { getIssuer } from 'src/algolia/algolia';
+import { getIssuer } from '../algolia/algolia';
 // import { generateTomlFile } from '../stellar/toml';
 
 // async function indexEntryToDb({

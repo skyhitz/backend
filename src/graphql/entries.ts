@@ -4,7 +4,7 @@ import { getAuthenticatedUser } from '../auth/logic';
 import { findCustomer } from '../payments/stripe';
 import { loadSkyhitzAssets } from '../stellar/operations';
 import { each } from 'async';
-import { getEntry, getEntryByCode, getUser } from 'src/algolia/algolia';
+import { getEntry, getEntryByCode, getUser } from '../algolia/algolia';
 
 function getEntriesWithAssetCodes(assetCodes) {
   let entries = [];

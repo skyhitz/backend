@@ -1,6 +1,6 @@
 import { GraphQLString, GraphQLBoolean, GraphQLNonNull } from 'graphql';
-import { getAuthenticatedUser } from 'src/auth/logic';
-import { deleteEntry } from 'src/algolia/algolia';
+import { getAuthenticatedUser } from '../auth/logic';
+import { deleteEntry } from '../algolia/algolia';
 const adminId = '-LbM3m6WKdVQAsY3zrAd';
 
 const removeEntry = {

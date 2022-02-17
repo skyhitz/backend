@@ -1,5 +1,5 @@
 import { GraphQLString, GraphQLBoolean, GraphQLNonNull } from 'graphql';
-import { likeMulti, unlikeMulti } from 'src/algolia/algolia';
+import { likeMulti, unlikeMulti } from '../algolia/algolia';
 import { getAuthenticatedUser } from '../auth/logic';
 
 const likeEntry = {

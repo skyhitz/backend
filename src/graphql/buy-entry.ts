@@ -1,5 +1,5 @@
 import { GraphQLString, GraphQLNonNull, GraphQLInt } from 'graphql';
-import { getEntry } from 'src/algolia/algolia';
+import { getEntry } from '../algolia/algolia';
 import { getAuthenticatedUser } from '../auth/logic';
 import { accountCredits, buyViaPathPayment } from '../stellar/operations';
 import { decrypt } from '../util/encryption';

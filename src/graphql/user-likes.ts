@@ -1,7 +1,7 @@
 import { GraphQLList } from 'graphql';
 import Entry from './types/entry';
 import { getAuthenticatedUser } from '../auth/logic';
-import { getEntriesLikesWithUserId } from 'src/algolia/algolia';
+import { getEntriesLikesWithUserId } from '../algolia/algolia';
 
 const UserLikes = {
   type: new GraphQLList(Entry),

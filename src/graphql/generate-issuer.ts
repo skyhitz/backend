@@ -1,7 +1,7 @@
 import { GraphQLString } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { Keypair } from 'skyhitz-stellar-base';
-import { setIssuer } from 'src/algolia/algolia';
+import { setIssuer } from '../algolia/algolia';
 
 const generateIssuer = {
   type: GraphQLString,

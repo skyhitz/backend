@@ -1,7 +1,7 @@
 import { GraphQLList } from 'graphql';
 import Entry from './types/entry';
 import { getAuthenticatedUser } from '../auth/logic';
-import { entriesByLikeCount } from 'src/algolia/algolia';
+import { entriesByLikeCount } from '../algolia/algolia';
 
 const TopChart = {
   type: new GraphQLList(Entry),

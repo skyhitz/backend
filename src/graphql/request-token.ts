@@ -2,7 +2,7 @@ import { GraphQLBoolean, GraphQLString, GraphQLNonNull } from 'graphql';
 import passwordless from '../passwordless/passwordless';
 import { Config } from '../config';
 import { sendGridService } from '../sendgrid/sendgrid';
-import { getUserByEmail, getUserByPublicKey } from 'src/algolia/algolia';
+import { getUserByEmail, getUserByPublicKey } from '../algolia/algolia';
 
 const RequestToken = {
   type: GraphQLBoolean,

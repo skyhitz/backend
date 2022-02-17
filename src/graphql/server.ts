@@ -4,10 +4,10 @@ import { Config } from '../config';
 import jwt from 'express-jwt';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 const compression = require('compression');
-import { TokenStore } from 'src/passwordless/store';
-import passwordless from 'src/passwordless/passwordless';
+import { TokenStore } from '../passwordless/store';
+import passwordless from '../passwordless/passwordless';
 import { stripeWebhook } from '../webhooks';
-import { usersIndex } from 'src/algolia/algolia';
+import { usersIndex } from '../algolia/algolia';
 
 let cors = require('cors');
 const cache = require('memory-cache');

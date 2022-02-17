@@ -1,5 +1,5 @@
 import algoliasearch from 'algoliasearch';
-import { User, Entry, Issuer } from 'src/util/types';
+import { User, Entry, Issuer } from '../util/types';
 import { Config } from '../config/index';
 const client = algoliasearch(
   Config.ALGOLIA_APP_ID,

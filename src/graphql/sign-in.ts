@@ -3,7 +3,7 @@ import GraphQLUser from './types/user';
 import passwordless from '../passwordless/passwordless';
 import * as jwt from 'jsonwebtoken';
 import { Config } from '../config';
-import { getUser } from 'src/algolia/algolia';
+import { getUser } from '../algolia/algolia';
 
 const SignIn = {
   type: GraphQLUser,

@@ -2,7 +2,7 @@ import { GraphQLString } from 'graphql';
 import EntryPrice from './types/entry-price';
 import { getAuthenticatedUser } from '../auth/logic';
 import { getAsks } from '../stellar/operations';
-import { getEntry } from 'src/algolia/algolia';
+import { getEntry } from '../algolia/algolia';
 
 const getEntryAsk = async (id) => {
   let { code } = await getEntry(id);

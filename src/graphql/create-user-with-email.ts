@@ -1,14 +1,14 @@
 import { GraphQLString, GraphQLNonNull } from 'graphql';
 
 import GraphQLUser from './types/user';
-import UniqueIdGenerator from 'src/auth/unique-id-generator';
+import UniqueIdGenerator from '../auth/unique-id-generator';
 import * as jwt from 'jsonwebtoken';
-import { Config } from 'src/config';
-import { getByUsernameOrEmailOrPublicKey, saveUser } from 'src/algolia/algolia';
-import { sendWelcomeEmail } from 'src/sendgrid/sendgrid';
-import { createAndFundAccount } from 'src/stellar/operations';
-import { encrypt } from 'src/util/encryption';
-import { User } from 'src/util/types';
+import { Config } from '../config';
+import { getByUsernameOrEmailOrPublicKey, saveUser } from '../algolia/algolia';
+import { sendWelcomeEmail } from '../sendgrid/sendgrid';
+import { createAndFundAccount } from '../stellar/operations';
+import { encrypt } from '../util/encryption';
+import { User } from '../util/types';
 
 const createUserWithEmail = {
   type: GraphQLUser,
