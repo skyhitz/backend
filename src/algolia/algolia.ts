@@ -187,10 +187,10 @@ export async function getUsersLikesWithEntryId(entryId) {
 
 export async function getEntriesLikesWithUserId(userId) {
   const likes = await likesIndex.search(`user:${userId}`);
+  const objectIDs = likes.hits.map(({ objectID }) => objectID);
   console.log('user likes:', likes);
-  const entries = await entriesIndex.getObjects(
-    likes.hits.map(({ objectID }) => objectID)
-  );
+  console.log(objectIDs);
+  const entries = await entriesIndex.getObjects(objectIDs);
 
   console.log('entries', entries);
   return entries.results as unknown as Entry[];
