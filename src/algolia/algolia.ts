@@ -184,21 +184,24 @@ export async function unlikeMulti(userId, entryId) {
 }
 
 export async function getUsersLikesWithEntryId(entryId) {
+  const prefix = 'user';
   const likes = await likesIndex.search(`entry${entryId}`);
   const users = await usersIndex.getObjects(
-    likes.hits.map(({ objectID }) => objectID)
+    likes.hits.map(({ objectID }) =>
+      objectID.substring(objectID.lastIndexOf(prefix) + prefix.length)
+    )
   );
   return users.results as User[];
 }
 
 export async function getEntriesLikesWithUserId(userId) {
+  const prefix = 'entry';
   const likes = await likesIndex.search(`user${userId}`);
-  const objectIDs = likes.hits.map(({ objectID }) => objectID);
-  console.log('user likes:', likes);
-  console.log(objectIDs);
+  const objectIDs = likes.hits.map(({ objectID }) =>
+    objectID.substring(objectID.lastIndexOf(prefix) + prefix.length)
+  );
   const entries = await entriesIndex.getObjects(objectIDs);
 
-  console.log('entries', entries);
   return entries.results as unknown as Entry[];
 }
 
