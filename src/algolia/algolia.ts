@@ -149,7 +149,10 @@ export async function likeMulti(userId, entryId) {
       }),
       await entriesIndex.partialUpdateObject({
         objectID: entryId,
-        likeCount: likeCountNumber ? likeCountNumber : 0,
+        likeCount: {
+          _operation: 'Increment',
+          value: likeCountNumber ? likeCountNumber : 0,
+        },
       }),
     ]);
     return true;
@@ -168,7 +171,10 @@ export async function unlikeMulti(userId, entryId) {
       await likesIndex.deleteObject(`entry${entryId}user${userId}`),
       await entriesIndex.partialUpdateObject({
         objectID: entryId,
-        likeCount: likeCountNumber ? likeCountNumber : 0,
+        likeCount: {
+          _operation: 'Decrement',
+          value: likeCountNumber ? likeCountNumber : 0,
+        },
       }),
     ]);
     return true;
