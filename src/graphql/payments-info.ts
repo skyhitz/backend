@@ -16,14 +16,26 @@ const PaymentsInfo = {
       };
     }
 
-    const [{ subscriptions }, credits] = await Promise.all([
+    const [customer, credits] = await Promise.all([
       await findCustomer(user.email),
       await accountCredits(user.publicKey),
     ]);
 
+    if (customer) {
+      const { subscriptions } = customer;
+
+      return {
+        credits: credits,
+        subscribed:
+          subscriptions && subscriptions.data
+            ? subscriptions.data.length > 0
+            : false,
+      };
+    }
+
     return {
       credits: credits,
-      subscribed: subscriptions.data.length > 0,
+      subscribed: false,
     };
   },
 };
