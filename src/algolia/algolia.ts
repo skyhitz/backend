@@ -191,6 +191,8 @@ export async function getEntriesLikesWithUserId(userId) {
   const entries = await entriesIndex.getObjects(
     likes.hits.map(({ objectID }) => objectID)
   );
+
+  console.log('entries', entries);
   return entries.results as unknown as Entry[];
 }
 
