@@ -135,6 +135,7 @@ export async function getIssuer(userId): Promise<Issuer> {
 export async function likeMulti(userId, entryId) {
   let { likeCount } = await getEntry(entryId);
   let likeCountNumber = likeCount ? likeCount + 1 : 1;
+  console.log('like count:', likeCount);
 
   try {
     await Promise.all([
@@ -146,10 +147,10 @@ export async function likeMulti(userId, entryId) {
         objectID: `entry:${entryId}:${userId}`,
         likeCount: likeCountNumber ? likeCountNumber : 0,
       }),
-      await partialUpdateObject({
-        objectID: entryId,
-        likeCount: likeCountNumber ? likeCountNumber : 0,
-      }),
+      // await partialUpdateObject({
+      //   objectID: entryId,
+      //   likeCount: likeCountNumber ? likeCountNumber : 0,
+      // }),
     ]);
     return true;
   } catch (e) {
