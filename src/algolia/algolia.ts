@@ -9,6 +9,7 @@ const appDomain = Config.APP_URL.replace('https://', '');
 export const entriesIndex = client.initIndex(`${appDomain}:entries`);
 entriesIndex.setSettings({
   replicas: [`${appDomain}:entries_likes_desc`],
+  attributesToRetrieve: ['*'],
 });
 export const usersIndex = client.initIndex(`${appDomain}:users`);
 export const passwordlessIndex = client.initIndex(`${appDomain}:pwdless`);
@@ -20,6 +21,7 @@ export const likeCountReplicaIndex = client.initIndex(
 
 likeCountReplicaIndex.setSettings({
   ranking: ['desc(likeCount)'],
+  attributesToRetrieve: ['*'],
 });
 
 usersIndex.setSettings({
@@ -35,7 +37,7 @@ usersIndex.setSettings({
 likesIndex.setSettings({
   searchableAttributes: ['objectID'],
   attributesForFaceting: ['filterOnly(objectID)'],
-  attributesToRetrieve: ['objectID', 'likeCount'],
+  attributesToRetrieve: ['*'],
 });
 
 // Always pass objectID
