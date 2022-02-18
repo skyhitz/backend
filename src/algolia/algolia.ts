@@ -132,21 +132,21 @@ export async function getIssuer(userId): Promise<Issuer> {
 
 export async function likeMulti(userId, entryId) {
   let { likeCount } = await getEntry(entryId);
-  let likeCountNumber = likeCount + 1;
+  let likeCountNumber = likeCount ? likeCount + 1 : 1;
 
   try {
     await Promise.all([
       await likesIndex.saveObject({
         objectID: `user:${userId}:${entryId}`,
-        likeCount: likeCountNumber,
+        likeCount: likeCountNumber ? likeCountNumber : 0,
       }),
       await likesIndex.saveObject({
         objectID: `entry:${entryId}:${userId}`,
-        likeCount: likeCountNumber,
+        likeCount: likeCountNumber ? likeCountNumber : 0,
       }),
       await partialUpdateObject({
         objectID: entryId,
-        likeCount: likeCountNumber,
+        likeCount: likeCountNumber ? likeCountNumber : 0,
       }),
     ]);
     return true;
@@ -157,7 +157,7 @@ export async function likeMulti(userId, entryId) {
 
 export async function unlikeMulti(userId, entryId) {
   let { likeCount } = await getEntry(entryId);
-  let likeCountNumber = likeCount - 1;
+  let likeCountNumber = likeCount ? likeCount - 1 : 0;
 
   try {
     await Promise.all([
@@ -165,7 +165,7 @@ export async function unlikeMulti(userId, entryId) {
       await likesIndex.deleteObject(`entry:${entryId}:${userId}`),
       await partialUpdateObject({
         objectID: entryId,
-        likeCount: likeCountNumber,
+        likeCount: likeCountNumber ? likeCountNumber : 0,
       }),
     ]);
     return true;
