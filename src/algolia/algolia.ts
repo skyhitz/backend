@@ -187,6 +187,7 @@ export async function getUsersLikesWithEntryId(entryId) {
 
 export async function getEntriesLikesWithUserId(userId) {
   const likes = await likesIndex.search(`user:${userId}`);
+  console.log('user likes:', likes);
   const entries = await entriesIndex.getObjects(
     likes.hits.map(({ objectID }) => objectID)
   );
