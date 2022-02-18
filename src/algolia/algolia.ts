@@ -140,11 +140,11 @@ export async function likeMulti(userId, entryId) {
   try {
     await Promise.all([
       await likesIndex.saveObject({
-        objectID: `user:${userId}:${entryId}`,
+        objectID: `user.${userId}.${entryId}`,
         likeCount: likeCountNumber ? likeCountNumber : 0,
       }),
       await likesIndex.saveObject({
-        objectID: `entry:${entryId}:${userId}`,
+        objectID: `entry.${entryId}.${userId}`,
         likeCount: likeCountNumber ? likeCountNumber : 0,
       }),
       // await partialUpdateObject({
@@ -164,8 +164,8 @@ export async function unlikeMulti(userId, entryId) {
 
   try {
     await Promise.all([
-      await likesIndex.deleteObject(`user:${userId}:${entryId}`),
-      await likesIndex.deleteObject(`entry:${entryId}:${userId}`),
+      await likesIndex.deleteObject(`user.${userId}.${entryId}`),
+      await likesIndex.deleteObject(`entry.${entryId}.${userId}`),
       await partialUpdateObject({
         objectID: entryId,
         likeCount: likeCountNumber ? likeCountNumber : 0,
@@ -178,7 +178,7 @@ export async function unlikeMulti(userId, entryId) {
 }
 
 export async function getUsersLikesWithEntryId(entryId) {
-  const likes = await likesIndex.search(`entry:${entryId}`);
+  const likes = await likesIndex.search(`entry.${entryId}`);
   const users = await usersIndex.getObjects(
     likes.hits.map(({ objectID }) => objectID)
   );
@@ -186,7 +186,7 @@ export async function getUsersLikesWithEntryId(entryId) {
 }
 
 export async function getEntriesLikesWithUserId(userId) {
-  const likes = await likesIndex.search(`user:${userId}`);
+  const likes = await likesIndex.search(`user.${userId}`);
   const objectIDs = likes.hits.map(({ objectID }) => objectID);
   console.log('user likes:', likes);
   console.log(objectIDs);
