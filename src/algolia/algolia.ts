@@ -29,7 +29,7 @@ usersIndex.setSettings({
     'filterOnly(email)',
     'filterOnly(publicKey)',
   ],
-  attributesToRetrieve: ['avatarUrl', 'displayName', 'id', 'username'],
+  attributesToRetrieve: ['*'],
 });
 
 likesIndex.setSettings({
