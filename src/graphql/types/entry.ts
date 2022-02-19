@@ -1,9 +1,4 @@
-import {
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLBoolean,
-  GraphQLInt,
-} from 'graphql';
+import { GraphQLObjectType, GraphQLString } from 'graphql';
 
 const Entry: GraphQLObjectType = new GraphQLObjectType({
   name: 'Entry',
@@ -38,18 +33,6 @@ const Entry: GraphQLObjectType = new GraphQLObjectType({
         type: GraphQLString,
         resolve(entry: any) {
           return entry.id;
-        },
-      },
-      forSale: {
-        type: GraphQLBoolean,
-        resolve(entry: any) {
-          return entry.forSale;
-        },
-      },
-      price: {
-        type: GraphQLInt,
-        resolve(entry: any) {
-          return entry.price;
         },
       },
       artist: {

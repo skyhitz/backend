@@ -11,24 +11,13 @@ const UserLikes = {
     const entriesArr = await getEntriesLikesWithUserId(user.id);
 
     return entriesArr.map(
-      ({
-        imageUrl,
-        videoUrl,
-        description,
-        title,
-        id,
-        forSale,
-        price,
-        artist,
-      }) => {
+      ({ imageUrl, videoUrl, description, title, id, artist }) => {
         return {
           imageUrl: imageUrl,
           videoUrl: videoUrl,
           description: description,
           title: title,
           id: id,
-          forSale: forSale,
-          price: price,
           artist: artist,
         };
       }

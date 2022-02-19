@@ -23,12 +23,10 @@ export type Entry = {
   videoUrl: string;
   publishedAt: string;
   publishedAtTimestamp: number;
-  forSale: boolean;
-  price: number;
-  equityForSale: number;
   code: string;
   issuer: string;
   likeCount: number;
+  objectID: string;
 };
 
 export type Issuer = {

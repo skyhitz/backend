@@ -6,7 +6,7 @@ import {
 } from 'graphql';
 import ConditionalXDR from './types/conditional-xdr';
 import { getAuthenticatedUser } from '../auth/logic';
-import { getEntry, partialUpdateObject } from '../algolia/algolia';
+import { getEntry } from '../algolia/algolia';
 import { manageSellOffer, getOfferId } from '../stellar/operations';
 
 const updatePricing = {
@@ -26,33 +26,23 @@ const updatePricing = {
     },
   },
   async resolve(_: any, args: any, ctx: any) {
-    let { id, price, forSale, equityForSale } = args;
+    let { id, price, equityForSale } = args;
 
     let user = await getAuthenticatedUser(ctx);
     let entry = await getEntry(id);
     console.log(id);
 
-    let transactionResult = { success: false, xdr: '', submitted: false };
+    const { publicKey, seed } = user;
+    const offerId = await getOfferId(publicKey, entry.code);
 
-    if (entry.forSale) {
-      const { publicKey, seed } = user;
-      const offerId = await getOfferId(publicKey, entry.code);
-
-      transactionResult = await manageSellOffer(
-        publicKey,
-        equityForSale,
-        price / equityForSale,
-        entry.code,
-        typeof offerId === 'string' ? parseInt(offerId) : offerId,
-        seed
-      );
-    }
-    entry.price = price;
-    entry.forSale = forSale;
-    await partialUpdateObject({
-      objectID: entry.id,
-      forSale: entry.forSale,
-    });
+    let transactionResult = await manageSellOffer(
+      publicKey,
+      equityForSale,
+      price / equityForSale,
+      entry.code,
+      typeof offerId === 'string' ? parseInt(offerId) : offerId,
+      seed
+    );
     return transactionResult;
   },
 };

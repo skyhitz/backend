@@ -53,6 +53,10 @@ export async function partialUpdateObject(obj: any) {
   });
 }
 
+export async function saveEntry(entry: Entry) {
+  return entriesIndex.saveObject(entry);
+}
+
 export async function getUser(id): Promise<User> {
   return usersIndex.getObject(id);
 }
