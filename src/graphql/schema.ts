@@ -22,6 +22,7 @@ import WithdrawToExternalWallet from './withdraw-to-external-wallet';
 import UpdatePricing from './update-pricing';
 import EntryPrice from './get-entry-price';
 import XLMPrice from './xlm-price';
+import GetIssuer from './get-issuer';
 
 const Query = new GraphQLObjectType({
   name: 'Query',
@@ -37,6 +38,7 @@ const Query = new GraphQLObjectType({
       topChart: TopChart,
       userLikes: UserLikes,
       xlmPrice: XLMPrice,
+      getIssuer: GetIssuer,
     };
   },
 });
