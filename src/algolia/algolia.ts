@@ -1,5 +1,5 @@
 import algoliasearch from 'algoliasearch';
-import { User, Entry, Issuer } from '../util/types';
+import { User, Entry } from '../util/types';
 import { Config } from '../config/index';
 const client = algoliasearch(
   Config.ALGOLIA_APP_ID,
@@ -13,7 +13,6 @@ entriesIndex.setSettings({
 });
 export const usersIndex = client.initIndex(`${appDomain}:users`);
 export const passwordlessIndex = client.initIndex(`${appDomain}:pwdless`);
-export const issuersIndex = client.initIndex(`${appDomain}:issuers`);
 export const likesIndex = client.initIndex(`${appDomain}:likes`);
 export const likeCountReplicaIndex = client.initIndex(
   `${appDomain}:entries_likes_desc`
@@ -121,19 +120,6 @@ export async function getUserByPublicKey(publicKey: string) {
 
 export async function saveUser(user) {
   await usersIndex.saveObject(user);
-}
-
-export async function setIssuer(user, seed): Promise<boolean> {
-  try {
-    await issuersIndex.saveObject({ seed: seed, objectID: user.id });
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-export async function getIssuer(userId): Promise<Issuer> {
-  return issuersIndex.getObject(userId);
 }
 
 export async function likeMulti(userId, entryId) {

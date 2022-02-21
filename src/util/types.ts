@@ -28,8 +28,3 @@ export type Entry = {
   likeCount: number;
   objectID: string;
 };
-
-export type Issuer = {
-  seed: string;
-  objectID: string;
-};

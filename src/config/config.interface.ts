@@ -1,8 +1,5 @@
 export interface IConfig {
   APP_URL: string;
-  REDIS_HOST: string;
-  REDIS_PORT: number;
-  REDIS_KEY: string;
   ENV: string;
   JWT_SECRET: string;
   STRIPE_WEBHOOK_SECRET: string;

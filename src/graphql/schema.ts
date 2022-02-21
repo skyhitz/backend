@@ -21,7 +21,6 @@ import RemoveEntry from './remove-entry';
 import WithdrawToExternalWallet from './withdraw-to-external-wallet';
 import UpdatePricing from './update-pricing';
 import EntryPrice from './get-entry-price';
-import GenerateIssuer from './generate-issuer';
 import XLMPrice from './xlm-price';
 
 const Query = new GraphQLObjectType({
@@ -53,7 +52,6 @@ const Mutation = new GraphQLObjectType({
       indexEntry: IndexEntry,
       createUserWithEmail: CreateUserWithEmail,
       requestToken: RequestToken,
-      generateIssuer: GenerateIssuer,
       signIn: SignIn,
       likeEntry: LikeEntry,
       removeEntry: RemoveEntry,
