@@ -39,6 +39,7 @@ const createEntry = {
     ctx: any
   ) {
     let user = await getAuthenticatedUser(ctx);
+    const addSellOffer = user.publicKey && forSale;
 
     const keypairSeed = shajs('sha256')
       .update(Config.ISSUER_SEED + cid)
@@ -51,10 +52,11 @@ const createEntry = {
       issuerKey,
       code,
       supply,
-      cid
+      cid,
+      !addSellOffer
     );
 
-    if (user.publicKey && forSale) {
+    if (addSellOffer) {
       const sellXdr = await openSellOffer(
         transaction,
         issuerKey,

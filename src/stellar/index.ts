@@ -16,7 +16,8 @@ export async function buildNFTTransaction(
   issuerKey: Keypair,
   code: string,
   supply: number,
-  cid: string
+  cid: string,
+  buildAndSign = true
 ) {
   const issuerPublicKey = issuerKey.publicKey();
   const asset = new Asset(code, issuerPublicKey);
@@ -91,10 +92,14 @@ export async function buildNFTTransaction(
     })
   );
 
-  const transactionBuilt = transaction.build();
-  transactionBuilt.sign(issuerKey);
-  const xdr = transactionBuilt.toEnvelope().toXDR('base64');
-  console.log(`Transaction built: ${xdr}`);
+  let xdr = '';
+
+  if (buildAndSign) {
+    const transactionBuilt = transaction.build();
+    transactionBuilt.sign(issuerKey);
+    xdr = transactionBuilt.toEnvelope().toXDR('base64');
+    console.log(`Transaction built: ${xdr}`);
+  }
 
   return {
     code,
