@@ -147,9 +147,8 @@ export async function openSellOffer(
         offerId: 0,
       })
     )
-    .build();
-
-  transaction.sign(issuerKey.secret());
+    .build()
+    .sign(issuerKey.secret());
 
   const xdr = transaction.toEnvelope().toXDR('base64');
   return xdr;
