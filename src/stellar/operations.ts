@@ -136,7 +136,7 @@ export async function openSellOffer(
   price: number
 ) {
   const newAsset = new Asset(code, issuerKey.publicKey());
-  transaction
+  const xdr = transaction
     .addOperation(
       Operation.manageSellOffer({
         selling: newAsset,
@@ -148,9 +148,9 @@ export async function openSellOffer(
       })
     )
     .build()
-    .sign(issuerKey.secret());
+    .sign(issuerKey.secret())
+    .toXDR('base64');
 
-  const xdr = transaction.toEnvelope().toXDR('base64');
   return xdr;
 }
 
