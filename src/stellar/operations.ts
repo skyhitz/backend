@@ -147,7 +147,6 @@ export async function openSellOffer(
         offerId: 0,
       })
     )
-    .setTimeout(0)
     .build();
 
   transaction.sign(issuerKey.secret());
