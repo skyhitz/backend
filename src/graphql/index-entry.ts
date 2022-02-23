@@ -10,14 +10,11 @@ import { cloudflareIpfsGateway } from '../constants/constants';
 const indexEntry = {
   type: GraphQLBoolean,
   args: {
-    code: {
-      type: new GraphQLNonNull(GraphQLString),
-    },
     issuer: {
       type: new GraphQLNonNull(GraphQLString),
     },
   },
-  async resolve(_: any, { code, issuer }: any, ctx: any) {
+  async resolve(_: any, { issuer }: any, ctx: any) {
     await getAuthenticatedUser(ctx);
 
     const { data, home_domain } = await getAccountData(issuer);
