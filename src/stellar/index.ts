@@ -40,64 +40,64 @@ export async function buildNFTTransaction(
       fee: BASE_FEE,
       networkPassphrase: getConfig().networkPassphrase,
     }
-  );
-  transaction.setTimeout(300);
-  transaction.addMemo(Memo.text(`Create ${code} NFT ✨`));
-  transaction.addOperation(
-    Operation.beginSponsoringFutureReserves({
-      sponsoredId: issuerPublicKey,
-    })
-  );
-  transaction.addOperation(
-    Operation.createAccount({
-      destination: issuerPublicKey,
-      startingBalance: '0',
-    })
-  );
+  )
+    .setTimeout(300)
+    .addMemo(Memo.text(`Create ${code} NFT ✨`))
+    .addOperation(
+      Operation.beginSponsoringFutureReserves({
+        sponsoredId: issuerPublicKey,
+      })
+    )
+    .addOperation(
+      Operation.createAccount({
+        destination: issuerPublicKey,
+        startingBalance: '0',
+      })
+    )
 
-  transaction.addOperation(
-    Operation.manageData({
-      source: issuerPublicKey,
-      name: `ipfshash`,
-      value: cid,
-    })
-  );
+    .addOperation(
+      Operation.manageData({
+        source: issuerPublicKey,
+        name: `ipfshash`,
+        value: cid,
+      })
+    )
 
-  transaction.addOperation(
-    Operation.endSponsoringFutureReserves({
-      source: issuerPublicKey,
-    })
-  );
-  transaction.addOperation(
-    Operation.changeTrust({ asset: asset, limit: supply.toString() })
-  );
-  transaction.addOperation(
-    Operation.payment({
-      source: issuerPublicKey,
-      destination: accountPublicKey,
-      asset: asset,
-      amount: supply.toString(),
-    })
-  );
-  transaction.addOperation(
-    Operation.setOptions({
-      source: issuerPublicKey,
-      setFlags: AuthImmutableFlag,
-      masterWeight: 0,
-      lowThreshold: 0,
-      medThreshold: 0,
-      highThreshold: 0,
-      homeDomain:
-        Config.ENV === 'production' ? `skyhitz.io` : `vice.skyhitz.io`,
-    })
-  );
+    .addOperation(
+      Operation.endSponsoringFutureReserves({
+        source: issuerPublicKey,
+      })
+    )
+    .addOperation(
+      Operation.changeTrust({ asset: asset, limit: supply.toString() })
+    )
+    .addOperation(
+      Operation.payment({
+        source: issuerPublicKey,
+        destination: accountPublicKey,
+        asset: asset,
+        amount: supply.toString(),
+      })
+    )
+    .addOperation(
+      Operation.setOptions({
+        source: issuerPublicKey,
+        setFlags: AuthImmutableFlag,
+        masterWeight: 0,
+        lowThreshold: 0,
+        medThreshold: 0,
+        highThreshold: 0,
+        homeDomain:
+          Config.ENV === 'production' ? `skyhitz.io` : `vice.skyhitz.io`,
+      })
+    );
 
   let xdr = '';
 
   if (buildAndSign) {
     const transactionBuilt = transaction.build();
     transactionBuilt.sign(issuerKey);
-    xdr = transactionBuilt.toEnvelope().toXDR('base64');
+    xdr = transactionBuilt.toXDR();
     console.log(`Transaction built: ${xdr}`);
   }
 

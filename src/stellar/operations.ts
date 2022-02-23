@@ -128,15 +128,15 @@ export async function createAndFundAccount() {
 }
 
 export async function openSellOffer(
-  transaction,
-  issuerKey,
+  transaction: TransactionBuilder,
+  issuerKey: Keypair,
   code: string,
   publicAddress: string,
   amount: number,
   price: number
 ) {
   const newAsset = new Asset(code, issuerKey.publicKey());
-  const xdr = transaction
+  const transactionBuilt = transaction
     .addOperation(
       Operation.manageSellOffer({
         selling: newAsset,
@@ -147,11 +147,11 @@ export async function openSellOffer(
         offerId: 0,
       })
     )
-    .build()
-    .sign(issuerKey.secret())
-    .toXDR('base64');
+    .build();
 
-  return xdr;
+  transactionBuilt.sign(issuerKey);
+
+  return transactionBuilt.toXDR();
 }
 
 export async function buyViaPathPayment(
