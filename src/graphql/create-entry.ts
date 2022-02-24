@@ -7,15 +7,16 @@ import {
 } from 'graphql';
 
 import { getAuthenticatedUser } from '../auth/logic';
-import { openSellOffer } from '../stellar/operations';
+import { openSellOffer, signAndSubmitXDR } from '../stellar/operations';
 import { buildNFTTransaction } from '../stellar/index';
-import XDR from './types/xdr';
+import ConditionalXDR from './types/conditional-xdr';
 import { Keypair } from 'skyhitz-stellar-base';
 import { Config } from '../config';
+import { decrypt } from '../util/encryption';
 const shajs = require('sha.js');
 
 const createEntry = {
-  type: XDR,
+  type: ConditionalXDR,
   args: {
     cid: {
       type: new GraphQLNonNull(GraphQLString),
@@ -46,6 +47,7 @@ const createEntry = {
       .digest();
     const issuerKey = Keypair.fromRawEd25519Seed(keypairSeed);
     const supply = 1;
+    let finalXdr;
 
     const { transaction, xdr } = await buildNFTTransaction(
       user.publicKey,
@@ -56,6 +58,8 @@ const createEntry = {
       !addSellOffer
     );
 
+    finalXdr = xdr;
+
     if (addSellOffer) {
       const sellXdr = await openSellOffer(
         transaction,
@@ -65,10 +69,15 @@ const createEntry = {
         equityForSale,
         price / equityForSale
       );
-      return sellXdr;
+      finalXdr = sellXdr;
     }
 
-    return xdr;
+    if (user.seed) {
+      let userSeed = decrypt(user.seed);
+      return await signAndSubmitXDR(finalXdr, userSeed);
+    }
+
+    return { xdr: finalXdr, success: true, submitted: false };
   },
 };
 
