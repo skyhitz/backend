@@ -39,7 +39,9 @@ const indexEntry = {
       animation_url,
       video,
     } = await axios
-      .get(`${cloudflareIpfsGateway}/${ipfshash}`)
+      .get(
+        `${cloudflareIpfsGateway}/${Buffer.from(ipfshash, 'base64').toString()}`
+      )
       .then(({ data }) => data);
 
     const nameDivider = ' - ';
