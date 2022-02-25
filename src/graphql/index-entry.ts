@@ -45,26 +45,29 @@ const indexEntry = {
       .then(({ data }) => data);
 
     const nameDivider = ' - ';
+    const obj = {
+      description,
+      code: metaCode,
+      issuer: metaIssuer,
+      imageUrl: image,
+      videoUrl: video,
+      id: ipfshash,
+      objectID: ipfshash,
+      likeCount: 0,
+      title: name.substring(name.indexOf(nameDivider) + nameDivider.length),
+      artist: name.substring(0, name.indexOf(nameDivider)),
+      publishedAt: new Date().toISOString(),
+      publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
+    };
+
+    console.log('indexed entry:', obj);
 
     if (
       name &&
       description &&
       metaCode & metaIssuer & domain & supply & image & animation_url & video
     ) {
-      await saveEntry({
-        description,
-        code: metaCode,
-        issuer: metaIssuer,
-        imageUrl: image,
-        videoUrl: video,
-        id: ipfshash,
-        objectID: ipfshash,
-        likeCount: 0,
-        title: name.substring(name.indexOf(nameDivider) + nameDivider.length),
-        artist: name.substring(0, name.indexOf(nameDivider)),
-        publishedAt: new Date().toISOString(),
-        publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
-      });
+      await saveEntry(obj);
       return true;
     }
     return false;
