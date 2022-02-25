@@ -227,6 +227,15 @@ export async function buyViaPathPayment(
   };
 }
 
+export async function signAndSubmitXDR(xdr: string, seed: string) {
+  const keys = Keypair.fromSecret(seed);
+  const transaction = new Transaction(xdr, NETWORK_PASSPHRASE);
+
+  transaction.sign(keys);
+  let { status, result_xdr } = await submitTransaction(transaction);
+  return { xdr: result_xdr, success: status === 200, submitted: true };
+}
+
 export async function manageBuyOffer(
   destinationSeed: string,
   amount: number,
