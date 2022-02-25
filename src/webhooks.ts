@@ -81,10 +81,10 @@ async function onChargeSucceeded({ object }: any, response) {
   let { price } = await getXlmInUsdDexPrice();
   let floatPrice = parseFloat(price);
   let finalAmount = amountInDollars / floatPrice;
-  console.log(email);
-  console.log(finalAmount);
 
   const { publicKey } = await getUserByEmail(email);
+
+  if (!publicKey) return response.send(200);
 
   // toFixed leaves four decimals
   await sendSubscriptionTokens(publicKey, finalAmount.toFixed(4));
