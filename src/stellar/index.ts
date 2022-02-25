@@ -42,7 +42,7 @@ export async function buildNFTTransaction(
     }
   )
     .setTimeout(300)
-    .addMemo(Memo.text(`Skyhitz - Music NFTs - ${code}✨`))
+    .addMemo(Memo.text(`Skyhitz - Music NFTs✨`))
     .addOperation(
       Operation.beginSponsoringFutureReserves({
         sponsoredId: issuerPublicKey,
