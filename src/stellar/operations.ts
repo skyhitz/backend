@@ -22,13 +22,16 @@ export const submitTransaction = async (
   horizonUrl: string = Config.HORIZON_URL
 ) => {
   const xdr = transaction.toXDR();
+  console.log('submitted xdr: ', xdr);
 
   return axios
     .post(`${horizonUrl}/transactions?tx=${encodeURIComponent(xdr)}`)
     .then(({ data }) => data)
     .catch((error) => {
-      console.log(error);
-      throw error.response.data;
+      const { data } = error.response;
+      const { extras } = data;
+      console.log(extras);
+      throw extras;
     });
 };
 
