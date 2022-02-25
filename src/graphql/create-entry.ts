@@ -18,7 +18,10 @@ const shajs = require('sha.js');
 const createEntry = {
   type: ConditionalXDR,
   args: {
-    cid: {
+    fileCid: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
+    metaCid: {
       type: new GraphQLNonNull(GraphQLString),
     },
     code: {
@@ -36,14 +39,14 @@ const createEntry = {
   },
   async resolve(
     _: any,
-    { cid, code, forSale, price, equityForSale }: any,
+    { fileCid, metaCid, code, forSale, price, equityForSale }: any,
     ctx: any
   ) {
     let user = await getAuthenticatedUser(ctx);
     const addSellOffer = user.publicKey && forSale;
 
     const keypairSeed = shajs('sha256')
-      .update(Config.ISSUER_SEED + cid)
+      .update(Config.ISSUER_SEED + fileCid)
       .digest();
     const issuerKey = Keypair.fromRawEd25519Seed(keypairSeed);
     const supply = 1;
@@ -54,7 +57,7 @@ const createEntry = {
       issuerKey,
       code,
       supply,
-      cid,
+      metaCid,
       !addSellOffer
     );
 
