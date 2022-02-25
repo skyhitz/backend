@@ -27,6 +27,7 @@ const indexEntry = {
     }
 
     const { ipfshash } = data;
+    const decodedIpfshash = Buffer.from(ipfshash, 'base64').toString();
 
     const {
       name,
@@ -39,9 +40,7 @@ const indexEntry = {
       animation_url,
       video,
     } = await axios
-      .get(
-        `${cloudflareIpfsGateway}/${Buffer.from(ipfshash, 'base64').toString()}`
-      )
+      .get(`${cloudflareIpfsGateway}/${decodedIpfshash}`)
       .then(({ data }) => data);
 
     const nameDivider = ' - ';
@@ -51,8 +50,8 @@ const indexEntry = {
       issuer: metaIssuer,
       imageUrl: image,
       videoUrl: video,
-      id: ipfshash,
-      objectID: ipfshash,
+      id: decodedIpfshash,
+      objectID: decodedIpfshash,
       likeCount: 0,
       title: name.substring(name.indexOf(nameDivider) + nameDivider.length),
       artist: name.substring(0, name.indexOf(nameDivider)),
@@ -65,7 +64,13 @@ const indexEntry = {
     if (
       name &&
       description &&
-      metaCode & metaIssuer & domain & supply & image & animation_url & video
+      metaCode &&
+      metaIssuer &&
+      domain &&
+      supply &&
+      image &&
+      animation_url &&
+      video
     ) {
       await saveEntry(obj);
       return true;
