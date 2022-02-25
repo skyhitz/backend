@@ -41,6 +41,18 @@ const Entry: GraphQLObjectType = new GraphQLObjectType({
           return entry.artist;
         },
       },
+      code: {
+        type: GraphQLString,
+        resolve(entry: any) {
+          return entry.code;
+        },
+      },
+      issuer: {
+        type: GraphQLString,
+        resolve(entry: any) {
+          return entry.issuer;
+        },
+      },
     };
   },
 });
