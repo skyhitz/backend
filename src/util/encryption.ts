@@ -2,7 +2,11 @@ import { Config } from '../config';
 
 const crypto = require('crypto');
 const algorithm = 'aes-256-ctr';
-const secretKey = Config.ISSUER_SEED;
+const secretKey = crypto
+  .createHash('sha256')
+  .update(String(Config.ISSUER_SEED))
+  .digest('base64')
+  .substr(0, 32);
 const iv = crypto.randomBytes(16);
 
 export const encrypt = (text) => {
