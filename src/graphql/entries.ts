@@ -27,14 +27,6 @@ const Entries = {
     }
 
     let user = await getUser(userId);
-    if (!user.publicKey) {
-      let customer = await findCustomer(user.email);
-      let { metadata } = customer;
-      let { publicAddress } = metadata;
-      const assetCodes = await loadSkyhitzAssets(publicAddress);
-      return getEntriesWithAssetCodes(assetCodes);
-    }
-
     const assetCodes = await loadSkyhitzAssets(user.publicKey);
     return getEntriesWithAssetCodes(assetCodes);
   },
