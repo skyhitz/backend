@@ -1,7 +1,6 @@
 import { GraphQLList, GraphQLString } from 'graphql';
 import Entry from './types/entry';
 import { getAuthenticatedUser } from '../auth/logic';
-import { findCustomer } from '../payments/stripe';
 import { loadSkyhitzAssets } from '../stellar/operations';
 import { getEntry, getEntryByCode, getUser } from '../algolia/algolia';
 
