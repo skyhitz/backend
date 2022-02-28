@@ -10,6 +10,7 @@ export const entriesIndex = client.initIndex(`${appDomain}:entries`);
 entriesIndex.setSettings({
   searchableAttributes: ['unordered(title,artist)', 'description', 'code'],
   replicas: [`${appDomain}:entries_likes_desc`],
+  attributesForFaceting: ['filterOnly(code)'],
   attributesToRetrieve: ['*'],
 });
 export const usersIndex = client.initIndex(`${appDomain}:users`);
