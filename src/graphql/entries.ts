@@ -3,32 +3,10 @@ import Entry from './types/entry';
 import { getAuthenticatedUser } from '../auth/logic';
 import { findCustomer } from '../payments/stripe';
 import { loadSkyhitzAssets } from '../stellar/operations';
-import { each } from 'async';
 import { getEntry, getEntryByCode, getUser } from '../algolia/algolia';
 
-function getEntriesWithAssetCodes(assetCodes) {
-  let entries = [];
-  return new Promise((resolve, reject) => {
-    each(
-      assetCodes,
-      async (id, cb) => {
-        let entry = await getEntryByCode(id);
-        if (entry) {
-          entries.push(entry);
-          cb();
-        } else {
-          cb();
-        }
-      },
-      (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(entries);
-        }
-      }
-    );
-  });
+async function getEntriesWithAssetCodes(assetCodes: string[]) {
+  return await Promise.all(assetCodes.map((id) => getEntryByCode(id)));
 }
 
 const Entries = {
