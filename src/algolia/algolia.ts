@@ -79,6 +79,7 @@ export async function getEntryByCode(code: string) {
   const res = await entriesIndex.search('', {
     filters: `code:${code}`,
   });
+  console.log('serach by code', res);
   const [entry]: unknown[] = res.hits;
   return entry as Entry;
 }
