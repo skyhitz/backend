@@ -8,6 +8,7 @@ const client = algoliasearch(
 const appDomain = Config.APP_URL.replace('https://', '');
 export const entriesIndex = client.initIndex(`${appDomain}:entries`);
 entriesIndex.setSettings({
+  searchableAttributes: ['unordered(title,artist)', 'description', 'code'],
   replicas: [`${appDomain}:entries_likes_desc`],
   attributesToRetrieve: ['*'],
 });
@@ -79,7 +80,6 @@ export async function getEntryByCode(code: string) {
   const res = await entriesIndex.search('', {
     filters: `code:${code}`,
   });
-  console.log('serach by code', res);
   const [entry]: unknown[] = res.hits;
   return entry as Entry;
 }
