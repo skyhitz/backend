@@ -20,7 +20,7 @@ export const getFee = (horizonUrl: string = Config.HORIZON_URL) => {
   return axios
     .get(horizonUrl + `/fee_stats`)
     .then(({ data }) => data)
-    .then((feeStats) => feeStats.fee_charged.max)
+    .then((feeStats) => feeStats.max_fee.mode)
     .catch(() => '10000');
 };
 
