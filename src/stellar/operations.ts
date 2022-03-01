@@ -7,7 +7,6 @@ import {
   Account,
   Networks,
   Transaction,
-  BASE_FEE,
 } from 'skyhitz-stellar-base';
 import { Config } from '../config';
 export const sourceKeys = Keypair.fromSecret(Config.ISSUER_SEED);
@@ -16,6 +15,14 @@ const XLM = Asset.native();
 
 const NETWORK_PASSPHRASE =
   Config.ENV === 'production' ? Networks.PUBLIC : Networks.TESTNET;
+
+export const getFee = (horizonUrl: string = Config.HORIZON_URL) => {
+  return axios
+    .get(horizonUrl + `/fee_stats`)
+    .then(({ data }) => data)
+    .then((feeStats) => feeStats.fee_charged.max)
+    .catch(() => '10000');
+};
 
 export const submitTransaction = async (
   transaction: Transaction,
@@ -86,7 +93,7 @@ export async function fundAccount(destinationKeys: Keypair) {
   let transaction = new TransactionBuilder(
     await getAccount(sourceKeys.publicKey()),
     {
-      fee: BASE_FEE,
+      fee: await getFee(),
       networkPassphrase: NETWORK_PASSPHRASE,
     }
   )
@@ -172,7 +179,7 @@ export async function buyViaPathPayment(
   const transaction = new TransactionBuilder(
     await getAccount(sourceKeys.publicKey()),
     {
-      fee: BASE_FEE,
+      fee: await getFee(),
       networkPassphrase: NETWORK_PASSPHRASE,
     }
   )
@@ -253,7 +260,7 @@ export async function manageBuyOffer(
   const transaction = new TransactionBuilder(
     await getAccount(sourceKeys.publicKey()),
     {
-      fee: BASE_FEE,
+      fee: await getFee(),
       networkPassphrase: NETWORK_PASSPHRASE,
     }
   )
@@ -326,7 +333,7 @@ export async function manageSellOffer(
   const transaction = new TransactionBuilder(
     await getAccount(sourceKeys.publicKey()),
     {
-      fee: BASE_FEE,
+      fee: await getFee(),
       networkPassphrase: NETWORK_PASSPHRASE,
     }
   )
@@ -378,7 +385,7 @@ export async function sendOwnershipOfAsset(
   const transaction = new TransactionBuilder(
     await getAccount(sourceKeys.publicKey()),
     {
-      fee: BASE_FEE,
+      fee: await getFee(),
       networkPassphrase: NETWORK_PASSPHRASE,
     }
   )
@@ -421,7 +428,7 @@ export async function sendSubscriptionTokens(
   const transaction = new TransactionBuilder(
     await getAccount(sourceKeys.publicKey()),
     {
-      fee: BASE_FEE,
+      fee: await getFee(),
       networkPassphrase: NETWORK_PASSPHRASE,
     }
   )
@@ -460,7 +467,7 @@ export async function payment(
   const sourcePublicKey = sourceKeypair.publicKey();
 
   let transaction = new TransactionBuilder(await getAccount(sourcePublicKey), {
-    fee: BASE_FEE,
+    fee: await getFee(),
     networkPassphrase: NETWORK_PASSPHRASE,
   })
     .addOperation(
@@ -510,7 +517,7 @@ export async function payUserInXLM(address: string, amount: number) {
   const sourcePublicKey = sourceKeys.publicKey();
 
   let transaction = new TransactionBuilder(await getAccount(sourcePublicKey), {
-    fee: BASE_FEE,
+    fee: await getFee(),
     networkPassphrase: NETWORK_PASSPHRASE,
   })
     .addOperation(
@@ -538,7 +545,7 @@ export async function withdrawToExternalAddress(
   const sourcePublicKey = keys.publicKey();
 
   let transaction = new TransactionBuilder(await getAccount(sourcePublicKey), {
-    fee: BASE_FEE,
+    fee: await getFee(),
     networkPassphrase: NETWORK_PASSPHRASE,
   })
     .addOperation(
