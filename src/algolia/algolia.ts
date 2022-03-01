@@ -85,8 +85,8 @@ export async function getEntryByCode(code: string) {
   return entry as Entry;
 }
 
-export async function recentlyAdded() {
-  const res = await entriesIndex.search('');
+export async function recentlyAdded(page = 0) {
+  const res = await entriesIndex.search('', { page });
   return res.hits.map((hit: unknown) => hit as Entry);
 }
 
