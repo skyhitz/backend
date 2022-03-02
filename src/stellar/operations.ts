@@ -16,7 +16,9 @@ const XLM = Asset.native();
 const NETWORK_PASSPHRASE =
   Config.ENV === 'production' ? Networks.PUBLIC : Networks.TESTNET;
 
-export const getFee = (horizonUrl: string = Config.HORIZON_URL) => {
+export const getFee = (
+  horizonUrl: string = Config.HORIZON_URL
+): Promise<string> => {
   return axios
     .get(horizonUrl + `/fee_stats`)
     .then(({ data }) => data)
@@ -85,18 +87,23 @@ export async function accountExists(publicKey: string) {
   return true;
 }
 
+async function buildTransactionWithFee(accountPublicKey) {
+  const [account, fee] = await Promise.all([
+    await getAccount(accountPublicKey),
+    await getFee(),
+  ]);
+  return new TransactionBuilder(account, {
+    fee: fee,
+    networkPassphrase: NETWORK_PASSPHRASE,
+  });
+}
+
 export async function fundAccount(destinationKeys: Keypair) {
   if (!destinationKeys.publicKey()) {
     throw 'Account does not exist';
   }
 
-  let transaction = new TransactionBuilder(
-    await getAccount(sourceKeys.publicKey()),
-    {
-      fee: await getFee(),
-      networkPassphrase: NETWORK_PASSPHRASE,
-    }
-  )
+  let transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
     .addOperation(
       Operation.beginSponsoringFutureReserves({
         sponsoredId: destinationKeys.publicKey(),
@@ -176,13 +183,7 @@ export async function buyViaPathPayment(
   const sendMax = amount * price;
   const sendMaxString = sendMax.toString();
   // price of 1 unit in terms of buying, 100 will be 100 usd per one share
-  const transaction = new TransactionBuilder(
-    await getAccount(sourceKeys.publicKey()),
-    {
-      fee: await getFee(),
-      networkPassphrase: NETWORK_PASSPHRASE,
-    }
-  )
+  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
     .addOperation(
       Operation.beginSponsoringFutureReserves({
         sponsoredId: destinationPublicKey,
@@ -257,13 +258,7 @@ export async function manageBuyOffer(
   const newAsset = new Asset(assetCode, issuer);
 
   // price of 1 unit in terms of buying, 100 will be 100 usd per one share
-  const transaction = new TransactionBuilder(
-    await getAccount(sourceKeys.publicKey()),
-    {
-      fee: await getFee(),
-      networkPassphrase: NETWORK_PASSPHRASE,
-    }
-  )
+  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
     .addOperation(
       Operation.beginSponsoringFutureReserves({
         sponsoredId: destinationKeys.publicKey(),
@@ -330,13 +325,7 @@ export async function manageSellOffer(
   const newAsset = new Asset(assetCode, sourceKeys.publicKey());
 
   // price of 1 unit in terms of buying, 100 will be 100 usd per one share
-  const transaction = new TransactionBuilder(
-    await getAccount(sourceKeys.publicKey()),
-    {
-      fee: await getFee(),
-      networkPassphrase: NETWORK_PASSPHRASE,
-    }
-  )
+  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
     .addOperation(
       Operation.beginSponsoringFutureReserves({
         sponsoredId: destinationPublicKey,
@@ -382,13 +371,7 @@ export async function sendOwnershipOfAsset(
   const limitOfShares = '100';
   const newAsset = new Asset(assetCode, sourceKeys.publicKey());
   const destinationKeys = Keypair.fromSecret(destinationSeed);
-  const transaction = new TransactionBuilder(
-    await getAccount(sourceKeys.publicKey()),
-    {
-      fee: await getFee(),
-      networkPassphrase: NETWORK_PASSPHRASE,
-    }
-  )
+  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
     .addOperation(
       Operation.beginSponsoringFutureReserves({
         sponsoredId: destinationKeys.publicKey(),
@@ -425,13 +408,7 @@ export async function sendSubscriptionTokens(
   destinationKey: string,
   amount: string
 ) {
-  const transaction = new TransactionBuilder(
-    await getAccount(sourceKeys.publicKey()),
-    {
-      fee: await getFee(),
-      networkPassphrase: NETWORK_PASSPHRASE,
-    }
-  )
+  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
     .addOperation(
       Operation.payment({
         destination: destinationKey,
@@ -466,10 +443,7 @@ export async function payment(
   const sourceKeypair = Keypair.fromSecret(seed);
   const sourcePublicKey = sourceKeypair.publicKey();
 
-  let transaction = new TransactionBuilder(await getAccount(sourcePublicKey), {
-    fee: await getFee(),
-    networkPassphrase: NETWORK_PASSPHRASE,
-  })
+  let transaction = (await buildTransactionWithFee(sourcePublicKey))
     .addOperation(
       Operation.payment({
         destination: publicAddress,
@@ -514,12 +488,7 @@ export async function loadSkyhitzAssets(sourcePublicKey) {
 }
 
 export async function payUserInXLM(address: string, amount: number) {
-  const sourcePublicKey = sourceKeys.publicKey();
-
-  let transaction = new TransactionBuilder(await getAccount(sourcePublicKey), {
-    fee: await getFee(),
-    networkPassphrase: NETWORK_PASSPHRASE,
-  })
+  let transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
     .addOperation(
       Operation.payment({
         destination: address,
@@ -544,10 +513,7 @@ export async function withdrawToExternalAddress(
   const keys = Keypair.fromSecret(seed);
   const sourcePublicKey = keys.publicKey();
 
-  let transaction = new TransactionBuilder(await getAccount(sourcePublicKey), {
-    fee: await getFee(),
-    networkPassphrase: NETWORK_PASSPHRASE,
-  })
+  let transaction = (await buildTransactionWithFee(sourcePublicKey))
     .addOperation(
       Operation.payment({
         destination: address,
