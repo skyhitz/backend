@@ -27,7 +27,7 @@ export async function buildNFTTransaction(
       return await getAccount(accountPublicKey);
     } catch {
       throw new Error(
-        `Your account ${issuerPublicKey} does not exist on the Stellar ${
+        `Your account ${accountPublicKey} does not exist on the Stellar ${
           getConfig().network
         } network. It must be created before it can be used to submit transactions.`
       );
