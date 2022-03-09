@@ -30,8 +30,6 @@ const buildOptions: any = async (req: any) => {
       context: {
         user: getUser(req.user.id).then((user: any) => {
           if (!user) return null;
-          console.log(req);
-          console.log(user);
           if (req.user.version === user.version) {
             cacheInstance.put(req.user.id, user);
             return user;
