@@ -5,8 +5,10 @@ import { entriesByLikeCount } from '../algolia/algolia';
 
 const TopChart = {
   type: new GraphQLList(Entry),
-  page: {
-    type: GraphQLInt,
+  args: {
+    page: {
+      type: GraphQLInt,
+    },
   },
   async resolve(root: any, { page }: any, ctx: any) {
     await getAuthenticatedUser(ctx);
