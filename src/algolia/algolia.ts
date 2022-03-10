@@ -197,7 +197,7 @@ export async function getEntriesLikesWithUserId(userId) {
   return entries.results as unknown as Entry[];
 }
 
-export async function entriesByLikeCount() {
-  const res = await likeCountReplicaIndex.search('');
+export async function entriesByLikeCount(page = 0) {
+  const res = await likeCountReplicaIndex.search('', { page });
   return res.hits.map((hit: unknown) => hit as Entry);
 }
