@@ -16,7 +16,7 @@ export const sendGridService = new SendGridService();
 export function sendWelcomeEmail(email) {
   sendGridService.sendEmail({
     to: email,
-    from: 'alejandro@skyhitzmusic.com',
+    from: 'hello@skyhitz.io',
     subject: 'Welcome to Skyhitz',
     templateId: 'd-08b9dce0c7d94526aeee9ec06dc1994d',
   });
@@ -25,7 +25,7 @@ export function sendWelcomeEmail(email) {
 export async function sendLoginEmail(currentUser, token) {
   await sendGridService.sendEmail({
     to: currentUser.email,
-    from: 'alejandro@skyhitzmusic.com',
+    from: 'hello@skyhitz.io',
     subject: 'Log In To Your Skyhitz Account',
     templateId: 'd-906d105dea7e43d79d8df30c739137a1',
     personalizations: [
