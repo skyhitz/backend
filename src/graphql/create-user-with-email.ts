@@ -54,7 +54,7 @@ const createUserWithEmail = {
       avatarUrl: '',
       displayName: args.displayName,
       description: '',
-      username: args.username,
+      username: args.username.toLowerCase(),
       email: args.email,
       version: 1,
       publishedAt: new Date().toISOString(),
