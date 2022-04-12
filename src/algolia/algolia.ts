@@ -121,7 +121,7 @@ export async function getUserByPublicKey(publicKey: string) {
 }
 
 export async function saveUser(user) {
-  await usersIndex.saveObject(user).wait();
+  await usersIndex.saveObject(user);
 }
 
 export async function likeMulti(userId, entryId) {
