@@ -59,6 +59,12 @@ const User: GraphQLObjectType = new GraphQLObjectType({
           return user.description;
         },
       },
+      publicKey: {
+        type: GraphQLString,
+        resolve(user: any) {
+          return user.publicKey;
+        },
+      },
     };
   },
 });
