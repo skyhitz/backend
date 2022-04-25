@@ -38,13 +38,13 @@ const createUserWithEmail = {
       args.email,
       args.publicKey
     );
-    if (res._highlightResult.hasOwnProperty('email')) {
+    if (res && res._highlightResult.hasOwnProperty('email')) {
       throw 'Email already exists, please sign in.';
     }
-    if (res._highlightResult.hasOwnProperty('username')) {
+    if (res && res._highlightResult.hasOwnProperty('username')) {
       throw 'Username is taken.';
     }
-    if (res._highlightResult.hasOwnProperty('publicKey')) {
+    if (res && res._highlightResult.hasOwnProperty('publicKey')) {
       throw 'Public Key is connected to another account, please sign in.';
     }
 
@@ -54,7 +54,7 @@ const createUserWithEmail = {
       avatarUrl: '',
       displayName: args.displayName,
       description: '',
-      username: args.username,
+      username: args.username.toLowerCase(),
       email: args.email,
       version: 1,
       publishedAt: new Date().toISOString(),

@@ -1,7 +1,6 @@
 import { GraphQLBoolean, GraphQLString, GraphQLNonNull } from 'graphql';
 import passwordless from '../passwordless/passwordless';
-import { Config } from '../config';
-import { sendGridService } from '../sendgrid/sendgrid';
+import { sendLoginEmail } from '../sendgrid/sendgrid';
 import { getUserByEmail, getUserByPublicKey } from '../algolia/algolia';
 
 const RequestToken = {
@@ -48,23 +47,7 @@ const RequestToken = {
           if (storeError) {
             throw `Error on the storage layer: ${storeError}`;
           } else {
-            const msg = {
-              to: currentUser.email,
-              from: 'alejandro@skyhitzmusic.com',
-              subject: 'Skyhitz Login Link',
-              html: `<p>Hi,
-        <br><p>You are receiving this email because you have requested access to your Skyhitz account.<br>
-        Please click this link to complete the process:<br><br>
-        <strong><a clicktracking=off href="${
-          Config.APP_URL
-        }/accounts/sign-in?token=${token}&uid=${encodeURIComponent(
-                currentUser.id
-              )}">Sign In Here</a></strong>
-        <br><br>If you did not request this, please ignore this email and let us know if your account was compromised.
-        <br><br>Keep making music, <br>Skyhitz Team</p>`,
-            };
-
-            await sendGridService.sendEmail(msg);
+            await sendLoginEmail(currentUser, token);
 
             resolve(true);
           }
