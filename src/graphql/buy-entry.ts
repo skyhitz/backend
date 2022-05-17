@@ -6,7 +6,7 @@ import { decrypt } from '../util/encryption';
 import ConditionalXDR from './types/conditional-xdr';
 
 async function customerInfo(user: any) {
-  let credits = await accountCredits(user.publicKey);
+  let { availableCredits: credits } = await accountCredits(user.publicKey);
   let userSeed = decrypt(user.seed);
   return { credits, seed: userSeed };
 }

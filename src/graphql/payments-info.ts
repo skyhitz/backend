@@ -16,7 +16,7 @@ const PaymentsInfo = {
       };
     }
 
-    const [customer, credits] = await Promise.all([
+    const [customer, { availableCredits: credits }] = await Promise.all([
       await findCustomer(user.email),
       await accountCredits(user.publicKey),
     ]);

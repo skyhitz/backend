@@ -33,7 +33,9 @@ export default {
     }
     const { seed, publicAddress } = metadata;
 
-    const currentBalance = await accountCredits(publicAddress);
+    const { availableCredits: currentBalance } = await accountCredits(
+      publicAddress
+    );
 
     if (amount > currentBalance) {
       return false;
