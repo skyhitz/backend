@@ -1,2 +1,2 @@
-export const cloudflareIpfsGateway = 'https://cloudflare-ipfs.com/ipfs';
+export const cloudflareIpfsGateway = 'https://ipfs.io/ipfs';
 export const ipfsProtocol = 'ipfs://';
