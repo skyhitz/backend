@@ -1,4 +1,4 @@
-import { GraphQLString, GraphQLNonNull, GraphQLInt } from 'graphql';
+import { GraphQLString, GraphQLNonNull, GraphQLFloat } from 'graphql';
 import { getEntry } from '../algolia/algolia';
 import { getAuthenticatedUser } from '../auth/logic';
 import { accountCredits, buyViaPathPayment } from '../stellar/operations';
@@ -18,10 +18,10 @@ const buyEntry = {
       type: new GraphQLNonNull(GraphQLString),
     },
     amount: {
-      type: new GraphQLNonNull(GraphQLInt),
+      type: new GraphQLNonNull(GraphQLFloat),
     },
     price: {
-      type: new GraphQLNonNull(GraphQLInt),
+      type: new GraphQLNonNull(GraphQLFloat),
     },
   },
   async resolve(_: any, args: any, ctx: any) {
