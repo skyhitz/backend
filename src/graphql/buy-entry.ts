@@ -1,4 +1,5 @@
 import { GraphQLString, GraphQLNonNull, GraphQLFloat } from 'graphql';
+import { sendNftBoughtEmail } from 'src/sendgrid/sendgrid';
 import { getEntry } from '../algolia/algolia';
 import { getAuthenticatedUser } from '../auth/logic';
 import { accountCredits, buyViaPathPayment } from '../stellar/operations';
@@ -40,7 +41,7 @@ const buyEntry = {
       // // send payment from buyer to owner of entry
       try {
         if (seed) {
-          return await buyViaPathPayment(
+          await buyViaPathPayment(
             user.publicKey,
             amount,
             price,
@@ -48,6 +49,8 @@ const buyEntry = {
             issuer,
             seed
           );
+          await sendNftBoughtEmail(user.email);
+          return;
         }
 
         return await buyViaPathPayment(
