@@ -244,6 +244,7 @@ export async function signAndSubmitXDR(xdr: string, seed: string) {
 
   transaction.sign(keys);
   let { status, result_xdr } = await submitTransaction(transaction);
+  console.log(result_xdr);
   return { xdr: result_xdr, success: status === 200, submitted: true };
 }
 

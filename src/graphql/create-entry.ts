@@ -77,6 +77,7 @@ const createEntry = {
     }
 
     if (user.seed) {
+      console.log('managed flow', !!user.seed);
       let userSeed = decrypt(user.seed);
       return await signAndSubmitXDR(finalXdr, userSeed);
     }
