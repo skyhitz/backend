@@ -76,6 +76,8 @@ const createEntry = {
       finalXdr = sellXdr;
     }
 
+    console.log('final xdr', finalXdr);
+
     if (user.seed) {
       console.log('managed flow', !!user.seed);
       let userSeed = decrypt(user.seed);
