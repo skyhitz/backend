@@ -8,7 +8,7 @@ import ConditionalXDR from './types/conditional-xdr';
 
 async function customerInfo(user: any) {
   let { availableCredits: credits } = await accountCredits(user.publicKey);
-  let userSeed = decrypt(user.seed);
+  let userSeed = user.seed ? decrypt(user.seed) : '';
   return { credits, seed: userSeed };
 }
 
