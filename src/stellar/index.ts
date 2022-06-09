@@ -116,7 +116,7 @@ export async function buildNFTTransaction(
 export function verifySourceSignatureOnXDR(xdr: string) {
   const txFromXDR = new Transaction(xdr, getConfig().networkPassphrase);
   const hashedSignatureBase = txFromXDR.hash();
-  const [signature] = JSON.parse(JSON.stringify(txFromXDR.signatures));
+  const [signature] = txFromXDR.signatures;
   const keypair = Keypair.fromPublicKey(txFromXDR.source);
   return {
     verified: keypair.verify(hashedSignatureBase, signature.signature()),
