@@ -116,6 +116,9 @@ export async function getUserByPublicKey(publicKey: string) {
   const res = await usersIndex.search('', {
     filters: `publicKey:${publicKey}`,
   });
+  if (res.hits.length === 0) {
+    throw 'User not found';
+  }
   const [user] = res.hits;
   return user as User;
 }
