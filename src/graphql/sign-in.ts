@@ -3,7 +3,8 @@ import GraphQLUser from './types/user';
 import passwordless from '../passwordless/passwordless';
 import * as jwt from 'jsonwebtoken';
 import { Config } from '../config';
-import { getUser } from '../algolia/algolia';
+import { getUser, getUserByPublicKey } from '../algolia/algolia';
+import { verifySourceSignatureOnXDR } from '../stellar';
 
 const SignIn = {
   type: GraphQLUser,
@@ -14,11 +15,39 @@ const SignIn = {
     uid: {
       type: new GraphQLNonNull(GraphQLString),
     },
+    signedXDR: {
+      type: GraphQLString,
+    },
   },
-  async resolve(_: any, { token, uid }: any, ctx: any) {
+  async resolve(
+    _: any,
+    { token: graphQLToken, uid, signedXDR }: any,
+    ctx: any
+  ) {
+    if (signedXDR) {
+      const { verified, source } = verifySourceSignatureOnXDR(signedXDR);
+      if (!verified) {
+        throw 'Invalid signed XDR';
+      }
+
+      const user = await getUserByPublicKey(source);
+      const token = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          version: user.version,
+        } as any,
+        Config.JWT_SECRET
+      );
+      user.jwt = token;
+      ctx.user = Promise.resolve(user);
+
+      return user;
+    }
+
     return new Promise((resolve, reject) => {
       passwordless._tokenStore.authenticate(
-        token,
+        graphQLToken,
         uid,
         async function (error, valid, referrer) {
           if (valid) {
