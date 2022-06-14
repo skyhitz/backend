@@ -28,14 +28,19 @@ const buildOptions: any = async (req: any) => {
     return {
       schema: Schema,
       context: {
-        user: getUser(req.user.id).then((user: any) => {
-          if (!user) return null;
-          if (req.user.version === user.version) {
-            cacheInstance.put(req.user.id, user);
-            return user;
-          }
-          return null;
-        }),
+        user: getUser(req.user.id)
+          .then((user: any) => {
+            if (!user) return null;
+            if (req.user.version === user.version) {
+              cacheInstance.put(req.user.id, user);
+              return user;
+            }
+            return null;
+          })
+          .catch((err: any) => {
+            console.log(err);
+            return null;
+          }),
       },
     };
   }
