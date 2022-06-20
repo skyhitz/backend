@@ -1,4 +1,5 @@
-import { GraphQLString, GraphQLNonNull, GraphQLInt } from 'graphql';
+import { GraphQLString, GraphQLNonNull, GraphQLFloat } from 'graphql';
+import { sendNftBoughtEmail } from 'src/sendgrid/sendgrid';
 import { getEntry } from '../algolia/algolia';
 import { getAuthenticatedUser } from '../auth/logic';
 import { accountCredits, buyViaPathPayment } from '../stellar/operations';
@@ -7,7 +8,7 @@ import ConditionalXDR from './types/conditional-xdr';
 
 async function customerInfo(user: any) {
   let { availableCredits: credits } = await accountCredits(user.publicKey);
-  let userSeed = decrypt(user.seed);
+  let userSeed = user.seed ? decrypt(user.seed) : '';
   return { credits, seed: userSeed };
 }
 
@@ -18,10 +19,10 @@ const buyEntry = {
       type: new GraphQLNonNull(GraphQLString),
     },
     amount: {
-      type: new GraphQLNonNull(GraphQLInt),
+      type: new GraphQLNonNull(GraphQLFloat),
     },
     price: {
-      type: new GraphQLNonNull(GraphQLInt),
+      type: new GraphQLNonNull(GraphQLFloat),
     },
   },
   async resolve(_: any, args: any, ctx: any) {
@@ -40,7 +41,7 @@ const buyEntry = {
       // // send payment from buyer to owner of entry
       try {
         if (seed) {
-          return await buyViaPathPayment(
+          await buyViaPathPayment(
             user.publicKey,
             amount,
             price,
@@ -48,6 +49,8 @@ const buyEntry = {
             issuer,
             seed
           );
+          await sendNftBoughtEmail(user.email);
+          return;
         }
 
         return await buyViaPathPayment(

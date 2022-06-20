@@ -44,6 +44,7 @@ const createEntry = {
   ) {
     let user = await getAuthenticatedUser(ctx);
     const addSellOffer = user.publicKey && forSale;
+    console.log('create entry: ', user);
 
     const keypairSeed = shajs('sha256')
       .update(Config.ISSUER_SEED + fileCid)
@@ -75,7 +76,10 @@ const createEntry = {
       finalXdr = sellXdr;
     }
 
+    console.log('final xdr', finalXdr);
+
     if (user.seed) {
+      console.log('managed flow', !!user.seed);
       let userSeed = decrypt(user.seed);
       return await signAndSubmitXDR(finalXdr, userSeed);
     }

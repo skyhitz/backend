@@ -7,6 +7,7 @@ import {
   AuthImmutableFlag,
   Account,
   BASE_FEE,
+  Transaction,
 } from 'skyhitz-stellar-base';
 import { Config } from '../config';
 import { getConfig, getAccount } from './utils';
@@ -109,5 +110,16 @@ export async function buildNFTTransaction(
     xdr,
     supply,
     cid,
+  };
+}
+
+export function verifySourceSignatureOnXDR(xdr: string) {
+  const txFromXDR = new Transaction(xdr, getConfig().networkPassphrase);
+  const hashedSignatureBase = txFromXDR.hash();
+  const [signature] = txFromXDR.signatures;
+  const keypair = Keypair.fromPublicKey(txFromXDR.source);
+  return {
+    verified: keypair.verify(hashedSignatureBase, signature.signature()),
+    source: txFromXDR.source,
   };
 }

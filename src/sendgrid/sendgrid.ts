@@ -13,8 +13,26 @@ class SendGridService {
 
 export const sendGridService = new SendGridService();
 
+export function sendNftSoldEmail(email) {
+  return sendGridService.sendEmail({
+    to: email,
+    from: { email: 'hello@skyhitz.io', name: 'Skyhitz' },
+    subject: '¡You just sold a music NFT!',
+    templateId: 'd-6687be08e2934811b986c23132b548c1',
+  });
+}
+
+export function sendNftBoughtEmail(email) {
+  return sendGridService.sendEmail({
+    to: email,
+    from: { email: 'hello@skyhitz.io', name: 'Skyhitz' },
+    subject: '¡Now you own a music NFT!',
+    templateId: 'd-0d6857da22a54950b1350666181393da',
+  });
+}
+
 export function sendWelcomeEmail(email) {
-  sendGridService.sendEmail({
+  return sendGridService.sendEmail({
     to: email,
     from: { email: 'hello@skyhitz.io', name: 'Skyhitz' },
     subject: 'Welcome to Skyhitz',
@@ -23,7 +41,7 @@ export function sendWelcomeEmail(email) {
 }
 
 export async function sendLoginEmail(currentUser, token) {
-  await sendGridService.sendEmail({
+  return await sendGridService.sendEmail({
     to: currentUser.email,
     from: { email: 'hello@skyhitz.io', name: 'Skyhitz' },
     subject: 'Log In To Your Skyhitz Account',

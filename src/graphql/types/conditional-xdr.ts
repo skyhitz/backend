@@ -7,20 +7,20 @@ const ConditionalXDR: GraphQLObjectType = new GraphQLObjectType({
     return {
       xdr: {
         type: GraphQLString,
-        resolve(xdr: string) {
-          return xdr;
+        resolve(object: any) {
+          return object.xdr;
         },
       },
       success: {
         type: GraphQLBoolean,
-        resolve(success: boolean) {
-          return success;
+        resolve(object: any) {
+          return object.success;
         },
       },
       submitted: {
         type: GraphQLBoolean,
-        resolve(submitted: boolean) {
-          return submitted;
+        resolve(object: any) {
+          return object.submitted;
         },
       },
     };
