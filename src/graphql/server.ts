@@ -61,7 +61,11 @@ passwordless.init(new TokenStore());
 const setupGraphQLServer = () => {
   const graphQLServer = express();
 
-  graphQLServer.use(cors());
+  graphQLServer.use(
+    cors({
+      origin: '*',
+    })
+  );
 
   graphQLServer.use(
     graphqlUrl,
