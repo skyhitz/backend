@@ -6,6 +6,7 @@ if (Config.ENV === 'production') {
     'https://skyhitz.io',
     'https://api.skyhitz.io',
     'http://localhost:19006',
+    'http://localhost:3000',
     'https://api.stripe.com',
   ];
 } else {

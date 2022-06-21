@@ -8,6 +8,7 @@ import { TokenStore } from '../passwordless/store';
 import passwordless from '../passwordless/passwordless';
 import { stripeWebhook } from '../webhooks';
 import { getUser } from '../algolia/algolia';
+import { corsOptions } from '../cors';
 
 let cors = require('cors');
 const cache = require('memory-cache');
@@ -61,7 +62,7 @@ passwordless.init(new TokenStore());
 const setupGraphQLServer = () => {
   const graphQLServer = express();
 
-  graphQLServer.use(cors());
+  graphQLServer.use(cors(corsOptions));
 
   graphQLServer.use(
     graphqlUrl,
