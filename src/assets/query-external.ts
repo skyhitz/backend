@@ -11,17 +11,15 @@ export async function queryExternal(queryParams) {
   const { code, issuer, cursor, limit, order } = queryParams;
 
   if (code || issuer) {
-    return await (
-      await findAssetMeta(code, issuer)
-    ).map(({ publishedAtTimestamp, ...rest }) => rest);
+    return await await findAssetMeta(code, issuer);
   }
 
   if (cursor) {
-    const [{ publishedAtTimestamp }] = await findAssetMeta(
+    const [{ timestamp }] = await findAssetMeta(
       cursor.substr(0, cursor.indexOf('-')),
       cursor.substr(cursor.indexOf('-') + 1, cursor.length)
     );
-    return await assetsMeta(publishedAtTimestamp, limit, order);
+    return await assetsMeta(timestamp, limit, order);
   }
 
   return await assetsMeta(0, limit, order);

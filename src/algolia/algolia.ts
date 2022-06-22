@@ -250,14 +250,25 @@ export async function assetsMeta(
   });
   return res.hits
     .map((hit: unknown) => hit as Entry)
-    .map(({ issuer, code, description, artist, title, imageUrl }) => ({
-      issuer: issuer,
-      code: code,
-      description: description,
-      name: `${artist} - ${title}`,
-      image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
-      fixed_number: 1,
-    }));
+    .map(
+      ({
+        issuer,
+        code,
+        description,
+        artist,
+        title,
+        imageUrl,
+        publishedAtTimestamp,
+      }) => ({
+        issuer: issuer,
+        code: code,
+        description: description,
+        name: `${artist} - ${title}`,
+        image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
+        fixed_number: 1,
+        timestamp: publishedAtTimestamp,
+      })
+    );
 }
 
 export async function findAssetMeta(code, issuer) {
@@ -282,7 +293,7 @@ export async function findAssetMeta(code, issuer) {
         name: `${artist} - ${title}`,
         image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
         fixed_number: 1,
-        publishedAtTimestamp,
+        timestamp: publishedAtTimestamp,
       })
     );
 }
