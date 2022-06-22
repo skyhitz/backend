@@ -241,8 +241,8 @@ export async function assetsMeta(
     order === 'desc' ? timestampReplicaDesc : timestampReplicaAsc;
 
   const assetFilter = 'desc'
-    ? `publishedAtTimestamp >= ${publishedAtTimestamp}`
-    : `publishedAtTimestamp <= ${publishedAtTimestamp}`;
+    ? `publishedAtTimestamp > ${publishedAtTimestamp}`
+    : `publishedAtTimestamp < ${publishedAtTimestamp}`;
 
   const res = await assetIndex.search('', {
     hitsPerPage: limit,
