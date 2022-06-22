@@ -21,7 +21,7 @@ export async function queryExternal(queryParams) {
       cursor.substr(0, cursor.indexOf('-')),
       cursor.substr(cursor.indexOf('-') + 1, cursor.length)
     );
-    return (await assetsMeta(publishedAtTimestamp, limit + 1, order)).shift();
+    return await assetsMeta(publishedAtTimestamp, limit, order);
   }
 
   return await assetsMeta(0, limit, order);
