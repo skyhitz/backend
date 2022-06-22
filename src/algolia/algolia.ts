@@ -9,8 +9,12 @@ const appDomain = Config.APP_URL.replace('https://', '');
 export const entriesIndex = client.initIndex(`${appDomain}:entries`);
 entriesIndex.setSettings({
   searchableAttributes: ['unordered(title,artist)', 'description', 'code'],
-  replicas: [`${appDomain}:entries_likes_desc`],
-  attributesForFaceting: ['filterOnly(code)'],
+  replicas: [
+    `${appDomain}:entries_likes_desc`,
+    `${appDomain}:entries_timestamp_desc`,
+    `${appDomain}:entries_timestamp_asc`,
+  ],
+  attributesForFaceting: ['filterOnly(code)', 'filterOnly(issuer)'],
   attributesToRetrieve: ['*'],
 });
 export const usersIndex = client.initIndex(`${appDomain}:users`);
@@ -22,6 +26,26 @@ export const likeCountReplicaIndex = client.initIndex(
 
 likeCountReplicaIndex.setSettings({
   ranking: ['desc(likeCount)'],
+  attributesToRetrieve: ['*'],
+});
+
+export const timestampReplicaDesc = client.initIndex(
+  `${appDomain}:entries_timestamp_desc`
+);
+
+export const timestampReplicaAsc = client.initIndex(
+  `${appDomain}:entries_timestamp_asc`
+);
+
+timestampReplicaDesc.setSettings({
+  ranking: ['desc(publishedAtTimestamp)'],
+  attributesForFaceting: ['filterOnly(publishedAtTimestamp)'],
+  attributesToRetrieve: ['*'],
+});
+
+timestampReplicaAsc.setSettings({
+  ranking: ['asc(publishedAtTimestamp)'],
+  attributesForFaceting: ['filterOnly(publishedAtTimestamp)'],
   attributesToRetrieve: ['*'],
 });
 
@@ -203,4 +227,62 @@ export async function getEntriesLikesWithUserId(userId) {
 export async function entriesByLikeCount(page = 0) {
   const res = await likeCountReplicaIndex.search('', { page });
   return res.hits.map((hit: unknown) => hit as Entry);
+}
+
+const skyhitzCloudflareCdn =
+  'https://skyhitz.io/cdn-cgi/image/width=200/https://cloudflare-ipfs.com/ipfs/';
+
+export async function assetsMeta(
+  publishedAtTimestamp,
+  limit = 200,
+  order = 'desc'
+) {
+  const assetIndex =
+    order === 'desc' ? timestampReplicaDesc : timestampReplicaAsc;
+
+  const assetFilter = 'desc'
+    ? `publishedAtTimestamp >= ${publishedAtTimestamp}`
+    : `publishedAtTimestamp <= ${publishedAtTimestamp}`;
+
+  const res = await assetIndex.search('', {
+    hitsPerPage: limit,
+    filters: assetFilter,
+  });
+  return res.hits
+    .map((hit: unknown) => hit as Entry)
+    .map(({ issuer, code, description, artist, title, imageUrl }) => ({
+      issuer: issuer,
+      code: code,
+      description: description,
+      name: `${artist} - ${title}`,
+      image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
+      fixed_number: 1,
+    }));
+}
+
+export async function findAssetMeta(code, issuer) {
+  const res = await entriesIndex.search('', {
+    filters: `code:${code} OR issuer:${issuer}`,
+  });
+  return res.hits
+    .map((hit: unknown) => hit as Entry)
+    .map(
+      ({
+        issuer,
+        code,
+        description,
+        artist,
+        title,
+        imageUrl,
+        publishedAtTimestamp,
+      }) => ({
+        issuer: issuer,
+        code: code,
+        description: description,
+        name: `${artist} - ${title}`,
+        image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
+        fixed_number: 1,
+        publishedAtTimestamp,
+      })
+    );
 }
