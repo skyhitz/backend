@@ -237,15 +237,14 @@ export async function assetsMeta(
   limit = 200,
   order = 'desc'
 ) {
-  const assetIndex =
-    order === 'desc' ? timestampReplicaDesc : timestampReplicaAsc;
+  const isDesc = order === 'desc';
+  const assetIndex = isDesc ? timestampReplicaDesc : timestampReplicaAsc;
 
   const res = await assetIndex.search('', {
     hitsPerPage: limit,
-    filters:
-      order === 'asc'
-        ? `publishedAtTimestamp > ${publishedAtTimestamp}`
-        : `publishedAtTimestamp < ${publishedAtTimestamp}`,
+    filters: isDesc
+      ? `publishedAtTimestamp < ${publishedAtTimestamp}`
+      : `publishedAtTimestamp > ${publishedAtTimestamp}`,
   });
   return res.hits
     .map((hit: unknown) => hit as Entry)
