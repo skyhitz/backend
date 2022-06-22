@@ -24,5 +24,5 @@ export async function queryExternal(queryParams) {
     return (await assetsMeta(publishedAtTimestamp, limit + 1, order)).shift();
   }
 
-  return Promise.resolve([]);
+  return await assetsMeta(0, limit, order);
 }
