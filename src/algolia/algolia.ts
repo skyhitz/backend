@@ -257,14 +257,18 @@ export async function assetsMeta(
         title,
         imageUrl,
         publishedAtTimestamp,
+        videoUrl,
       }) => ({
         issuer: issuer,
         code: code,
         description: description,
-        name: `${artist} - ${title}`,
+        name: `${artist} - ${title}`.substring(0, 20),
         image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
         fixed_number: 1,
         timestamp: publishedAtTimestamp,
+        anchor_asset_type: 'nft',
+        status: 'live',
+        url: videoUrl,
       })
     );
 }
@@ -284,14 +288,18 @@ export async function findAssetMeta(code, issuer) {
         title,
         imageUrl,
         publishedAtTimestamp,
+        videoUrl,
       }) => ({
         issuer: issuer,
         code: code,
         description: description,
-        name: `${artist} - ${title}`,
+        name: `${artist} - ${title}`.substring(0, 20),
         image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
         fixed_number: 1,
         timestamp: publishedAtTimestamp,
+        anchor_asset_type: 'nft',
+        status: 'live',
+        url: videoUrl,
       })
     );
 }

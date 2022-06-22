@@ -8,6 +8,9 @@ import { queryExternal } from './query-external';
  */
 export function queryAssets(queryParams) {
   return queryExternal(queryParams).then((res) =>
-    preparePagedData(queryParams, res)
+    preparePagedData(
+      queryParams,
+      res.map(({ timestamp, ...rest }) => rest)
+    )
   );
 }
