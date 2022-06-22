@@ -242,7 +242,10 @@ export async function assetsMeta(
 
   const res = await assetIndex.search('', {
     hitsPerPage: limit,
-    filters: `publishedAtTimestamp > ${publishedAtTimestamp}`,
+    filters:
+      order === 'asc'
+        ? `publishedAtTimestamp > ${publishedAtTimestamp}`
+        : `publishedAtTimestamp < ${publishedAtTimestamp}`,
   });
   return res.hits
     .map((hit: unknown) => hit as Entry)
