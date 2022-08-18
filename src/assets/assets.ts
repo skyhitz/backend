@@ -11,7 +11,7 @@ export function assets(graphQLServer) {
       // invoke query
       queryAssets(queryParams)
         // send response in JSON format
-        .then((data) => response.json(data))
+        .then((data) => response.status(200).json(data))
         .catch((err) => {
           // primitive error handling
           console.error(err);

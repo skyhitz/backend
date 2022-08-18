@@ -237,27 +237,40 @@ export async function assetsMeta(
   limit = 200,
   order = 'desc'
 ) {
-  const assetIndex =
-    order === 'desc' ? timestampReplicaDesc : timestampReplicaAsc;
-
-  const assetFilter = 'desc'
-    ? `publishedAtTimestamp >= ${publishedAtTimestamp}`
-    : `publishedAtTimestamp <= ${publishedAtTimestamp}`;
+  const isDesc = order === 'desc';
+  const assetIndex = isDesc ? timestampReplicaDesc : timestampReplicaAsc;
 
   const res = await assetIndex.search('', {
     hitsPerPage: limit,
-    filters: assetFilter,
+    filters: isDesc
+      ? `publishedAtTimestamp < ${publishedAtTimestamp}`
+      : `publishedAtTimestamp > ${publishedAtTimestamp}`,
   });
   return res.hits
     .map((hit: unknown) => hit as Entry)
-    .map(({ issuer, code, description, artist, title, imageUrl }) => ({
-      issuer: issuer,
-      code: code,
-      description: description,
-      name: `${artist} - ${title}`,
-      image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
-      fixed_number: 1,
-    }));
+    .map(
+      ({
+        issuer,
+        code,
+        description,
+        artist,
+        title,
+        imageUrl,
+        publishedAtTimestamp,
+        videoUrl,
+      }) => ({
+        issuer: issuer,
+        code: code,
+        description: description,
+        name: `${artist} - ${title}`.substring(0, 20),
+        image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
+        fixed_number: 1,
+        timestamp: publishedAtTimestamp,
+        anchor_asset_type: 'nft',
+        status: 'live',
+        url: videoUrl,
+      })
+    );
 }
 
 export async function findAssetMeta(code, issuer) {
@@ -275,14 +288,18 @@ export async function findAssetMeta(code, issuer) {
         title,
         imageUrl,
         publishedAtTimestamp,
+        videoUrl,
       }) => ({
         issuer: issuer,
         code: code,
         description: description,
-        name: `${artist} - ${title}`,
+        name: `${artist} - ${title}`.substring(0, 20),
         image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
         fixed_number: 1,
-        publishedAtTimestamp,
+        timestamp: publishedAtTimestamp,
+        anchor_asset_type: 'nft',
+        status: 'live',
+        url: videoUrl,
       })
     );
 }
