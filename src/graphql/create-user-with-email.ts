@@ -38,13 +38,13 @@ const createUserWithEmail = {
       args.email,
       args.publicKey
     );
-    if (res && res._highlightResult.hasOwnProperty('email')) {
+    if (res && res._highlightResult.email === args.email) {
       throw 'Email already exists, please sign in.';
     }
-    if (res && res._highlightResult.hasOwnProperty('username')) {
+    if (res && res._highlightResult.username === args.username) {
       throw 'Username is taken.';
     }
-    if (res && res._highlightResult.hasOwnProperty('publicKey')) {
+    if (res && res._highlightResult.publicKey === args.publicKey) {
       throw 'Public Key is connected to another account, please sign in.';
     }
 
