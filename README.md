@@ -12,3 +12,4 @@ Technology stack:
 - Make sure you have the testing `.env` file at the root of the project
 - `yarn`
 - `yarn dev`
+- Open `http://localhost:4000/api/graphiql`
