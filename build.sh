@@ -6,5 +6,5 @@ if [[ "$VERCEL_GIT_COMMIT_REF" == "staging" || "$VERCEL_GIT_COMMIT_REF" == "mast
 
 else
   # Don't build
-  exit 0;
+  exit 1;
 fi
