@@ -119,7 +119,7 @@ export async function getByUsernameOrEmailOrPublicKey(
   email: string,
   publicKey?: string
 ) {
-  const res = await usersIndex.search('', {
+  const res = await usersIndex.search<User>('', {
     filters: `username:${username} OR email:${email} ${
       publicKey ? 'OR publicKey:' + publicKey : ''
     }`,
