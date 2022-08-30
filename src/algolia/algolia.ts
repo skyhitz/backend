@@ -161,12 +161,14 @@ export async function likeMulti(userId, entryId) {
       await likesIndex.saveObject({
         objectID: `user${userId}entry${entryId}`,
         likeCount: likeCountNumber ? likeCountNumber : 0,
+        entryId: entryId,
         userId: userId,
       }),
       await likesIndex.saveObject({
         objectID: `entry${entryId}user${userId}`,
         likeCount: likeCountNumber ? likeCountNumber : 0,
         entryId: entryId,
+        userId: userId,
       }),
       await entriesIndex.partialUpdateObject({
         objectID: entryId,
