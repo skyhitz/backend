@@ -8,9 +8,9 @@ import {
   Account,
   BASE_FEE,
   Transaction,
-} from 'skyhitz-stellar-base';
-import { Config } from '../config';
-import { getConfig, getAccount } from './utils';
+} from "skyhitz-stellar-base";
+import { Config } from "../config";
+import { getConfig, getAccount } from "./utils";
 
 export async function buildNFTTransaction(
   accountPublicKey: string,
@@ -35,6 +35,8 @@ export async function buildNFTTransaction(
     }
   })();
 
+  const appDomain = Config.APP_URL.replace("https://", "");
+
   const transaction = new TransactionBuilder(
     new Account(account.id, account.sequence),
     {
@@ -52,7 +54,7 @@ export async function buildNFTTransaction(
     .addOperation(
       Operation.createAccount({
         destination: issuerPublicKey,
-        startingBalance: '0',
+        startingBalance: "0",
       })
     )
 
@@ -88,12 +90,11 @@ export async function buildNFTTransaction(
         lowThreshold: 0,
         medThreshold: 0,
         highThreshold: 0,
-        homeDomain:
-          Config.ENV === 'production' ? `skyhitz.io` : `vice.skyhitz.io`,
+        homeDomain: appDomain,
       })
     );
 
-  let xdr = '';
+  let xdr = "";
 
   if (buildAndSign) {
     const transactionBuilt = transaction.build();

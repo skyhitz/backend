@@ -1,23 +1,23 @@
-import { Config } from './config';
+import { Config } from "./config";
 
 let whitelist: string[];
-if (Config.ENV === 'production') {
+if (Config.ENV === "production") {
   whitelist = [
-    'https://skyhitz.io',
-    'https://api.skyhitz.io',
-    'http://localhost:19006',
-    'http://localhost:3000',
-    'https://api.stripe.com',
+    "https://skyhitz.io",
+    "https://api.skyhitz.io",
+    "http://localhost:19006",
+    "http://localhost:3000",
+    "https://api.stripe.com",
   ];
 } else {
   whitelist = [
-    'https://skyhitz.io',
-    'https://vice.skyhitz.io',
-    'http://localhost:3000',
-    'http://localhost:4000',
-    'http://localhost:19006',
-    'https://spi.skyhitz.io',
-    'https://api.stripe.com',
+    "https://skyhitz.io",
+    "https:/skyhitz-expo-next.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:4000",
+    "http://localhost:19006",
+    "https://spi.skyhitz.io",
+    "https://api.stripe.com",
   ];
 }
 
@@ -28,8 +28,8 @@ export let corsOptions = {
 
     if (whitelist.indexOf(origin) === -1) {
       var msg =
-        'The CORS policy for this site does not ' +
-        'allow access from the specified Origin.';
+        "The CORS policy for this site does not " +
+        "allow access from the specified Origin.";
       return callback(new Error(msg), false);
     }
     return callback(null, true);
