@@ -19,8 +19,7 @@ const indexEntry = {
 
     const { data, home_domain } = await getAccountData(issuer);
 
-    const currentHomedomain =
-      Config.ENV === 'production' ? `skyhitz.io` : `vice.skyhitz.io`;
+    const currentHomedomain = Config.APP_URL.replace('https://', '');
 
     if (home_domain !== currentHomedomain) {
       throw `Can't index NFTs from other marketplaces at the moment`;

@@ -12,7 +12,7 @@ if (Config.ENV === 'production') {
 } else {
   whitelist = [
     'https://skyhitz.io',
-    'https://vice.skyhitz.io',
+    'https:/skyhitz-expo-next.vercel.app',
     'http://localhost:3000',
     'http://localhost:4000',
     'http://localhost:19006',

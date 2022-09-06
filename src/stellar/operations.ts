@@ -243,9 +243,8 @@ export async function signAndSubmitXDR(xdr: string, seed: string) {
   const transaction = new Transaction(xdr, NETWORK_PASSPHRASE);
 
   transaction.sign(keys);
-  let { status, result_xdr } = await submitTransaction(transaction);
-  console.log(result_xdr);
-  return { xdr: result_xdr, success: status === 200, submitted: true };
+  const { result_xdr, successful } = await submitTransaction(transaction);
+  return { xdr: result_xdr, success: successful, submitted: true };
 }
 
 export async function manageBuyOffer(
