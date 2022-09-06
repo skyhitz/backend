@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 import {
   Keypair,
   Asset,
@@ -7,14 +7,14 @@ import {
   Account,
   Networks,
   Transaction,
-} from "skyhitz-stellar-base";
-import { Config } from "../config";
+} from 'skyhitz-stellar-base';
+import { Config } from '../config';
 export const sourceKeys = Keypair.fromSecret(Config.ISSUER_SEED);
 
 const XLM = Asset.native();
 
 const NETWORK_PASSPHRASE =
-  Config.ENV === "production" ? Networks.PUBLIC : Networks.TESTNET;
+  Config.ENV === 'production' ? Networks.PUBLIC : Networks.TESTNET;
 
 export const getFee = (
   horizonUrl: string = Config.HORIZON_URL
@@ -23,7 +23,7 @@ export const getFee = (
     .get(horizonUrl + `/fee_stats`)
     .then(({ data }) => data)
     .then((feeStats) => feeStats.max_fee.mode)
-    .catch(() => "10000");
+    .catch(() => '10000');
 };
 
 export const submitTransaction = async (
@@ -31,7 +31,7 @@ export const submitTransaction = async (
   horizonUrl: string = Config.HORIZON_URL
 ) => {
   const xdr = transaction.toXDR();
-  console.log("submitted xdr: ", xdr);
+  console.log('submitted xdr: ', xdr);
 
   return axios
     .post(`${horizonUrl}/transactions?tx=${encodeURIComponent(xdr)}`)
@@ -40,7 +40,6 @@ export const submitTransaction = async (
       const { data } = error.response;
       const { extras } = data;
       console.log(extras);
-      console.log(error.response);
       throw extras;
     });
 };
@@ -101,7 +100,7 @@ async function buildTransactionWithFee(accountPublicKey) {
 
 export async function fundAccount(destinationKeys: Keypair) {
   if (!destinationKeys.publicKey()) {
-    throw "Account does not exist";
+    throw 'Account does not exist';
   }
 
   let transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
@@ -113,7 +112,7 @@ export async function fundAccount(destinationKeys: Keypair) {
     .addOperation(
       Operation.createAccount({
         destination: destinationKeys.publicKey(),
-        startingBalance: "0",
+        startingBalance: '0',
       })
     )
     .addOperation(
@@ -233,7 +232,7 @@ export async function buyViaPathPayment(
 
   transaction.sign(sourceKeys);
   return {
-    xdr: transaction.toEnvelope().toXDR("base64"),
+    xdr: transaction.toEnvelope().toXDR('base64'),
     success: true,
     submitted: false,
   };
@@ -244,8 +243,7 @@ export async function signAndSubmitXDR(xdr: string, seed: string) {
   const transaction = new Transaction(xdr, NETWORK_PASSPHRASE);
 
   transaction.sign(keys);
-  const data = await submitTransaction(transaction);
-  const { result_xdr, successful } = data;
+  const { result_xdr, successful } = await submitTransaction(transaction);
   return { xdr: result_xdr, success: successful, submitted: true };
 }
 
@@ -360,7 +358,7 @@ export async function manageSellOffer(
 
   transaction.sign(sourceKeys);
   return {
-    xdr: transaction.toEnvelope().toXDR("base64"),
+    xdr: transaction.toEnvelope().toXDR('base64'),
     success: true,
     submitted: false,
   };
@@ -370,7 +368,7 @@ export async function sendOwnershipOfAsset(
   destinationSeed: string,
   assetCode: string
 ) {
-  const limitOfShares = "100";
+  const limitOfShares = '100';
   const newAsset = new Asset(assetCode, sourceKeys.publicKey());
   const destinationKeys = Keypair.fromSecret(destinationSeed);
   const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
@@ -430,7 +428,7 @@ export async function accountCredits(publicAddress: string) {
     await getAccountData(publicAddress);
 
   const [currentBalance] = balances.filter(
-    (balance: any) => balance.asset_type === "native"
+    (balance: any) => balance.asset_type === 'native'
   );
   if (currentBalance && currentBalance.balance) {
     const floatBalance = parseFloat(currentBalance.balance);
@@ -464,7 +462,7 @@ export async function payment(
 
   transaction.sign(sourceKeypair);
   let transactionResult = await submitTransaction(transaction);
-  console.log("\nSuccess! View the transaction at: ", transactionResult);
+  console.log('\nSuccess! View the transaction at: ', transactionResult);
   return transactionResult;
 }
 
@@ -486,7 +484,7 @@ export async function loadSkyhitzAssets(sourcePublicKey) {
   let { balances } = await getAccountData(sourcePublicKey);
   const assetCodes = balances
     .filter((balance: any) => {
-      if (balance.asset_type !== "native") {
+      if (balance.asset_type !== 'native') {
         return true;
       }
       return false;
@@ -509,7 +507,7 @@ export async function payUserInXLM(address: string, amount: number) {
 
   transaction.sign(sourceKeys);
   let transactionResult = await submitTransaction(transaction);
-  console.log("\nSuccess! View the transaction at: ", transactionResult);
+  console.log('\nSuccess! View the transaction at: ', transactionResult);
   return transactionResult;
 }
 
@@ -534,6 +532,6 @@ export async function withdrawToExternalAddress(
 
   transaction.sign(keys);
   let transactionResult = await submitTransaction(transaction);
-  console.log("\nSuccess! View the transaction at: ", transactionResult);
+  console.log('\nSuccess! View the transaction at: ', transactionResult);
   return transactionResult;
 }

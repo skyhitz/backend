@@ -1,11 +1,11 @@
-import { GraphQLString, GraphQLNonNull, GraphQLBoolean } from "graphql";
+import { GraphQLString, GraphQLNonNull, GraphQLBoolean } from 'graphql';
 
-import { getAuthenticatedUser } from "../auth/logic";
-import { saveEntry } from "../algolia/algolia";
-import { getAccountData } from "../stellar/operations";
-import { Config } from "src/config";
-import axios from "axios";
-import { cloudflareIpfsGateway } from "../constants/constants";
+import { getAuthenticatedUser } from '../auth/logic';
+import { saveEntry } from '../algolia/algolia';
+import { getAccountData } from '../stellar/operations';
+import { Config } from 'src/config';
+import axios from 'axios';
+import { cloudflareIpfsGateway } from '../constants/constants';
 
 const indexEntry = {
   type: GraphQLBoolean,
@@ -19,14 +19,14 @@ const indexEntry = {
 
     const { data, home_domain } = await getAccountData(issuer);
 
-    const currentHomedomain = Config.APP_URL.replace("https://", "");
+    const currentHomedomain = Config.APP_URL.replace('https://', '');
 
     if (home_domain !== currentHomedomain) {
       throw `Can't index NFTs from other marketplaces at the moment`;
     }
 
     const { ipfshash } = data;
-    const decodedIpfshash = Buffer.from(ipfshash, "base64").toString();
+    const decodedIpfshash = Buffer.from(ipfshash, 'base64').toString();
 
     const {
       name,
@@ -42,7 +42,7 @@ const indexEntry = {
       .get(`${cloudflareIpfsGateway}/${decodedIpfshash}`)
       .then(({ data }) => data);
 
-    const nameDivider = " - ";
+    const nameDivider = ' - ';
     const obj = {
       description,
       code: metaCode,
@@ -58,7 +58,7 @@ const indexEntry = {
       publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
     };
 
-    console.log("indexed entry:", obj);
+    console.log('indexed entry:', obj);
 
     if (
       name &&
