@@ -245,12 +245,8 @@ export async function signAndSubmitXDR(xdr: string, seed: string) {
 
   transaction.sign(keys);
   const data = await submitTransaction(transaction);
-  const { result_xdr, status } = data;
-  console.log("submit finished");
-  console.log(data);
-  console.log(result_xdr);
-  console.log(status);
-  return { xdr: result_xdr, success: false, submitted: true };
+  const { result_xdr, successful } = data;
+  return { xdr: result_xdr, success: successful, submitted: true };
 }
 
 export async function manageBuyOffer(
