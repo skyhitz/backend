@@ -134,7 +134,7 @@ export async function getByUsernameOrEmailExcludingId(
   id: string,
 ) {
   const res = await usersIndex.search<User>('', {
-    filters: `(username:${username} OR email:${email}) AND NOT id:${id}`,
+    filters: `(username:${username} OR email:${email}) AND NOT objectID:"${id}"`,
   });
   const [user] = res.hits;
   return user;
