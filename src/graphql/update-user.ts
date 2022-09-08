@@ -74,7 +74,7 @@ const updateUserEndpoint = {
       ...validatedUpdate,
     };
     await usersIndex.partialUpdateObject(userUpdate);
-    return user;
+    return userUpdate;
   },
 };
 
