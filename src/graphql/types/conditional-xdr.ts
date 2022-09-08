@@ -23,6 +23,12 @@ const ConditionalXDR: GraphQLObjectType = new GraphQLObjectType({
           return object.submitted;
         },
       },
+      message: {
+        type: GraphQLString,
+        resolve(object: any) {
+          return object.message;
+        },
+      },
     };
   },
 });
