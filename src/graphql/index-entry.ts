@@ -1,4 +1,4 @@
-import { GraphQLString, GraphQLNonNull, GraphQLBoolean } from 'graphql';
+import { GraphQLString, GraphQLNonNull } from 'graphql';
 
 import { getAuthenticatedUser } from '../auth/logic';
 import { saveEntry } from '../algolia/algolia';
@@ -6,9 +6,10 @@ import { getAccountData } from '../stellar/operations';
 import { Config } from 'src/config';
 import axios from 'axios';
 import { cloudflareIpfsGateway } from '../constants/constants';
+import { IndexEntryResult } from './types/index-entry-result';
 
 const indexEntry = {
-  type: GraphQLBoolean,
+  type: IndexEntryResult,
   args: {
     issuer: {
       type: new GraphQLNonNull(GraphQLString),
@@ -22,7 +23,10 @@ const indexEntry = {
     const currentHomedomain = Config.APP_URL.replace('https://', '');
 
     if (home_domain !== currentHomedomain) {
-      throw `Can't index NFTs from other marketplaces at the moment`;
+      return {
+        success: false,
+        message: "Can't index NFTs from other marketplaces at the moment",
+      };
     }
 
     const { ipfshash } = data;
@@ -71,10 +75,14 @@ const indexEntry = {
       animation_url &&
       video
     ) {
-      await saveEntry(obj);
-      return true;
+      try {
+        await saveEntry(obj);
+        return { success: true };
+      } catch (ex) {
+        return { success: false, message: "Couldn't index entry." };
+      }
     }
-    return false;
+    return { success: false, message: 'Invalid entry metadata' };
   },
 };
 
