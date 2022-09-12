@@ -43,8 +43,17 @@ const indexEntry = {
       animation_url,
       video,
     } = await axios
-      .get(`${cloudflareIpfsGateway}/${decodedIpfshash}`)
-      .then(({ data }) => data);
+      .get(`${cloudflareIpfsGateway}/${decodedIpfshash}`, {
+        timeout: 30 * 1000,
+      })
+      .then(({ data }) => data)
+      .catch((error) => {
+        console.log(error);
+        return {
+          success: false,
+          message: "Couldn't fetch the nft metadata from ipfs",
+        };
+      });
 
     const nameDivider = ' - ';
     const obj = {
