@@ -128,6 +128,18 @@ export async function getByUsernameOrEmailOrPublicKey(
   return user;
 }
 
+export async function getByUsernameOrEmailExcludingId(
+  username: string,
+  email: string,
+  id: string,
+) {
+  const res = await usersIndex.search<User>('', {
+    filters: `(username:${username} OR email:${email}) AND NOT objectID:"${id}"`,
+  });
+  const [user] = res.hits;
+  return user;
+}
+
 export async function getUserByEmail(email: string) {
   const res = await usersIndex.search('', {
     filters: `email:${email}`,
