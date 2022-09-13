@@ -5,7 +5,7 @@ import { saveEntry } from '../algolia/algolia';
 import { getAccountData } from '../stellar/operations';
 import { Config } from 'src/config';
 import axios from 'axios';
-import { cloudflareIpfsGateway } from '../constants/constants';
+import { ipfsGateway, fallbackIpfsGateway } from '../constants/constants';
 import { IndexEntryResult } from './types/index-entry-result';
 
 const indexEntry = {
@@ -32,6 +32,37 @@ const indexEntry = {
     const { ipfshash } = data;
     const decodedIpfshash = Buffer.from(ipfshash, 'base64').toString();
 
+    let response;
+
+    response = await axios
+      .get(`${ipfsGateway}/${decodedIpfshash}`, {
+        timeout: 15 * 1000,
+      })
+      .then(({ data }) => data)
+      .catch((error) => {
+        console.log(error);
+        return null;
+      });
+    if (response === null) {
+      console.log('Trying fallback gateway');
+      response = await axios
+        .get(`${fallbackIpfsGateway}/${decodedIpfshash}`, {
+          timeout: 15 * 1000,
+        })
+        .then(({ data }) => data)
+        .catch((error) => {
+          console.log(error);
+          return null;
+        });
+    }
+
+    if (response === null) {
+      return {
+        success: false,
+        message: "Couldn't fetch the nft metadata from ipfs",
+      };
+    }
+
     const {
       name,
       description,
@@ -42,9 +73,7 @@ const indexEntry = {
       image,
       animation_url,
       video,
-    } = await axios
-      .get(`${cloudflareIpfsGateway}/${decodedIpfshash}`)
-      .then(({ data }) => data);
+    } = response;
 
     const nameDivider = ' - ';
     const obj = {
