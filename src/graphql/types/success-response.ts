@@ -2,7 +2,7 @@ import { GraphQLObjectType, GraphQLString, GraphQLBoolean } from 'graphql';
 
 const SuccessResponse: GraphQLObjectType = new GraphQLObjectType({
   name: 'SuccessResponse',
-  description: 'This is an SuccessResponse',
+  description: 'This is a SuccessResponse',
   fields: () => {
     return {
       success: {

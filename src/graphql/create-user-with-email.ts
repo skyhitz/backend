@@ -76,9 +76,9 @@ const createUserWithEmail = {
     }
 
     await saveUser(user);
-
     sendWelcomeEmail(user.email);
-    return { success: true, message: 'OK' };
+
+    return { success: true, message: 'User created.' };
   },
 };
 
