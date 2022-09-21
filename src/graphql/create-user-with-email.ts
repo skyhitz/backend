@@ -33,6 +33,10 @@ const createUserWithEmail = {
     if (!args.username) {
       throw `Username can't be an empty string`;
     }
+
+    // TODO: Make a proper fix
+    args.username = args.username.toLowerCase();
+
     const res = await getByUsernameOrEmailOrPublicKey(
       args.username,
       args.email,
@@ -54,7 +58,7 @@ const createUserWithEmail = {
       avatarUrl: '',
       displayName: args.displayName,
       description: '',
-      username: args.username.toLowerCase(),
+      username: args.username,
       email: args.email,
       version: 1,
       publishedAt: new Date().toISOString(),
