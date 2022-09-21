@@ -1,6 +1,5 @@
 import { GraphQLList, GraphQLString } from 'graphql';
 import Entry from './types/entry';
-import { getAuthenticatedUser } from '../auth/logic';
 import { loadSkyhitzAssets } from '../stellar/operations';
 import { getEntry, getEntryByCode, getUser } from '../algolia/algolia';
 
@@ -18,8 +17,7 @@ const Entries = {
       type: GraphQLString,
     },
   },
-  async resolve(root: any, { id, userId }: any, ctx: any) {
-    await getAuthenticatedUser(ctx);
+  async resolve(root: any, { id, userId }: any) {
     if (!userId) {
       const entry = await getEntry(id);
       return [entry];
