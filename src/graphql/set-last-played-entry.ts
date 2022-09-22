@@ -1,9 +1,5 @@
 import { GraphQLNonNull, GraphQLString } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
-// import {
-//   getByUsernameOrEmailExcludingId,
-//   usersIndex,
-// } from 'src/algolia/algolia';
 import SuccessResponse from './types/success-response';
 import { getEntry, usersIndex } from 'src/algolia/algolia';
 
@@ -26,7 +22,6 @@ const setLastPlayedEntry = {
       ...user,
       lastPlayedEntry: entry,
     };
-    console.log(userUpdate);
     await usersIndex.partialUpdateObject(userUpdate);
     return { success: true, message: 'OK' };
   },
