@@ -1,4 +1,5 @@
 import { GraphQLObjectType, GraphQLInt, GraphQLString } from 'graphql';
+import Entry from './entry';
 
 const User: GraphQLObjectType = new GraphQLObjectType({
   name: 'User',
@@ -63,6 +64,12 @@ const User: GraphQLObjectType = new GraphQLObjectType({
         type: GraphQLString,
         resolve(user: any) {
           return user.publicKey;
+        },
+      },
+      lastPlayedEntry: {
+        type: Entry,
+        resolve(user: any) {
+          return user.lastPlayedEntry;
         },
       },
     };

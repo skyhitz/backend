@@ -131,7 +131,7 @@ export async function getByUsernameOrEmailOrPublicKey(
 export async function getByUsernameOrEmailExcludingId(
   username: string,
   email: string,
-  id: string,
+  id: string
 ) {
   const res = await usersIndex.search<User>('', {
     filters: `(username:${username} OR email:${email}) AND NOT objectID:"${id}"`,
