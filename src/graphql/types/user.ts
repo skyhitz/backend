@@ -1,6 +1,11 @@
-import { GraphQLObjectType, GraphQLInt, GraphQLString } from 'graphql';
+import {
+  GraphQLObjectType,
+  GraphQLInt,
+  GraphQLString,
+  GraphQLBoolean,
+} from 'graphql';
 
-const User: GraphQLObjectType = new GraphQLObjectType({
+export const GraphQLUser: GraphQLObjectType = new GraphQLObjectType({
   name: 'User',
   description: 'This represents a User',
   fields: () => {
@@ -65,8 +70,12 @@ const User: GraphQLObjectType = new GraphQLObjectType({
           return user.publicKey;
         },
       },
+      managed: {
+        type: GraphQLBoolean,
+        resolve(user: any) {
+          return user.seed !== '';
+        },
+      },
     };
   },
 });
-
-export default User;

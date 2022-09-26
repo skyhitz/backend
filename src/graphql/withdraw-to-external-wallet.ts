@@ -1,21 +1,16 @@
-import {
-  GraphQLString,
-  GraphQLInt,
-  GraphQLBoolean,
-  GraphQLNonNull,
-} from 'graphql';
+import { GraphQLString, GraphQLInt, GraphQLNonNull } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
-import { findCustomer } from '../payments/stripe';
 import {
   accountCredits,
   withdrawToExternalAddress,
 } from '../stellar/operations';
+import SuccessResponse from './types/success-response';
 
 /**
  * Withdraws user balance to external address in XLM
  */
 export default {
-  type: GraphQLBoolean,
+  type: SuccessResponse,
   args: {
     address: {
       type: new GraphQLNonNull(GraphQLString),
@@ -25,31 +20,34 @@ export default {
     },
   },
   async resolve(_: any, { address, amount }: any, ctx: any) {
-    let user = await getAuthenticatedUser(ctx);
+    const user = await getAuthenticatedUser(ctx);
 
-    const { metadata } = await findCustomer(user.email);
-    if (!metadata) {
-      return false;
-    }
-    const { seed, publicAddress } = metadata;
+    const { seed, publicAddress } = user;
 
-    const { availableCredits: currentBalance } = await accountCredits(
-      publicAddress
-    );
-
-    if (amount > currentBalance) {
-      return false;
+    if (!seed) {
+      return {
+        success: false,
+        message: 'Withdraw is only available for custodial accounts',
+      };
     }
 
     try {
+      const { availableCredits: currentBalance } = await accountCredits(
+        publicAddress
+      );
+
+      if (amount > currentBalance) {
+        return { success: false, message: 'Your account balance is too low.' };
+      }
+
       console.log(
         `withdrawal to address ${address}, amount ${amount.toFixed(6)}`
       );
       await withdrawToExternalAddress(address, amount, seed);
-      return true;
+      return { success: true, message: 'OK' };
     } catch (e) {
       console.log(`error`, e);
-      return false;
+      return { success: false, message: 'Unexpected error during withdrawal.' };
     }
   },
 };
