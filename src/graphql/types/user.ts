@@ -1,3 +1,4 @@
+import Entry from './entry';
 import {
   GraphQLObjectType,
   GraphQLInt,
@@ -70,6 +71,12 @@ export const GraphQLUser: GraphQLObjectType = new GraphQLObjectType({
           return user.publicKey;
         },
       },
+      lastPlayedEntry: {
+        type: Entry,
+        resolve(user: any) {
+          return user.lastPlayedEntry;
+        },
+      },    
       managed: {
         type: GraphQLBoolean,
         resolve(user: any) {

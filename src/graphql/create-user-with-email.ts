@@ -61,6 +61,7 @@ const createUserWithEmail = {
       objectID: newId,
       id: newId,
       seed: '',
+      lastPlayedEntry: null,
     };
 
     // create and sponsor a stellar account for the user if they don't have one yet

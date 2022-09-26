@@ -23,6 +23,7 @@ import UpdatePricing from './update-pricing';
 import EntryPrice from './get-entry-price';
 import XLMPrice from './xlm-price';
 import GetIssuer from './get-issuer';
+import SetLastPlayedEntry from './set-last-played-entry';
 import SignInWithXDR from './sing-in-with-xdr';
 
 const Query = new GraphQLObjectType({
@@ -64,6 +65,7 @@ const Mutation = new GraphQLObjectType({
       updateUser: UpdateUser,
       updatePricing: UpdatePricing,
       withdrawToExternalWallet: WithdrawToExternalWallet,
+      setLastPlayedEntry: SetLastPlayedEntry,
     };
   },
 });
