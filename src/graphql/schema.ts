@@ -1,6 +1,6 @@
 import { GraphQLSchema, GraphQLObjectType } from 'graphql';
 import RequestToken from './request-token';
-import SignIn from './sign-in';
+import SignInWithToken from './sign-in-with-token';
 import PaymentsInfo from './payments-info';
 import UserLikes from './user-likes';
 import EntryLikes from './entry-likes';
@@ -23,7 +23,8 @@ import UpdatePricing from './update-pricing';
 import EntryPrice from './get-entry-price';
 import XLMPrice from './xlm-price';
 import GetIssuer from './get-issuer';
-import setLastPlayedEntry from './set-last-played-entry';
+import SetLastPlayedEntry from './set-last-played-entry';
+import SignInWithXDR from './sing-in-with-xdr';
 
 const Query = new GraphQLObjectType({
   name: 'Query',
@@ -55,7 +56,8 @@ const Mutation = new GraphQLObjectType({
       indexEntry: IndexEntry,
       createUserWithEmail: CreateUserWithEmail,
       requestToken: RequestToken,
-      signIn: SignIn,
+      signInWithToken: SignInWithToken,
+      signInWithXDR: SignInWithXDR,
       likeEntry: LikeEntry,
       removeEntry: RemoveEntry,
       cancelSubscription: CancelSubscription,
@@ -63,7 +65,7 @@ const Mutation = new GraphQLObjectType({
       updateUser: UpdateUser,
       updatePricing: UpdatePricing,
       withdrawToExternalWallet: WithdrawToExternalWallet,
-      setLastPlayedEntry: setLastPlayedEntry,
+      setLastPlayedEntry: SetLastPlayedEntry,
     };
   },
 });

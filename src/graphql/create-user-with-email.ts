@@ -1,17 +1,15 @@
 import { GraphQLString, GraphQLNonNull } from 'graphql';
 
-import GraphQLUser from './types/user';
 import UniqueIdGenerator from '../auth/unique-id-generator';
-import * as jwt from 'jsonwebtoken';
-import { Config } from '../config';
 import { getByUsernameOrEmailOrPublicKey, saveUser } from '../algolia/algolia';
 import { sendWelcomeEmail } from '../sendgrid/sendgrid';
 import { createAndFundAccount } from '../stellar/operations';
 import { encrypt } from '../util/encryption';
 import { User } from '../util/types';
+import SuccessResponse from './types/success-response';
 
 const createUserWithEmail = {
-  type: GraphQLUser,
+  type: SuccessResponse,
   args: {
     displayName: {
       type: new GraphQLNonNull(GraphQLString),
@@ -79,12 +77,9 @@ const createUserWithEmail = {
     }
 
     await saveUser(user);
-    const { id, email, version } = user;
-    const token = jwt.sign({ id, email, version } as any, Config.JWT_SECRET);
-    user.jwt = token;
-    ctx.user = Promise.resolve(user);
-    sendWelcomeEmail(email);
-    return user;
+    sendWelcomeEmail(user.email);
+
+    return { success: true, message: 'User created.' };
   },
 };
 
