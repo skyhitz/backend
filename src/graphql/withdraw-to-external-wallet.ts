@@ -1,4 +1,5 @@
 import { GraphQLString, GraphQLInt, GraphQLNonNull } from 'graphql';
+import { decrypt } from 'src/util/encryption';
 import { getAuthenticatedUser } from '../auth/logic';
 import {
   accountCredits,
@@ -22,32 +23,33 @@ export default {
   async resolve(_: any, { address, amount }: any, ctx: any) {
     const user = await getAuthenticatedUser(ctx);
 
-    const { seed, publicAddress } = user;
+    const { seed, publicKey } = user;
 
     if (!seed) {
-      return {
-        success: false,
-        message: 'Withdraw is only available for custodial accounts',
-      };
+      throw 'Withdraw is only available for custodial accounts';
     }
 
     try {
       const { availableCredits: currentBalance } = await accountCredits(
-        publicAddress
+        publicKey
       );
 
       if (amount > currentBalance) {
-        return { success: false, message: 'Your account balance is too low.' };
+        throw 'Your account balance is too low.';
       }
 
       console.log(
         `withdrawal to address ${address}, amount ${amount.toFixed(6)}`
       );
-      await withdrawToExternalAddress(address, amount, seed);
+      const decryptedSeed = decrypt(seed);
+      await withdrawToExternalAddress(address, amount, decryptedSeed);
       return { success: true, message: 'OK' };
     } catch (e) {
       console.log(`error`, e);
-      return { success: false, message: 'Unexpected error during withdrawal.' };
+      if (typeof e === 'string') {
+        throw e;
+      }
+      throw 'Unexpected error during withdrawal.';
     }
   },
 };
