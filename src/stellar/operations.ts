@@ -519,19 +519,28 @@ export async function withdrawToExternalAddress(
   const keys = Keypair.fromSecret(seed);
   const sourcePublicKey = keys.publicKey();
 
-  let transaction = (await buildTransactionWithFee(sourcePublicKey))
+  const transactionFee = amount * parseFloat(Config.TRANSACTION_FEE);
+
+  const transaction = (await buildTransactionWithFee(sourcePublicKey))
+    .addOperation(
+      Operation.payment({
+        destination: sourceKeys.publicKey(),
+        asset: XLM,
+        amount: transactionFee.toFixed(6).toString(),
+      })
+    )
     .addOperation(
       Operation.payment({
         destination: address,
         asset: XLM,
-        amount: amount.toFixed(6).toString(),
+        amount: (amount - transactionFee).toFixed(6).toString(),
       })
     )
     .setTimeout(0)
     .build();
 
   transaction.sign(keys);
-  let transactionResult = await submitTransaction(transaction);
+  const transactionResult = await submitTransaction(transaction);
   console.log('\nSuccess! View the transaction at: ', transactionResult);
   return transactionResult;
 }
