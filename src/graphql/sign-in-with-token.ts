@@ -1,5 +1,5 @@
 import { GraphQLString, GraphQLNonNull } from 'graphql';
-import GraphQLUser from './types/user';
+import { GraphQLUser } from './types/user';
 import passwordless from '../passwordless/passwordless';
 import * as jwt from 'jsonwebtoken';
 import { Config } from '../config';

@@ -1,5 +1,5 @@
 import { GraphQLString } from 'graphql';
-import User from './types/user';
+import { GraphQLUser } from './types/user';
 import { getAuthenticatedUser } from '../auth/logic';
 import * as yup from 'yup';
 import {
@@ -38,7 +38,7 @@ const updateUserSchema: yup.SchemaOf<UpdateUserArgs> = yup.object().shape({
 });
 
 const updateUserEndpoint = {
-  type: User,
+  type: GraphQLUser,
   args: {
     avatarUrl: {
       type: GraphQLString,
