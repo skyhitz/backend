@@ -138,7 +138,7 @@ const EntryActivity: GraphQLObjectType = new GraphQLObjectType({
         },
       },
       tx: {
-        type: GraphQLString,
+        type: new GraphQLNonNull(GraphQLString),
         resolve(activity: any) {
           return activity.tx;
         },
