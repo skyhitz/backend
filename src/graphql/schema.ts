@@ -5,7 +5,8 @@ import PaymentsInfo from './payments-info';
 import UserLikes from './user-likes';
 import EntryLikes from './entry-likes';
 import AuthenticatedUser from './authenticated-user';
-import Entries from './entries';
+import { EntryById } from './entry';
+import { UserEntries } from './user-entries';
 import TopChart from './top-chart';
 import RecentlyAdded from './recently-added';
 import LikeEntry from './like-entry';
@@ -34,10 +35,11 @@ const Query = new GraphQLObjectType({
       authenticatedUser: AuthenticatedUser,
       entryLikes: EntryLikes,
       entryPrice: EntryPrice,
-      entries: Entries,
+      entry: EntryById,
       paymentsInfo: PaymentsInfo,
       recentlyAdded: RecentlyAdded,
       topChart: TopChart,
+      userEntries: UserEntries,
       userLikes: UserLikes,
       xlmPrice: XLMPrice,
       getIssuer: GetIssuer,

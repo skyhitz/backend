@@ -13,4 +13,5 @@ export interface IConfig {
   SENDGRID_API_KEY: string;
   UNIVERSAL_LINK_SCHEME: string;
   NFT_STORAGE_API_KEY: string;
+  STELLAR_NETWORK: string;
 }
