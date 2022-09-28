@@ -1,5 +1,5 @@
 import { GraphQLString, GraphQLInt, GraphQLNonNull } from 'graphql';
-import { decrypt } from 'src/util/encryption';
+import { decrypt } from '../util/encryption';
 import { getAuthenticatedUser } from '../auth/logic';
 import {
   accountCredits,

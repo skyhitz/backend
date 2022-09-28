@@ -1,7 +1,7 @@
 import { GraphQLNonNull, GraphQLString } from 'graphql';
 import { getEntry } from '../algolia/algolia';
 import { Config } from 'src/config';
-import { AxiosCacheStellarClient } from 'src/util/axios-cache';
+import { AxiosCacheStellarClient } from '../util/axios-cache';
 import { EntryDetails } from './types/entry-details';
 
 export const EntryById = {
