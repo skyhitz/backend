@@ -29,3 +29,9 @@ export type Entry = {
   likeCount: number;
   objectID: string;
 };
+
+export type UnsignedTransaction = {
+  objectID: string;
+  userId: string;
+  xdr: string;
+};
