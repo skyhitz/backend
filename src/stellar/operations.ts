@@ -226,8 +226,9 @@ export async function buyViaPathPayment(
   if (destinationSeed) {
     const destinationKeys = Keypair.fromSecret(destinationSeed);
     transaction.sign(sourceKeys, destinationKeys);
-    let { status, result_xdr } = await submitTransaction(transaction);
-    return { xdr: result_xdr, success: status === 200, submitted: true };
+    const data = await submitTransaction(transaction);
+    const { result_xdr, successful } = data;
+    return { xdr: result_xdr, success: successful, submitted: true };
   }
 
   transaction.sign(sourceKeys);
