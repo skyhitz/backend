@@ -1,13 +1,12 @@
 import { GraphQLString, GraphQLNonNull, GraphQLFloat } from 'graphql';
 import { sendNftBoughtEmail, sendNftSoldEmail } from 'src/sendgrid/sendgrid';
-import { addUnsignedTransaction, getEntry } from '../algolia/algolia';
+import { getEntry } from '../algolia/algolia';
 import { getAuthenticatedUser } from '../auth/logic';
 import { accountCredits, buyViaPathPayment } from '../stellar/operations';
 import { decrypt } from '../util/encryption';
 import ConditionalXDR from './types/conditional-xdr';
 import { getPublicKeyFromTransactionResult } from 'src/stellar/operations';
 import { getUserByPublicKey } from 'src/algolia/algolia';
-import UniqueIdGenerator from 'src/auth/unique-id-generator';
 
 async function customerInfo(user: any) {
   let { availableCredits: credits } = await accountCredits(user.publicKey);
@@ -69,12 +68,6 @@ const buyEntry = {
             code,
             issuer
           );
-          const id = UniqueIdGenerator.generate();
-          await addUnsignedTransaction({
-            xdr: result.xdr,
-            userId: user.id,
-            objectID: id,
-          });
           return result;
         }
       } catch (ex) {

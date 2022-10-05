@@ -1,5 +1,5 @@
 import algoliasearch from 'algoliasearch';
-import { User, Entry, UnsignedTransaction } from '../util/types';
+import { User, Entry } from '../util/types';
 import { Config } from '../config/index';
 const client = algoliasearch(
   Config.ALGOLIA_APP_ID,
@@ -23,15 +23,6 @@ export const likesIndex = client.initIndex(`${appDomain}:likes`);
 export const likeCountReplicaIndex = client.initIndex(
   `${appDomain}:entries_likes_desc`
 );
-
-export const unsignedTransactions = client.initIndex(
-  `${appDomain}:unsigned_transactions`
-);
-unsignedTransactions.setSettings({
-  searchableAttributes: ['userId'],
-  attributesForFaceting: ['filterOnly(userId)'],
-  attributesToRetrieve: ['*'],
-});
 
 likeCountReplicaIndex.setSettings({
   ranking: ['desc(likeCount)'],
@@ -85,31 +76,6 @@ export async function partialUpdateObject(obj: any) {
       resolve(content);
     });
   });
-}
-
-export async function addUnsignedTransaction(transaction: UnsignedTransaction) {
-  return unsignedTransactions.saveObject(transaction);
-}
-
-export async function getTransactionsByUser(
-  userId: string
-): Promise<UnsignedTransaction[]> {
-  const res = await unsignedTransactions.search<UnsignedTransaction>('', {
-    filters: `userId:${userId}`,
-  });
-  const result = res.hits;
-  return result as UnsignedTransaction[];
-}
-
-export async function deleteTransaction(id: string) {
-  try {
-    await unsignedTransactions.deleteObject(id);
-  } catch (e) {
-    console.log('error deleting entry:', e);
-    return false;
-  }
-
-  return true;
 }
 
 export async function saveEntry(entry: Entry) {
