@@ -76,7 +76,7 @@ const buyEntry = {
         if (ex?.result_codes?.operations) {
           const opCodes: string[] = ex.result_codes.operations;
           if (opCodes.includes('op_over_source_max')) {
-            message = 'Couldn not find an over within the budget';
+            message = 'Couldn not find an offer within the budget';
           } else if (opCodes.includes('op_underfunded')) {
             message = 'Not enough funds on the account.';
           }
