@@ -6,10 +6,10 @@ import { getAccountData } from '../stellar/operations';
 import { Config } from 'src/config';
 import axios from 'axios';
 import { ipfsGateway, fallbackIpfsGateway } from '../constants/constants';
-import { IndexEntryResult } from './types/index-entry-result';
+import Entry from './types/entry';
 
 const indexEntry = {
-  type: IndexEntryResult,
+  type: Entry,
   args: {
     issuer: {
       type: new GraphQLNonNull(GraphQLString),
@@ -23,10 +23,7 @@ const indexEntry = {
     const currentHomedomain = Config.APP_URL.replace('https://', '');
 
     if (home_domain !== currentHomedomain) {
-      return {
-        success: false,
-        message: "Can't index NFTs from other marketplaces at the moment",
-      };
+      throw "Can't index NFTs from other marketplaces at the moment";
     }
 
     const { ipfshash } = data;
@@ -57,10 +54,7 @@ const indexEntry = {
     }
 
     if (response === null) {
-      return {
-        success: false,
-        message: "Couldn't fetch the nft metadata from ipfs",
-      };
+      throw "Couldn't fetch the nft metadata from ipfs";
     }
 
     const {
@@ -106,12 +100,12 @@ const indexEntry = {
     ) {
       try {
         await saveEntry(obj);
-        return { success: true };
+        return obj;
       } catch (ex) {
-        return { success: false, message: "Couldn't index entry." };
+        throw "Couldn't index entry.";
       }
     }
-    return { success: false, message: 'Invalid entry metadata' };
+    throw 'Invalid entry metadata';
   },
 };
 

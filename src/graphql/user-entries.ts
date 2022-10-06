@@ -17,6 +17,8 @@ export const UserEntries = {
   async resolve(root: any, { userId }: any) {
     const user = await getUser(userId);
     const assetCodes = await loadSkyhitzAssets(user.publicKey);
-    return getEntriesWithAssetCodes(assetCodes);
+    const entries = await getEntriesWithAssetCodes(assetCodes);
+
+    return entries.filter((entry) => entry !== undefined);
   },
 };
