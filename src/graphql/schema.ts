@@ -26,6 +26,7 @@ import XLMPrice from './xlm-price';
 import GetIssuer from './get-issuer';
 import SetLastPlayedEntry from './set-last-played-entry';
 import SignInWithXDR from './sing-in-with-xdr';
+import ChangeWallet from './change-wallet';
 
 const Query = new GraphQLObjectType({
   name: 'Query',
@@ -54,9 +55,10 @@ const Mutation = new GraphQLObjectType({
     return {
       buyEntry: BuyEntry,
       buyCredits: BuyCredits,
+      changeWallet: ChangeWallet,
       createEntry: CreateEntry,
-      indexEntry: IndexEntry,
       createUserWithEmail: CreateUserWithEmail,
+      indexEntry: IndexEntry,
       requestToken: RequestToken,
       signInWithToken: SignInWithToken,
       signInWithXDR: SignInWithXDR,

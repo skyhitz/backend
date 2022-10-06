@@ -520,11 +520,11 @@ export async function withdrawToExternalAddress(
   seed: string
 ) {
   const keys = Keypair.fromSecret(seed);
-  const sourcePublicKey = keys.publicKey();
+  const accountPublicKey = keys.publicKey();
 
   const transactionFee = amount * parseFloat(Config.TRANSACTION_FEE);
 
-  const transaction = (await buildTransactionWithFee(sourcePublicKey))
+  const transaction = (await buildTransactionWithFee(accountPublicKey))
     .addOperation(
       Operation.payment({
         destination: sourceKeys.publicKey(),
@@ -537,6 +537,38 @@ export async function withdrawToExternalAddress(
         destination: address,
         asset: XLM,
         amount: (amount - transactionFee).toFixed(6).toString(),
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  transaction.sign(keys);
+  const transactionResult = await submitTransaction(transaction);
+  console.log('\nSuccess! View the transaction at: ', transactionResult);
+  return transactionResult;
+}
+
+export async function withdrawAndMerge(
+  address: string,
+  accountBalance: number,
+  seed: string
+) {
+  const keys = Keypair.fromSecret(seed);
+  const accountPublicKey = keys.publicKey();
+
+  const transactionFee = accountBalance * parseFloat(Config.TRANSACTION_FEE);
+
+  const transaction = (await buildTransactionWithFee(accountPublicKey))
+    .addOperation(
+      Operation.payment({
+        destination: address,
+        asset: XLM,
+        amount: (accountBalance - transactionFee).toFixed(6).toString(),
+      })
+    )
+    .addOperation(
+      Operation.accountMerge({
+        destination: sourceKeys.publicKey(),
       })
     )
     .setTimeout(0)
