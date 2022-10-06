@@ -4,7 +4,7 @@ import { verifySourceSignatureOnXDR } from '../stellar';
 import { accountCredits, withdrawAndMerge } from 'src/stellar/operations';
 import { getAuthenticatedUser } from 'src/auth/logic';
 import { decrypt } from 'src/util/encryption';
-import { usersIndex } from 'src/algolia/algolia';
+import { getUserByPublicKey, usersIndex } from 'src/algolia/algolia';
 
 const ChangeWallet = {
   type: GraphQLUser,
@@ -19,6 +19,17 @@ const ChangeWallet = {
       verifySourceSignatureOnXDR(signedXDR);
     if (!verified) {
       throw 'Invalid signed XDR';
+    }
+
+    if (user.publicKey === newPublicKey) {
+      throw 'User already has this public key';
+    }
+
+    try {
+      await getUserByPublicKey(newPublicKey);
+      throw 'User with this public key already exists';
+    } catch (ex) {
+      // it means there is no user with such public key
     }
 
     // user has a custodial account. We need to transfer his funds to the new wallet and merge with stellar account
