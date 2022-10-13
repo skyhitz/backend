@@ -35,6 +35,8 @@ export async function buildNFTTransaction(
     }
   })();
 
+  const appDomain = Config.APP_URL.replace('https://', '');
+
   const transaction = new TransactionBuilder(
     new Account(account.id, account.sequence),
     {
@@ -88,8 +90,7 @@ export async function buildNFTTransaction(
         lowThreshold: 0,
         medThreshold: 0,
         highThreshold: 0,
-        homeDomain:
-          Config.ENV === 'production' ? `skyhitz.io` : `vice.skyhitz.io`,
+        homeDomain: appDomain,
       })
     );
 

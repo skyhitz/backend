@@ -1,6 +1,5 @@
 import { GraphQLNonNull, GraphQLString } from 'graphql';
 import EntryLikes from './types/entry-likes';
-import { getAuthenticatedUser } from '../auth/logic';
 import { getUsersLikesWithEntryId } from '../algolia/algolia';
 
 const entryLikes = {
@@ -10,8 +9,7 @@ const entryLikes = {
       type: new GraphQLNonNull(GraphQLString),
     },
   },
-  async resolve(_: any, { id }: any, ctx: any) {
-    await getAuthenticatedUser(ctx);
+  async resolve(_: any, { id }: any) {
 
     const usersArr = await getUsersLikesWithEntryId(id);
 

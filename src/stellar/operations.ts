@@ -7,6 +7,8 @@ import {
   Account,
   Networks,
   Transaction,
+  StrKey,
+  xdr,
 } from 'skyhitz-stellar-base';
 import { Config } from '../config';
 export const sourceKeys = Keypair.fromSecret(Config.ISSUER_SEED);
@@ -181,7 +183,7 @@ export async function buyViaPathPayment(
 ) {
   const nftAsset = new Asset(assetCode, issuer);
   const sendMax = amount * price;
-  const sendMaxString = sendMax.toString();
+  const sendMaxString = sendMax.toFixed(7);
   // price of 1 unit in terms of buying, 100 will be 100 usd per one share
   const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
     .addOperation(
@@ -226,8 +228,9 @@ export async function buyViaPathPayment(
   if (destinationSeed) {
     const destinationKeys = Keypair.fromSecret(destinationSeed);
     transaction.sign(sourceKeys, destinationKeys);
-    let { status, result_xdr } = await submitTransaction(transaction);
-    return { xdr: result_xdr, success: status === 200, submitted: true };
+    const data = await submitTransaction(transaction);
+    const { result_xdr, successful } = data;
+    return { xdr: result_xdr, success: successful, submitted: true };
   }
 
   transaction.sign(sourceKeys);
@@ -243,9 +246,8 @@ export async function signAndSubmitXDR(xdr: string, seed: string) {
   const transaction = new Transaction(xdr, NETWORK_PASSPHRASE);
 
   transaction.sign(keys);
-  let { status, result_xdr } = await submitTransaction(transaction);
-  console.log(result_xdr);
-  return { xdr: result_xdr, success: status === 200, submitted: true };
+  const { result_xdr, successful } = await submitTransaction(transaction);
+  return { xdr: result_xdr, success: successful, submitted: true };
 }
 
 export async function manageBuyOffer(
@@ -518,21 +520,78 @@ export async function withdrawToExternalAddress(
   seed: string
 ) {
   const keys = Keypair.fromSecret(seed);
-  const sourcePublicKey = keys.publicKey();
+  const accountPublicKey = keys.publicKey();
 
-  let transaction = (await buildTransactionWithFee(sourcePublicKey))
+  const transactionFee = amount * parseFloat(Config.TRANSACTION_FEE);
+
+  const transaction = (await buildTransactionWithFee(accountPublicKey))
+    .addOperation(
+      Operation.payment({
+        destination: sourceKeys.publicKey(),
+        asset: XLM,
+        amount: transactionFee.toFixed(6).toString(),
+      })
+    )
     .addOperation(
       Operation.payment({
         destination: address,
         asset: XLM,
-        amount: amount.toFixed(6).toString(),
+        amount: (amount - transactionFee).toFixed(6).toString(),
       })
     )
     .setTimeout(0)
     .build();
 
   transaction.sign(keys);
-  let transactionResult = await submitTransaction(transaction);
+  const transactionResult = await submitTransaction(transaction);
   console.log('\nSuccess! View the transaction at: ', transactionResult);
   return transactionResult;
+}
+
+export async function withdrawAndMerge(
+  address: string,
+  accountBalance: number,
+  seed: string
+) {
+  const keys = Keypair.fromSecret(seed);
+  const accountPublicKey = keys.publicKey();
+
+  const transactionFee = accountBalance * parseFloat(Config.TRANSACTION_FEE);
+
+  const transaction = (await buildTransactionWithFee(accountPublicKey))
+    .addOperation(
+      Operation.payment({
+        destination: address,
+        asset: XLM,
+        amount: (accountBalance - transactionFee).toFixed(6).toString(),
+      })
+    )
+    .addOperation(
+      Operation.accountMerge({
+        destination: sourceKeys.publicKey(),
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  transaction.sign(keys);
+  const transactionResult = await submitTransaction(transaction);
+  console.log('\nSuccess! View the transaction at: ', transactionResult);
+  return transactionResult;
+}
+
+export function getPublicKeyFromTransactionResult(resultXdr) {
+  const transaction = xdr.TransactionResult.fromXDR(resultXdr, 'base64');
+  const sellerId = transaction
+    .result()
+    .value()[4]
+    .value()
+    .pathPaymentStrictReceiveResult()
+    .success()
+    .offers()[0]
+    .orderBook()
+    .sellerId()
+    .value();
+
+  return StrKey.encodeEd25519PublicKey(sellerId);
 }

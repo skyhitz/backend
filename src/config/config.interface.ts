@@ -5,6 +5,7 @@ export interface IConfig {
   STRIPE_WEBHOOK_SECRET: string;
   HORIZON_URL: string;
   ISSUER_SEED: string;
+  TRANSACTION_FEE: string;
   STRIPE_SECRET_KEY: string;
   STRIPE_PLAN_ID: string;
   ALGOLIA_APP_ID: string;
@@ -12,4 +13,5 @@ export interface IConfig {
   SENDGRID_API_KEY: string;
   UNIVERSAL_LINK_SCHEME: string;
   NFT_STORAGE_API_KEY: string;
+  STELLAR_NETWORK: string;
 }

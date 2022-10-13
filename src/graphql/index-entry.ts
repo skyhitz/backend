@@ -1,14 +1,15 @@
-import { GraphQLString, GraphQLNonNull, GraphQLBoolean } from 'graphql';
+import { GraphQLString, GraphQLNonNull } from 'graphql';
 
 import { getAuthenticatedUser } from '../auth/logic';
 import { saveEntry } from '../algolia/algolia';
 import { getAccountData } from '../stellar/operations';
 import { Config } from 'src/config';
 import axios from 'axios';
-import { cloudflareIpfsGateway } from '../constants/constants';
+import { ipfsGateway, fallbackIpfsGateway } from '../constants/constants';
+import Entry from './types/entry';
 
 const indexEntry = {
-  type: GraphQLBoolean,
+  type: Entry,
   args: {
     issuer: {
       type: new GraphQLNonNull(GraphQLString),
@@ -19,15 +20,42 @@ const indexEntry = {
 
     const { data, home_domain } = await getAccountData(issuer);
 
-    const currentHomedomain =
-      Config.ENV === 'production' ? `skyhitz.io` : `vice.skyhitz.io`;
+    const currentHomedomain = Config.APP_URL.replace('https://', '');
 
     if (home_domain !== currentHomedomain) {
-      throw `Can't index NFTs from other marketplaces at the moment`;
+      throw "Can't index NFTs from other marketplaces at the moment";
     }
 
     const { ipfshash } = data;
     const decodedIpfshash = Buffer.from(ipfshash, 'base64').toString();
+
+    let response;
+
+    response = await axios
+      .get(`${ipfsGateway}/${decodedIpfshash}`, {
+        timeout: 15 * 1000,
+      })
+      .then(({ data }) => data)
+      .catch((error) => {
+        console.log(error);
+        return null;
+      });
+    if (response === null) {
+      console.log('Trying fallback gateway');
+      response = await axios
+        .get(`${fallbackIpfsGateway}/${decodedIpfshash}`, {
+          timeout: 15 * 1000,
+        })
+        .then(({ data }) => data)
+        .catch((error) => {
+          console.log(error);
+          return null;
+        });
+    }
+
+    if (response === null) {
+      throw "Couldn't fetch the nft metadata from ipfs";
+    }
 
     const {
       name,
@@ -39,9 +67,7 @@ const indexEntry = {
       image,
       animation_url,
       video,
-    } = await axios
-      .get(`${cloudflareIpfsGateway}/${decodedIpfshash}`)
-      .then(({ data }) => data);
+    } = response;
 
     const nameDivider = ' - ';
     const obj = {
@@ -72,10 +98,14 @@ const indexEntry = {
       animation_url &&
       video
     ) {
-      await saveEntry(obj);
-      return true;
+      try {
+        await saveEntry(obj);
+        return obj;
+      } catch (ex) {
+        throw "Couldn't index entry.";
+      }
     }
-    return false;
+    throw 'Invalid entry metadata';
   },
 };
 

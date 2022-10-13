@@ -1,11 +1,12 @@
 import { GraphQLSchema, GraphQLObjectType } from 'graphql';
 import RequestToken from './request-token';
-import SignIn from './sign-in';
+import SignInWithToken from './sign-in-with-token';
 import PaymentsInfo from './payments-info';
 import UserLikes from './user-likes';
 import EntryLikes from './entry-likes';
 import AuthenticatedUser from './authenticated-user';
-import Entries from './entries';
+import { EntryById } from './entry';
+import { UserEntries } from './user-entries';
 import TopChart from './top-chart';
 import RecentlyAdded from './recently-added';
 import LikeEntry from './like-entry';
@@ -23,6 +24,9 @@ import UpdatePricing from './update-pricing';
 import EntryPrice from './get-entry-price';
 import XLMPrice from './xlm-price';
 import GetIssuer from './get-issuer';
+import SetLastPlayedEntry from './set-last-played-entry';
+import SignInWithXDR from './sing-in-with-xdr';
+import ChangeWallet from './change-wallet';
 
 const Query = new GraphQLObjectType({
   name: 'Query',
@@ -32,10 +36,11 @@ const Query = new GraphQLObjectType({
       authenticatedUser: AuthenticatedUser,
       entryLikes: EntryLikes,
       entryPrice: EntryPrice,
-      entries: Entries,
+      entry: EntryById,
       paymentsInfo: PaymentsInfo,
       recentlyAdded: RecentlyAdded,
       topChart: TopChart,
+      userEntries: UserEntries,
       userLikes: UserLikes,
       xlmPrice: XLMPrice,
       getIssuer: GetIssuer,
@@ -50,11 +55,13 @@ const Mutation = new GraphQLObjectType({
     return {
       buyEntry: BuyEntry,
       buyCredits: BuyCredits,
+      changeWallet: ChangeWallet,
       createEntry: CreateEntry,
-      indexEntry: IndexEntry,
       createUserWithEmail: CreateUserWithEmail,
+      indexEntry: IndexEntry,
       requestToken: RequestToken,
-      signIn: SignIn,
+      signInWithToken: SignInWithToken,
+      signInWithXDR: SignInWithXDR,
       likeEntry: LikeEntry,
       removeEntry: RemoveEntry,
       cancelSubscription: CancelSubscription,
@@ -62,6 +69,7 @@ const Mutation = new GraphQLObjectType({
       updateUser: UpdateUser,
       updatePricing: UpdatePricing,
       withdrawToExternalWallet: WithdrawToExternalWallet,
+      setLastPlayedEntry: SetLastPlayedEntry,
     };
   },
 });

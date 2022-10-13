@@ -52,9 +52,7 @@ export async function sendLoginEmail(currentUser, token) {
         dynamicTemplateData: {
           login_link: `${
             Config.APP_URL
-          }/accounts/sign-in?token=${token}&uid=${encodeURIComponent(
-            currentUser.id
-          )}`,
+          }/sign-in?token=${token}&uid=${encodeURIComponent(currentUser.id)}`,
         },
       },
     ],

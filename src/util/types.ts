@@ -12,6 +12,7 @@ export type User = {
   seed: string;
   version: number;
   jwt?: string;
+  lastPlayedEntry?: Entry;
 };
 
 export type Entry = {

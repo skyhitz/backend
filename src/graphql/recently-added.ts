@@ -1,6 +1,5 @@
 import { GraphQLInt, GraphQLList } from 'graphql';
 import Entry from './types/entry';
-import { getAuthenticatedUser } from '../auth/logic';
 import { recentlyAdded } from '../algolia/algolia';
 
 const RecentlyAdded = {
@@ -10,9 +9,7 @@ const RecentlyAdded = {
       type: GraphQLInt,
     },
   },
-  async resolve(root: any, { page }: any, ctx: any) {
-    await getAuthenticatedUser(ctx);
-
+  async resolve(root: any, { page }: any) {
     return await recentlyAdded(page);
   },
 };

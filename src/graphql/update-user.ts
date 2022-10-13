@@ -1,10 +1,44 @@
 import { GraphQLString } from 'graphql';
-import User from './types/user';
+import { GraphQLUser } from './types/user';
 import { getAuthenticatedUser } from '../auth/logic';
-import { usersIndex } from '../algolia/algolia';
+import * as yup from 'yup';
+import {
+  getByUsernameOrEmailExcludingId,
+  usersIndex,
+} from 'src/algolia/algolia';
+
+type UpdateUserArgs = {
+  avatarUrl?: string | null;
+  displayName?: string | null;
+  description?: string | null;
+  username?: string | null;
+  email?: string | null;
+};
+
+const updateUserSchema: yup.SchemaOf<UpdateUserArgs> = yup.object().shape({
+  avatarUrl: yup.string(),
+  description: yup.string(),
+  username: yup
+    .string()
+    .required('Username is required.')
+    .min(2, 'Username is minimum 2 characters.')
+    .lowercase('Username must be lowercase')
+    .matches(
+      /^[a-z0-9_-]+$/,
+      'Usernames cannot have spaces or special characters'
+    ),
+  displayName: yup
+    .string()
+    .required('Display name is required.')
+    .min(2, 'Display name is minimum 2 characters.'),
+  email: yup
+    .string()
+    .required('Email is required')
+    .email('Please enter a valid email.'),
+});
 
 const updateUserEndpoint = {
-  type: User,
+  type: GraphQLUser,
   args: {
     avatarUrl: {
       type: GraphQLString,
@@ -22,33 +56,30 @@ const updateUserEndpoint = {
       type: GraphQLString,
     },
   },
-  async resolve(
-    _: any,
-    { avatarUrl, displayName, description, username, email }: any,
-    ctx: any
-  ) {
-    let user = await getAuthenticatedUser(ctx);
-    if (user.avatarUrl === 'null') {
-      user.avatarUrl = null;
-    } else {
-      user.avatarUrl = avatarUrl;
+  async resolve(_: any, updateUserArgs: UpdateUserArgs, ctx: any) {
+    const user = await getAuthenticatedUser(ctx);
+    const validatedUpdate = await updateUserSchema.validate(updateUserArgs, {
+      stripUnknown: true,
+    });
+    const existingUser = await getByUsernameOrEmailExcludingId(
+      validatedUpdate.username,
+      validatedUpdate.email,
+      user.id
+    );
+    if (existingUser) {
+      if (existingUser.email === validatedUpdate.email) {
+        throw 'Account with given email already exists';
+      }
+      if (existingUser.username === validatedUpdate.username) {
+        throw 'Username is already taken';
+      }
     }
-    user.displayName = displayName;
-    user.description = description;
-    user.username = username.toLowerCase();
-    user.email = email;
-    let userIndexObject: any = {
-      avatarUrl: user.avatarUrl,
-      displayName: user.displayName,
-      description: user.description,
-      username: user.username,
-      id: user.id,
-      publishedAt: user.publishedAt,
-      publishedAtTimestamp: user.publishedAtTimestamp,
-      objectID: user.id,
+    const userUpdate = {
+      ...user,
+      ...validatedUpdate,
     };
-    await usersIndex.partialUpdateObject(userIndexObject);
-    return user;
+    await usersIndex.partialUpdateObject(userUpdate);
+    return userUpdate;
   },
 };
 
