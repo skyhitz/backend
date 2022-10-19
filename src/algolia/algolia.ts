@@ -14,7 +14,11 @@ entriesIndex.setSettings({
     `${appDomain}:entries_timestamp_desc`,
     `${appDomain}:entries_timestamp_asc`,
   ],
-  attributesForFaceting: ['filterOnly(code)', 'filterOnly(issuer)'],
+  attributesForFaceting: [
+    'filterOnly(code)',
+    'filterOnly(issuer)',
+    'filterOnly(id)',
+  ],
   attributesToRetrieve: ['*'],
 });
 export const usersIndex = client.initIndex(`${appDomain}:users`);
@@ -55,6 +59,7 @@ usersIndex.setSettings({
     'filterOnly(username)',
     'filterOnly(email)',
     'filterOnly(publicKey)',
+    'filterOnly(id)',
   ],
   attributesToRetrieve: ['*'],
 });
