@@ -1,6 +1,7 @@
 import algoliasearch from 'algoliasearch';
 import { User, Entry } from '../util/types';
 import { Config } from '../config/index';
+import { pinataGateway } from '../constants/constants';
 const client = algoliasearch(
   Config.ALGOLIA_APP_ID,
   Config.ALGOLIA_ADMIN_API_KEY
@@ -250,8 +251,8 @@ export async function entriesByLikeCount(page = 0) {
   return res.hits.map((hit: unknown) => hit as Entry);
 }
 
-const skyhitzCloudflareCdn =
-  'https://skyhitz.io/cdn-cgi/image/width=200/https://cloudflare-ipfs.com/ipfs/';
+const pinataResizedGateway = (ipfsHash: string) =>
+  `${pinataGateway}/ipfs/${ipfsHash}?img-width=200&img-height=200`;
 
 export async function assetsMeta(
   publishedAtTimestamp,
@@ -284,7 +285,7 @@ export async function assetsMeta(
         code: code,
         description: description,
         name: `${artist} - ${title}`.substring(0, 20),
-        image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
+        image: pinataResizedGateway(imageUrl.replace('ipfs://', '')),
         fixed_number: 1,
         timestamp: publishedAtTimestamp,
         anchor_asset_type: 'nft',
@@ -315,7 +316,7 @@ export async function findAssetMeta(code, issuer) {
         code: code,
         description: description,
         name: `${artist} - ${title}`.substring(0, 20),
-        image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
+        image: pinataResizedGateway(imageUrl.replace('ipfs://', '')),
         fixed_number: 1,
         timestamp: publishedAtTimestamp,
         anchor_asset_type: 'nft',
