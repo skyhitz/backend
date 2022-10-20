@@ -1,6 +1,7 @@
 import algoliasearch from 'algoliasearch';
 import { User, Entry } from '../util/types';
 import { Config } from '../config/index';
+import { pinataGateway } from '../constants/constants';
 const client = algoliasearch(
   Config.ALGOLIA_APP_ID,
   Config.ALGOLIA_ADMIN_API_KEY
@@ -14,7 +15,11 @@ entriesIndex.setSettings({
     `${appDomain}:entries_timestamp_desc`,
     `${appDomain}:entries_timestamp_asc`,
   ],
-  attributesForFaceting: ['filterOnly(code)', 'filterOnly(issuer)'],
+  attributesForFaceting: [
+    'filterOnly(code)',
+    'filterOnly(issuer)',
+    'filterOnly(id)',
+  ],
   attributesToRetrieve: ['*'],
 });
 export const usersIndex = client.initIndex(`${appDomain}:users`);
@@ -55,6 +60,7 @@ usersIndex.setSettings({
     'filterOnly(username)',
     'filterOnly(email)',
     'filterOnly(publicKey)',
+    'filterOnly(id)',
   ],
   attributesToRetrieve: ['*'],
 });
@@ -119,7 +125,7 @@ export async function getByUsernameOrEmailOrPublicKey(
   email: string,
   publicKey?: string
 ) {
-  const res = await usersIndex.search('', {
+  const res = await usersIndex.search<User>('', {
     filters: `username:${username} OR email:${email} ${
       publicKey ? 'OR publicKey:' + publicKey : ''
     }`,
@@ -173,10 +179,14 @@ export async function likeMulti(userId, entryId) {
       await likesIndex.saveObject({
         objectID: `user${userId}entry${entryId}`,
         likeCount: likeCountNumber ? likeCountNumber : 0,
+        entryId: entryId,
+        userId: userId,
       }),
       await likesIndex.saveObject({
         objectID: `entry${entryId}user${userId}`,
         likeCount: likeCountNumber ? likeCountNumber : 0,
+        entryId: entryId,
+        userId: userId,
       }),
       await entriesIndex.partialUpdateObject({
         objectID: entryId,
@@ -241,8 +251,8 @@ export async function entriesByLikeCount(page = 0) {
   return res.hits.map((hit: unknown) => hit as Entry);
 }
 
-const skyhitzCloudflareCdn =
-  'https://skyhitz.io/cdn-cgi/image/width=200/https://cloudflare-ipfs.com/ipfs/';
+const pinataResizedGateway = (ipfsHash: string) =>
+  `${pinataGateway}/ipfs/${ipfsHash}?img-width=200&img-height=200`;
 
 export async function assetsMeta(
   publishedAtTimestamp,
@@ -275,7 +285,7 @@ export async function assetsMeta(
         code: code,
         description: description,
         name: `${artist} - ${title}`.substring(0, 20),
-        image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
+        image: pinataResizedGateway(imageUrl.replace('ipfs://', '')),
         fixed_number: 1,
         timestamp: publishedAtTimestamp,
         anchor_asset_type: 'nft',
@@ -306,7 +316,7 @@ export async function findAssetMeta(code, issuer) {
         code: code,
         description: description,
         name: `${artist} - ${title}`.substring(0, 20),
-        image: imageUrl.replace('ipfs://', skyhitzCloudflareCdn),
+        image: pinataResizedGateway(imageUrl.replace('ipfs://', '')),
         fixed_number: 1,
         timestamp: publishedAtTimestamp,
         anchor_asset_type: 'nft',

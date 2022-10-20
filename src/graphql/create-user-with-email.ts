@@ -31,18 +31,22 @@ const createUserWithEmail = {
     if (!args.username) {
       throw `Username can't be an empty string`;
     }
+
+    // TODO: Make a proper fix
+    args.username = args.username.toLowerCase();
+
     const res = await getByUsernameOrEmailOrPublicKey(
       args.username,
       args.email,
       args.publicKey
     );
-    if (res && res._highlightResult.hasOwnProperty('email')) {
+    if (res && res.email === args.email) {
       throw 'Email already exists, please sign in.';
     }
-    if (res && res._highlightResult.hasOwnProperty('username')) {
+    if (res && res.username === args.username) {
       throw 'Username is taken.';
     }
-    if (res && res._highlightResult.hasOwnProperty('publicKey')) {
+    if (res && res.publicKey === args.publicKey) {
       throw 'Public Key is connected to another account, please sign in.';
     }
 
@@ -52,7 +56,7 @@ const createUserWithEmail = {
       avatarUrl: '',
       displayName: args.displayName,
       description: '',
-      username: args.username.toLowerCase(),
+      username: args.username,
       email: args.email,
       version: 1,
       publishedAt: new Date().toISOString(),

@@ -1,4 +1,5 @@
 import { getConfig } from './utils';
+import { pinataGateway } from '../constants/constants';
 const TOML = require('@iarna/toml');
 
 export function generateTomlFile({
@@ -25,10 +26,10 @@ export function generateTomlFile({
         issuer: issuer,
         name: name,
         desc: description,
-        image: image.replace(
+        image: `${pinataGateway}/ipfs/${image.replace(
           'ipfs://',
-          'https://skyhitz.io/cdn-cgi/image/width=200/https://cloudflare-ipfs.com/ipfs/'
-        ),
+          ''
+        )}?img-width=200&img-height=200`,
         fixed_number: supply,
       },
     ],

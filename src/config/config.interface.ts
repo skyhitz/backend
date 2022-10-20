@@ -14,4 +14,5 @@ export interface IConfig {
   UNIVERSAL_LINK_SCHEME: string;
   NFT_STORAGE_API_KEY: string;
   STELLAR_NETWORK: string;
+  PINATA_JWT: string;
 }
