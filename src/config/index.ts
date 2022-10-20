@@ -20,4 +20,5 @@ export const Config: IConfig = {
   UNIVERSAL_LINK_SCHEME: process.env.UNIVERSAL_LINK_SCHEME || '',
   NFT_STORAGE_API_KEY: process.env.NFT_STORAGE_API_KEY || '',
   STELLAR_NETWORK: process.env.STELLAR_NETWORK || 'testnet',
+  PINATA_JWT: process.env.PINATA_JWT || '',
 };

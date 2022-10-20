@@ -6,6 +6,10 @@ import {
   getByUsernameOrEmailExcludingId,
   usersIndex,
 } from 'src/algolia/algolia';
+import axios from 'axios';
+import { pinataApi } from 'src/constants/constants';
+import { ipfsProtocol } from '../constants/constants';
+import { Config } from 'src/config';
 
 type UpdateUserArgs = {
   avatarUrl?: string | null;
@@ -73,6 +77,33 @@ const updateUserEndpoint = {
       if (existingUser.username === validatedUpdate.username) {
         throw 'Username is already taken';
       }
+    }
+    if (validatedUpdate.avatarUrl) {
+      const result = await axios
+        .post(
+          `${pinataApi}/pinning/pinByHash`,
+          {
+            hashToPin: validatedUpdate.avatarUrl.replace(ipfsProtocol, ''),
+            pinataMetadata: {
+              name: `${user.username}-image`,
+            },
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${Config.PINATA_JWT}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+        .then(({ data }) => data)
+        .catch((error) => {
+          console.log(error);
+          return null;
+        });
+      if (!result) {
+        throw "Couldn't pin image to pinata!";
+      }
+      console.log('Pinned image!');
     }
     const userUpdate = {
       ...user,

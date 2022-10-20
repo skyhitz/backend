@@ -5,7 +5,12 @@ import { saveEntry } from '../algolia/algolia';
 import { getAccountData } from '../stellar/operations';
 import { Config } from 'src/config';
 import axios from 'axios';
-import { ipfsGateway, fallbackIpfsGateway } from '../constants/constants';
+import {
+  ipfsGateway,
+  fallbackIpfsGateway,
+  ipfsProtocol,
+  pinataApi,
+} from '../constants/constants';
 import Entry from './types/entry';
 
 const indexEntry = {
@@ -68,6 +73,34 @@ const indexEntry = {
       animation_url,
       video,
     } = response;
+
+    const result = await axios
+      .post(
+        `${pinataApi}/pinning/pinByHash`,
+        {
+          hashToPin: image.replace(ipfsProtocol, ''),
+          pinataMetadata: {
+            name: `${name}-image`,
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${Config.PINATA_JWT}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      .then(({ data }) => data)
+      .catch((error) => {
+        console.log(error);
+        return null;
+      });
+
+    if (!result) {
+      throw "Couldn't pin image to pinata";
+    }
+
+    console.log('Pinned image to pinata!', result);
 
     const nameDivider = ' - ';
     const obj = {
