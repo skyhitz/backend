@@ -9,9 +9,9 @@ import {
   ipfsGateway,
   fallbackIpfsGateway,
   ipfsProtocol,
-  pinataApi,
 } from '../constants/constants';
 import Entry from './types/entry';
+import { pinIpfsFile } from 'src/util/pinata';
 
 const indexEntry = {
   type: Entry,
@@ -74,33 +74,18 @@ const indexEntry = {
       video,
     } = response;
 
-    const result = await axios
-      .post(
-        `${pinataApi}/pinning/pinByHash`,
-        {
-          hashToPin: image.replace(ipfsProtocol, ''),
-          pinataMetadata: {
-            name: `${name}-image`,
-          },
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${Config.PINATA_JWT}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-      .then(({ data }) => data)
-      .catch((error) => {
-        console.log(error);
-        return null;
-      });
+    const pinningResults = await Promise.all([
+      pinIpfsFile(image.replace(ipfsProtocol, ''), `${name}-image`),
+      pinIpfsFile(video.replace(ipfsProtocol, ''), `${name}-video`),
+    ]);
 
-    if (!result) {
-      throw "Couldn't pin image to pinata";
+    console.log(pinningResults);
+
+    if (!pinningResults[0] || !pinningResults[1]) {
+      throw "Couldn't pin media to pinata";
     }
 
-    console.log('Pinned image to pinata!', result);
+    console.log('Pinned media to pinata!', pinningResults);
 
     const nameDivider = ' - ';
     const obj = {
