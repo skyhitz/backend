@@ -74,18 +74,20 @@ const indexEntry = {
       video,
     } = response;
 
-    const pinningResults = await Promise.all([
-      pinIpfsFile(image.replace(ipfsProtocol, ''), `${name}-image`),
-      pinIpfsFile(video.replace(ipfsProtocol, ''), `${name}-video`),
-    ]);
+    try {
+      const pinningResults = await Promise.all([
+        pinIpfsFile(image.replace(ipfsProtocol, ''), `${name}-image`),
+        pinIpfsFile(video.replace(ipfsProtocol, ''), `${name}-video`),
+      ]);
 
-    console.log(pinningResults);
-
-    if (!pinningResults[0] || !pinningResults[1]) {
+      if (!pinningResults[0] || !pinningResults[1]) {
+        throw "Couldn't pin media to pinata";
+      }
+    } catch (ex) {
       throw "Couldn't pin media to pinata";
     }
 
-    console.log('Pinned media to pinata!', pinningResults);
+    console.log('Pinned media to pinata!');
 
     const nameDivider = ' - ';
     const obj = {
