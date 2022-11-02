@@ -6,10 +6,8 @@ import {
   getByUsernameOrEmailExcludingId,
   usersIndex,
 } from 'src/algolia/algolia';
-import axios from 'axios';
-import { pinataApi } from 'src/constants/constants';
 import { ipfsProtocol } from '../constants/constants';
-import { Config } from 'src/config';
+import { pinIpfsFile } from 'src/util/pinata';
 
 type UpdateUserArgs = {
   avatarUrl?: string | null;
@@ -79,27 +77,10 @@ const updateUserEndpoint = {
       }
     }
     if (validatedUpdate.avatarUrl) {
-      const result = await axios
-        .post(
-          `${pinataApi}/pinning/pinByHash`,
-          {
-            hashToPin: validatedUpdate.avatarUrl.replace(ipfsProtocol, ''),
-            pinataMetadata: {
-              name: `${user.username}-image`,
-            },
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${Config.PINATA_JWT}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-        .then(({ data }) => data)
-        .catch((error) => {
-          console.log(error);
-          return null;
-        });
+      const result = await pinIpfsFile(
+        validatedUpdate.avatarUrl.replace(ipfsProtocol, ''),
+        `${user.username}-image`
+      );
       if (!result) {
         throw "Couldn't pin image to pinata!";
       }
