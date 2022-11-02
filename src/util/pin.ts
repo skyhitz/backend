@@ -81,3 +81,40 @@ export async function pinExistingEntryImages() {
 
   return true;
 }
+
+export async function pinExistingEntryVideos() {
+  const res = await entriesIndex.search('', { hitsPerPage: 1000 });
+  for (const i in res.hits) {
+    const hit = res.hits[i] as unknown;
+    const entry = hit as Entry;
+
+    const result = await axios
+      .post(
+        `${pinataApi}/pinning/pinByHash`,
+        {
+          hashToPin: entry.videoUrl.replace(ipfsProtocol, ''),
+          pinataMetadata: {
+            name: `${entry.title}-video`,
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${Config.PINATA_JWT}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      .then(({ data }) => data)
+      .catch((error) => {
+        console.log(error);
+        console.log(error.response.data.error);
+        return null;
+      });
+    if (!result) {
+      return false;
+    }
+    console.log(result);
+  }
+
+  return true;
+}
