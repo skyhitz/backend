@@ -160,8 +160,8 @@ export async function openSellOffer(
       Operation.manageSellOffer({
         selling: newAsset,
         buying: XLM,
-        amount: amount.toString(),
-        price: price.toString(),
+        amount: amount.toFixed(6),
+        price: price.toFixed(6),
         source: publicAddress,
         offerId: 0,
       })
