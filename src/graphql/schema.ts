@@ -27,6 +27,7 @@ import GetIssuer from './get-issuer';
 import SetLastPlayedEntry from './set-last-played-entry';
 import SignInWithXDR from './sing-in-with-xdr';
 import ChangeWallet from './change-wallet';
+import GetAudibleToken from './get-audible-token';
 
 const Query = new GraphQLObjectType({
   name: 'Query',
@@ -44,6 +45,7 @@ const Query = new GraphQLObjectType({
       userLikes: UserLikes,
       xlmPrice: XLMPrice,
       getIssuer: GetIssuer,
+      getAudibleToken: GetAudibleToken,
     };
   },
 });
