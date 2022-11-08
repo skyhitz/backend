@@ -7,6 +7,7 @@ import { createAndFundAccount } from '../stellar/operations';
 import { encrypt } from '../util/encryption';
 import { User } from '../util/types';
 import SuccessResponse from './types/success-response';
+import { getAccount, getConfig } from 'src/stellar/utils';
 
 const createUserWithEmail = {
   type: SuccessResponse,
@@ -48,6 +49,19 @@ const createUserWithEmail = {
     }
     if (res && res.publicKey === args.publicKey) {
       throw 'Public Key is connected to another account, please sign in.';
+    }
+
+    // check if provided publicKey account exists on stellar
+    if (args.publicKey) {
+      try {
+        await getAccount(args.publicKey);
+      } catch {
+        throw new Error(
+          `Provided public key does not exist on the Stellar ${
+            getConfig().network
+          } network. It must be created before it can be used to submit transactions.`
+        );
+      }
     }
 
     const newId = UniqueIdGenerator.generate();
