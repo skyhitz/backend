@@ -6,11 +6,11 @@ import { sendWelcomeEmail } from '../sendgrid/sendgrid';
 import { createAndFundAccount } from '../stellar/operations';
 import { encrypt } from '../util/encryption';
 import { User } from '../util/types';
-import { getAccount, getConfig } from 'src/stellar/utils';
-import { verifySourceSignatureOnXDR } from 'src/stellar';
+import { getAccount, getConfig } from '../stellar/utils';
+import { verifySourceSignatureOnXDR } from '../stellar';
 import ConditionalUser from './types/conditional-user';
 import * as jwt from 'jsonwebtoken';
-import { Config } from 'src/config';
+import { Config } from '../config';
 
 const createUserWithEmail = {
   type: ConditionalUser,

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import cron from 'node-cron';
-import { entriesIndex } from 'src/algolia/algolia';
-import { Config } from 'src/config';
+import { entriesIndex } from '../algolia/algolia';
+import { Config } from '../config';
 import { Entry } from './types';
 
 export function intiliazeCronJobs() {

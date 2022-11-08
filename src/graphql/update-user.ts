@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import {
   getByUsernameOrEmailExcludingId,
   usersIndex,
-} from 'src/algolia/algolia';
+} from '../algolia/algolia';
 import { ipfsProtocol } from '../constants/constants';
 import { pinIpfsFile } from '../util/pinata';
 

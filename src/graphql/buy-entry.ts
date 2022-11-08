@@ -1,12 +1,12 @@
 import { GraphQLString, GraphQLNonNull, GraphQLFloat } from 'graphql';
-import { sendNftBoughtEmail, sendNftSoldEmail } from 'src/sendgrid/sendgrid';
+import { sendNftBoughtEmail, sendNftSoldEmail } from '../sendgrid/sendgrid';
 import { getEntry } from '../algolia/algolia';
 import { getAuthenticatedUser } from '../auth/logic';
 import { accountCredits, buyViaPathPayment } from '../stellar/operations';
 import { decrypt } from '../util/encryption';
 import ConditionalXDR from './types/conditional-xdr';
-import { getPublicKeyFromTransactionResult } from 'src/stellar/operations';
-import { getUserByPublicKey } from 'src/algolia/algolia';
+import { getPublicKeyFromTransactionResult } from '../stellar/operations';
+import { getUserByPublicKey } from '../algolia/algolia';
 
 async function customerInfo(user: any) {
   let { availableCredits: credits } = await accountCredits(user.publicKey);
