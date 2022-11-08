@@ -11,7 +11,7 @@ import {
   ipfsProtocol,
 } from '../constants/constants';
 import Entry from './types/entry';
-import { pinIpfsFile } from 'src/util/pinata';
+import { pinIpfsFile } from '../util/pinata';
 
 const indexEntry = {
   type: Entry,
