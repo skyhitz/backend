@@ -9,6 +9,7 @@ import passwordless from '../passwordless/passwordless';
 import { stripeWebhook } from '../webhooks';
 import { getUser } from '../algolia/algolia';
 import { assets } from '../assets/assets';
+import { intiliazeCronJobs } from 'src/util/cron';
 
 let cors = require('cors');
 const cache = require('memory-cache');
@@ -61,6 +62,8 @@ passwordless.init(new TokenStore());
 
 const setupGraphQLServer = () => {
   const graphQLServer = express();
+
+  intiliazeCronJobs();
 
   graphQLServer.use(
     cors({
