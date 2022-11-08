@@ -7,7 +7,7 @@ import {
   usersIndex,
 } from 'src/algolia/algolia';
 import { ipfsProtocol } from '../constants/constants';
-import { pinIpfsFile } from 'src/util/pinata';
+import { pinIpfsFile } from '../util/pinata';
 
 type UpdateUserArgs = {
   avatarUrl?: string | null;
