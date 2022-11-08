@@ -1,7 +1,7 @@
 import { GraphQLNonNull, GraphQLString } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import SuccessResponse from './types/success-response';
-import { getEntry, usersIndex } from 'src/algolia/algolia';
+import { getEntry, usersIndex } from '../algolia/algolia';
 
 type SetLastPlayedEntryArgs = {
   entryId: String;

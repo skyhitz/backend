@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { Config } from 'src/config';
-import { pinataApi } from 'src/constants/constants';
+import { Config } from '../config';
+import { pinataApi } from '../constants/constants';
 
 export async function pinIpfsFile(
   ipfsHash: string,

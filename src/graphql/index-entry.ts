@@ -3,7 +3,7 @@ import { GraphQLString, GraphQLNonNull } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { saveEntry } from '../algolia/algolia';
 import { getAccountData } from '../stellar/operations';
-import { Config } from 'src/config';
+import { Config } from '../config';
 import axios from 'axios';
 import {
   ipfsGateway,
