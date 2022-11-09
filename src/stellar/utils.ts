@@ -33,7 +33,7 @@ export function getConfig() {
 }
 
 export async function getAccount(publicKey) {
-  let account = await axios
+  const account = await axios
     .get(`${getConfig().horizonUrl}/accounts/${publicKey}`)
     .then(({ data }) => data);
   return account;

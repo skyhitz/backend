@@ -3,15 +3,15 @@ import { GraphQLString, GraphQLNonNull } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { saveEntry } from '../algolia/algolia';
 import { getAccountData } from '../stellar/operations';
-import { Config } from 'src/config';
+import { Config } from '../config';
 import axios from 'axios';
 import {
   ipfsGateway,
   fallbackIpfsGateway,
   ipfsProtocol,
-  pinataApi,
 } from '../constants/constants';
 import Entry from './types/entry';
+import { pinIpfsFile } from '../util/pinata';
 
 const indexEntry = {
   type: Entry,
@@ -74,33 +74,20 @@ const indexEntry = {
       video,
     } = response;
 
-    const result = await axios
-      .post(
-        `${pinataApi}/pinning/pinByHash`,
-        {
-          hashToPin: image.replace(ipfsProtocol, ''),
-          pinataMetadata: {
-            name: `${name}-image`,
-          },
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${Config.PINATA_JWT}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-      .then(({ data }) => data)
-      .catch((error) => {
-        console.log(error);
-        return null;
-      });
+    try {
+      const pinningResults = await Promise.all([
+        pinIpfsFile(image.replace(ipfsProtocol, ''), `${name}-image`),
+        pinIpfsFile(video.replace(ipfsProtocol, ''), `${name}-video`),
+      ]);
 
-    if (!result) {
-      throw "Couldn't pin image to pinata";
+      if (!pinningResults[0] || !pinningResults[1]) {
+        throw "Couldn't pin media to pinata";
+      }
+    } catch (ex) {
+      throw "Couldn't pin media to pinata";
     }
 
-    console.log('Pinned image to pinata!', result);
+    console.log('Pinned media to pinata!');
 
     const nameDivider = ' - ';
     const obj = {

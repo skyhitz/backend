@@ -6,10 +6,14 @@ import { sendWelcomeEmail } from '../sendgrid/sendgrid';
 import { createAndFundAccount } from '../stellar/operations';
 import { encrypt } from '../util/encryption';
 import { User } from '../util/types';
-import SuccessResponse from './types/success-response';
+import { getAccount, getConfig } from '../stellar/utils';
+import { verifySourceSignatureOnXDR } from '../stellar';
+import ConditionalUser from './types/conditional-user';
+import * as jwt from 'jsonwebtoken';
+import { Config } from '../config';
 
 const createUserWithEmail = {
-  type: SuccessResponse,
+  type: ConditionalUser,
   args: {
     displayName: {
       type: new GraphQLNonNull(GraphQLString),
@@ -20,48 +24,72 @@ const createUserWithEmail = {
     username: {
       type: new GraphQLNonNull(GraphQLString),
     },
-    publicKey: {
+    signedXDR: {
       type: new GraphQLNonNull(GraphQLString),
     },
   },
   async resolve(_: any, args: any, ctx: any) {
-    if (!args.email) {
+    const { displayName, email, username, signedXDR } = args;
+    if (!email) {
       throw `Email can't be an empty string`;
     }
-    if (!args.username) {
+    if (!username) {
       throw `Username can't be an empty string`;
     }
 
     // TODO: Make a proper fix
-    args.username = args.username.toLowerCase();
+    const usernameLowercase = username.toLowerCase();
+
+    // check if the provided signedXDR is valid and obtain publicKey
+    let publicKey;
+    if (signedXDR) {
+      const { verified, source } = verifySourceSignatureOnXDR(signedXDR);
+      if (!verified) {
+        throw 'Invalid signed XDR';
+      }
+      publicKey = source;
+    }
 
     const res = await getByUsernameOrEmailOrPublicKey(
-      args.username,
-      args.email,
-      args.publicKey
+      usernameLowercase,
+      email,
+      publicKey
     );
-    if (res && res.email === args.email) {
+    if (res && res.email === email) {
       throw 'Email already exists, please sign in.';
     }
-    if (res && res.username === args.username) {
+    if (res && res.username === usernameLowercase) {
       throw 'Username is taken.';
     }
-    if (res && res.publicKey === args.publicKey) {
+    if (res && res.publicKey === publicKey) {
       throw 'Public Key is connected to another account, please sign in.';
+    }
+
+    // check if provided publicKey account exists on stellar
+    if (publicKey) {
+      try {
+        await getAccount(publicKey);
+      } catch {
+        throw new Error(
+          `Provided public key does not exist on the Stellar ${
+            getConfig().network
+          } network. It must be created before it can be used to submit transactions.`
+        );
+      }
     }
 
     const newId = UniqueIdGenerator.generate();
 
     let user: User = {
       avatarUrl: '',
-      displayName: args.displayName,
+      displayName: displayName,
       description: '',
-      username: args.username,
-      email: args.email,
+      username: usernameLowercase,
+      email: email,
       version: 1,
       publishedAt: new Date().toISOString(),
       publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
-      publicKey: args.publicKey,
+      publicKey: publicKey,
       objectID: newId,
       id: newId,
       seed: '',
@@ -83,7 +111,27 @@ const createUserWithEmail = {
     await saveUser(user);
     sendWelcomeEmail(user.email);
 
-    return { success: true, message: 'User created.' };
+    // if the user already provided signedXDR and it was valid
+    // we can log in him already.
+    // otherwise user has to log in via email.
+    if (signedXDR) {
+      const token = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          version: user.version,
+        } as any,
+        Config.JWT_SECRET
+      );
+      user.jwt = token;
+      ctx.user = Promise.resolve(user);
+      return {
+        message: 'User created. You logged in successfully.',
+        user,
+      };
+    } else {
+      return { message: 'User created.' };
+    }
   },
 };
 

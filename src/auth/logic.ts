@@ -1,4 +1,4 @@
-import { getUser } from 'src/algolia/algolia';
+import { getUser } from '../algolia/algolia';
 
 export async function getAuthenticatedUser(ctx: any) {
   const user = await ctx.user;

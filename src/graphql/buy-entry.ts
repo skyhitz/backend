@@ -1,12 +1,12 @@
 import { GraphQLString, GraphQLNonNull, GraphQLFloat } from 'graphql';
-import { sendNftBoughtEmail, sendNftSoldEmail } from 'src/sendgrid/sendgrid';
+import { sendNftBoughtEmail, sendNftSoldEmail } from '../sendgrid/sendgrid';
 import { getEntry } from '../algolia/algolia';
 import { getAuthenticatedUser } from '../auth/logic';
 import { accountCredits, buyViaPathPayment } from '../stellar/operations';
 import { decrypt } from '../util/encryption';
 import ConditionalXDR from './types/conditional-xdr';
-import { getPublicKeyFromTransactionResult } from 'src/stellar/operations';
-import { getUserByPublicKey } from 'src/algolia/algolia';
+import { getPublicKeyFromTransactionResult } from '../stellar/operations';
+import { getUserByPublicKey } from '../algolia/algolia';
 
 async function customerInfo(user: any) {
   let { availableCredits: credits } = await accountCredits(user.publicKey);
@@ -76,9 +76,11 @@ const buyEntry = {
         if (ex?.result_codes?.operations) {
           const opCodes: string[] = ex.result_codes.operations;
           if (opCodes.includes('op_over_source_max')) {
-            message = 'Couldn not find an offer within the budget';
+            message = 'Couldn not find an offer within the budget!';
           } else if (opCodes.includes('op_underfunded')) {
-            message = 'Not enough funds on the account.';
+            message = 'Not enough funds on the account!';
+          } else if (opCodes.includes('op_cross_self')) {
+            message = 'You cannot buy a nft from yourself!';
           }
         }
 

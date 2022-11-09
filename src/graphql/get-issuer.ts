@@ -1,7 +1,7 @@
 import { GraphQLNonNull, GraphQLString } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { Keypair } from 'skyhitz-stellar-base';
-import { Config } from '../../src/config';
+import { Config } from '../config';
 const shajs = require('sha.js');
 
 const getIssuer = {
