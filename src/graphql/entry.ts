@@ -14,6 +14,8 @@ export const EntryById = {
   async resolve(_: any, { id }: any) {
     const entry = await getEntry(id);
     const api = AxiosCacheStellarClient as any;
+
+
     const assetId = `${entry.code}-${entry.issuer}`;
     try {
       const [holders, history, offers] = await Promise.all([
@@ -21,6 +23,7 @@ export const EntryById = {
         fetchHistory(assetId, api),
         fetchOffers(assetId, api),
       ]);
+
       return { ...entry, holders, history, offers };
     } catch (ex) {
       throw "Couldn't fetch entry data";

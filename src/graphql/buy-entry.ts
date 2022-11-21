@@ -7,6 +7,8 @@ import { decrypt } from '../util/encryption';
 import ConditionalXDR from './types/conditional-xdr';
 import { getPublicKeyFromTransactionResult } from 'src/stellar/operations';
 import { getUserByPublicKey } from 'src/algolia/algolia';
+import { deleteCache } from 'src/util/axios-cache';
+import { Config } from 'src/config';
 
 async function customerInfo(user: any) {
   let { availableCredits: credits } = await accountCredits(user.publicKey);
@@ -58,7 +60,8 @@ const buyEntry = {
           if (seller) {
             await sendNftSoldEmail(seller.email);
           }
-
+          
+          deleteEntryCache(code, issuer);
           return result;
         } else {
           const result = await buyViaPathPayment(
@@ -68,6 +71,8 @@ const buyEntry = {
             code,
             issuer
           );
+          
+          deleteEntryCache(code, issuer);
           return result;
         }
       } catch (ex) {
@@ -91,3 +96,17 @@ const buyEntry = {
 };
 
 export default buyEntry;
+
+
+const deleteEntryCache = (code: string, issuer: string) => {
+  const assetId = `${code}-${issuer}`;
+  const baseURL = 'https://api.stellar.expert/explorer/';
+
+  const urls = [
+    `${baseURL}${Config.STELLAR_NETWORK}/asset/${assetId}/history/all?limit=100`,
+    `${baseURL}${Config.STELLAR_NETWORK}/asset/${assetId}/holders?limit=100`,
+    `${baseURL}${Config.STELLAR_NETWORK}/asset/${assetId}/history/offers?limit=100&order=desc`
+  ];
+
+  deleteCache(urls);
+}
