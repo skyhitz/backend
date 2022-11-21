@@ -97,9 +97,6 @@ const buyEntry = {
   },
 };
 
-export default buyEntry;
-
-
 const deleteEntryCache = (code: string, issuer: string) => {
   const assetId = `${code}-${issuer}`;
   const baseURL = 'https://api.stellar.expert/explorer/';
@@ -112,3 +109,5 @@ const deleteEntryCache = (code: string, issuer: string) => {
 
   deleteCache(urls);
 }
+
+export default buyEntry;
