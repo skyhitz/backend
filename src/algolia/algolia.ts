@@ -14,6 +14,7 @@ entriesIndex.setSettings({
     `${appDomain}:entries_likes_desc`,
     `${appDomain}:entries_timestamp_desc`,
     `${appDomain}:entries_timestamp_asc`,
+    `${appDomain}:entries_rating_desc`,
   ],
   attributesForFaceting: [
     'filterOnly(code)',
@@ -31,6 +32,15 @@ export const likeCountReplicaIndex = client.initIndex(
 
 likeCountReplicaIndex.setSettings({
   ranking: ['desc(likeCount)'],
+  attributesToRetrieve: ['*'],
+});
+
+export const ratingReplicaIndex = client.initIndex(
+  `${appDomain}:entries_rating_desc`
+);
+
+ratingReplicaIndex.setSettings({
+  ranking: ['desc(rating)'],
   attributesToRetrieve: ['*'],
 });
 
@@ -113,11 +123,6 @@ export async function getEntryByCode(code: string) {
   });
   const [entry]: unknown[] = res.hits;
   return entry as Entry;
-}
-
-export async function recentlyAdded(page = 0) {
-  const res = await entriesIndex.search('', { page });
-  return res.hits.map((hit: unknown) => hit as Entry);
 }
 
 export async function getByUsernameOrEmailOrPublicKey(
@@ -244,11 +249,6 @@ export async function getEntriesLikesWithUserId(userId) {
   const entries = await entriesIndex.getObjects(objectIDs);
 
   return entries.results as unknown as Entry[];
-}
-
-export async function entriesByLikeCount(page = 0) {
-  const res = await likeCountReplicaIndex.search('', { page });
-  return res.hits.map((hit: unknown) => hit as Entry);
 }
 
 const pinataResizedGateway = (ipfsHash: string) =>

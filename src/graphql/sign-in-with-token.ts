@@ -16,41 +16,46 @@ const SignInWithToken = {
     },
   },
   async resolve(_: any, { token: graphQLToken, uid }: any, ctx: any) {
-    return new Promise((resolve, reject) => {
-      passwordless._tokenStore.authenticate(
-        graphQLToken,
-        uid,
-        async function (error, valid, referrer) {
-          if (valid) {
-            let user = await getUser(uid);
+    return new Promise(async (resolve, reject) => {
+      try {
+        await passwordless._tokenStore.authenticate(
+          graphQLToken,
+          uid,
+          async function (error, valid, referrer) {
+            if (valid) {
+              let user = await getUser(uid);
 
-            const token = jwt.sign(
-              {
-                id: user.id,
-                email: user.email,
-                version: user.version,
-              } as any,
-              Config.JWT_SECRET
-            );
-            user.jwt = token;
-            ctx.user = Promise.resolve(user);
-            // Invalidate token, except allowTokenReuse has been set
-            if (!passwordless._allowTokenReuse) {
-              passwordless._tokenStore.invalidateUser(uid, function (err) {
-                if (err) {
-                  throw 'TokenStore.invalidateUser() error: ' + error;
-                } else {
-                  resolve(user);
-                }
-              });
+              const token = jwt.sign(
+                {
+                  id: user.id,
+                  email: user.email,
+                  version: user.version,
+                } as any,
+                Config.JWT_SECRET
+              );
+              user.jwt = token;
+              ctx.user = Promise.resolve(user);
+              // Invalidate token, except allowTokenReuse has been set
+              if (!passwordless._allowTokenReuse) {
+                passwordless._tokenStore.invalidateUser(uid, function (err) {
+                  if (err) {
+                    throw 'TokenStore.invalidateUser() error: ' + error;
+                  } else {
+                    resolve(user);
+                  }
+                });
+              } else {
+                resolve(user);
+              }
             } else {
-              resolve(user);
+              reject('Provided link is not valid');
             }
-          } else {
-            resolve(null);
           }
-        }
-      );
+        );
+      } catch (ex) {
+        console.log(ex);
+        reject('Provided link is not valid');
+      }
     });
   },
 };

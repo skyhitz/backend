@@ -1,10 +1,10 @@
 import { GraphQLString, GraphQLNonNull } from 'graphql';
 import { GraphQLUser } from './types/user';
 import { verifySourceSignatureOnXDR } from '../stellar';
-import { accountCredits, withdrawAndMerge } from 'src/stellar/operations';
-import { getAuthenticatedUser } from 'src/auth/logic';
-import { decrypt } from 'src/util/encryption';
-import { getUserByPublicKey, usersIndex } from 'src/algolia/algolia';
+import { accountCredits, withdrawAndMerge } from '../stellar/operations';
+import { getAuthenticatedUser } from '../auth/logic';
+import { decrypt } from '../util/encryption';
+import { getUserByPublicKey, usersIndex } from '../algolia/algolia';
 
 const ChangeWallet = {
   type: GraphQLUser,
