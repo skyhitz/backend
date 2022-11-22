@@ -21,4 +21,6 @@ export const Config: IConfig = {
   NFT_STORAGE_API_KEY: process.env.NFT_STORAGE_API_KEY || '',
   STELLAR_NETWORK: process.env.STELLAR_NETWORK || 'testnet',
   PINATA_JWT: process.env.PINATA_JWT || '',
+  AUDIBLE_SECRET:
+    Buffer.from(process.env.AUDIBLE_SECRET, 'base64').toString('ascii') || '',
 };

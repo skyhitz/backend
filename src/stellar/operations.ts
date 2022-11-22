@@ -89,7 +89,7 @@ export async function accountExists(publicKey: string) {
   return true;
 }
 
-async function buildTransactionWithFee(accountPublicKey) {
+export async function buildTransactionWithFee(accountPublicKey) {
   const [account, fee] = await Promise.all([
     await getAccount(accountPublicKey),
     await getFee(),

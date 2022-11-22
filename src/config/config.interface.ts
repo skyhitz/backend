@@ -15,4 +15,5 @@ export interface IConfig {
   NFT_STORAGE_API_KEY: string;
   STELLAR_NETWORK: string;
   PINATA_JWT: string;
+  AUDIBLE_SECRET: string;
 }

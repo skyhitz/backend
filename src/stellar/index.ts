@@ -1,16 +1,14 @@
 import {
   Keypair,
   Asset,
-  TransactionBuilder,
   Memo,
   Operation,
   AuthImmutableFlag,
-  Account,
-  BASE_FEE,
   Transaction,
 } from 'skyhitz-stellar-base';
 import { Config } from '../config';
-import { getConfig, getAccount } from './utils';
+import { buildTransactionWithFee } from './operations';
+import { getConfig } from './utils';
 
 export async function buildNFTTransaction(
   accountPublicKey: string,
@@ -22,28 +20,9 @@ export async function buildNFTTransaction(
 ) {
   const issuerPublicKey = issuerKey.publicKey();
   const asset = new Asset(code, issuerPublicKey);
-
-  const account = await (async () => {
-    try {
-      return await getAccount(accountPublicKey);
-    } catch {
-      throw new Error(
-        `Your account ${accountPublicKey} does not exist on the Stellar ${
-          getConfig().network
-        } network. It must be created before it can be used to submit transactions.`
-      );
-    }
-  })();
-
   const appDomain = Config.APP_URL.replace('https://', '');
 
-  const transaction = new TransactionBuilder(
-    new Account(account.id, account.sequence),
-    {
-      fee: BASE_FEE,
-      networkPassphrase: getConfig().networkPassphrase,
-    }
-  )
+  const transaction = (await buildTransactionWithFee(accountPublicKey))
     .setTimeout(300)
     .addMemo(Memo.text(`Skyhitz - Music NFTs✨`))
     .addOperation(
