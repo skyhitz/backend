@@ -1,5 +1,4 @@
 import express from 'express';
-import { Schema } from './schema';
 import { Config } from '../config';
 import { expressjwt as jwt } from 'express-jwt';
 import { expressMiddleware } from '@apollo/server/express4';
@@ -9,10 +8,18 @@ import passwordless from '../passwordless/passwordless';
 import { getUser } from '../algolia/algolia';
 import { assets } from '../assets/assets';
 import { intiliazeCronJobs } from '../util/cron';
+import { ApolloServer } from '@apollo/server';
+import { resolvers } from './resolvers';
+import cors from 'cors';
+import cache from 'memory-cache';
+import { User } from 'src/util/types';
+import { loadFilesSync } from '@graphql-tools/load-files';
 
-let cors = require('cors');
-const cache = require('memory-cache');
 let cacheInstance = new cache.Cache();
+
+interface MyContext {
+  user?: User;
+}
 
 const buildOptions: any = async (req: any) => {
   if (req.user) {
@@ -20,14 +27,12 @@ const buildOptions: any = async (req: any) => {
     let cachedUser = cacheInstance.get(req.user.id);
     if (cachedUser) {
       return {
-        schema: Schema,
         context: {
           user: Promise.resolve(cachedUser),
         },
       };
     }
     return {
-      schema: Schema,
       context: {
         user: getUser(req.user.id)
           .then((user: any) => {
@@ -46,7 +51,6 @@ const buildOptions: any = async (req: any) => {
     };
   }
   return {
-    schema: Schema,
     context: {
       user: Promise.resolve(null),
     },
@@ -59,8 +63,12 @@ const graphEndpoints = [graphiqlUrl, graphqlUrl];
 
 passwordless.init(new TokenStore());
 
-const setupGraphQLServer = () => {
+export const setupGraphQLServer = () => {
   const graphQLServer = express();
+  const server = new ApolloServer<MyContext>({
+    typeDefs: loadFilesSync('./schema.graphql'),
+    resolvers,
+  });
 
   intiliazeCronJobs();
 
@@ -93,7 +101,7 @@ const setupGraphQLServer = () => {
       credentialsRequired: false,
     }),
     express.urlencoded({ extended: false }),
-    expressMiddleware(buildOptions)
+    expressMiddleware(server, buildOptions)
   );
 
   assets(graphQLServer);

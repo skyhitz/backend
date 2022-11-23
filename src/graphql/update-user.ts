@@ -1,5 +1,3 @@
-import { GraphQLString } from 'graphql';
-import { GraphQLUser } from './types/user';
 import { getAuthenticatedUser } from '../auth/logic';
 import * as yup from 'yup';
 import {
@@ -39,60 +37,42 @@ const updateUserSchema: yup.SchemaOf<UpdateUserArgs> = yup.object().shape({
     .email('Please enter a valid email.'),
 });
 
-const updateUserEndpoint = {
-  type: GraphQLUser,
-  args: {
-    avatarUrl: {
-      type: GraphQLString,
-    },
-    displayName: {
-      type: GraphQLString,
-    },
-    description: {
-      type: GraphQLString,
-    },
-    username: {
-      type: GraphQLString,
-    },
-    email: {
-      type: GraphQLString,
-    },
-  },
-  async resolve(_: any, updateUserArgs: UpdateUserArgs, ctx: any) {
-    const user = await getAuthenticatedUser(ctx);
-    const validatedUpdate = await updateUserSchema.validate(updateUserArgs, {
-      stripUnknown: true,
-    });
-    const existingUser = await getByUsernameOrEmailExcludingId(
-      validatedUpdate.username,
-      validatedUpdate.email,
-      user.id
+export const updateUserResolver = async (
+  _: any,
+  updateUserArgs: UpdateUserArgs,
+  ctx: any
+) => {
+  const user = await getAuthenticatedUser(ctx);
+  const validatedUpdate = await updateUserSchema.validate(updateUserArgs, {
+    stripUnknown: true,
+  });
+  const existingUser = await getByUsernameOrEmailExcludingId(
+    validatedUpdate.username,
+    validatedUpdate.email,
+    user.id
+  );
+  if (existingUser) {
+    if (existingUser.email === validatedUpdate.email) {
+      throw 'Account with given email already exists';
+    }
+    if (existingUser.username === validatedUpdate.username) {
+      throw 'Username is already taken';
+    }
+  }
+  if (validatedUpdate.avatarUrl) {
+    const result = await pinIpfsFile(
+      validatedUpdate.avatarUrl.replace(ipfsProtocol, ''),
+      `${user.username}-image`
     );
-    if (existingUser) {
-      if (existingUser.email === validatedUpdate.email) {
-        throw 'Account with given email already exists';
-      }
-      if (existingUser.username === validatedUpdate.username) {
-        throw 'Username is already taken';
-      }
+    if (!result) {
+      throw "Couldn't pin image to pinata!";
     }
-    if (validatedUpdate.avatarUrl) {
-      const result = await pinIpfsFile(
-        validatedUpdate.avatarUrl.replace(ipfsProtocol, ''),
-        `${user.username}-image`
-      );
-      if (!result) {
-        throw "Couldn't pin image to pinata!";
-      }
-      console.log('Pinned image!');
-    }
-    const userUpdate = {
-      ...user,
-      ...validatedUpdate,
-    };
-    await usersIndex.partialUpdateObject(userUpdate);
-    return userUpdate;
-  },
+    console.log('Pinned image!');
+  }
+  const userUpdate = {
+    ...user,
+    ...validatedUpdate,
+  };
+  await usersIndex.partialUpdateObject(userUpdate);
+  return userUpdate;
 };
-
-export default updateUserEndpoint;
