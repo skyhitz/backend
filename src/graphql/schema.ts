@@ -9,10 +9,7 @@ import { EntryById } from './entry';
 import { UserEntries } from './user-entries';
 import LikeEntry from './like-entry';
 import CreateUserWithEmail from './create-user-with-email';
-import BuyCredits from './buy-credits';
 import BuyEntry from './buy-entry';
-import SubscribeUser from './subscribe-user';
-import CancelSubscription from './cancel-subscription';
 import CreateEntry from './create-entry';
 import IndexEntry from './index-entry';
 import UpdateUser from './update-user';
@@ -52,7 +49,6 @@ const Mutation = new GraphQLObjectType({
   fields() {
     return {
       buyEntry: BuyEntry,
-      buyCredits: BuyCredits,
       changeWallet: ChangeWallet,
       createEntry: CreateEntry,
       createUserWithEmail: CreateUserWithEmail,
@@ -62,8 +58,6 @@ const Mutation = new GraphQLObjectType({
       signInWithXDR: SignInWithXDR,
       likeEntry: LikeEntry,
       removeEntry: RemoveEntry,
-      cancelSubscription: CancelSubscription,
-      subscribeUser: SubscribeUser,
       updateUser: UpdateUser,
       updatePricing: UpdatePricing,
       withdrawToExternalWallet: WithdrawToExternalWallet,

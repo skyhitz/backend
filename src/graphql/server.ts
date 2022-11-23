@@ -1,12 +1,11 @@
 import express from 'express';
 import { Schema } from './schema';
 import { Config } from '../config';
-import jwt from 'express-jwt';
-import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
+import { expressjwt as jwt } from 'express-jwt';
+import { expressMiddleware } from '@apollo/server/express4';
 const compression = require('compression');
 import { TokenStore } from '../passwordless/store';
 import passwordless from '../passwordless/passwordless';
-import { stripeWebhook } from '../webhooks';
 import { getUser } from '../algolia/algolia';
 import { assets } from '../assets/assets';
 import { intiliazeCronJobs } from '../util/cron';
@@ -89,17 +88,17 @@ const setupGraphQLServer = () => {
     },
     compression(),
     jwt({
+      algorithms: ['RS256'],
       secret: Config.JWT_SECRET,
       credentialsRequired: false,
     }),
     express.urlencoded({ extended: false }),
-    graphqlExpress(buildOptions)
+    expressMiddleware(buildOptions)
   );
 
-  stripeWebhook(graphQLServer);
   assets(graphQLServer);
 
-  graphQLServer.use(graphiqlUrl, graphiqlExpress({ endpointURL: graphqlUrl }));
+  // graphQLServer.use(graphiqlUrl, graphiqlExpress({ endpointURL: graphqlUrl }));
   return graphQLServer;
 };
 
