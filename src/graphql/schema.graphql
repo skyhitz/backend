@@ -1,19 +1,19 @@
 type Query {
-  authenticatedUser: User
-  entryLikes: EntryLikes
-  entryPrice: EntryPrice
-  entry: EntryDetails
+  authenticatedUser: User!
+  entryLikes(id: String!): EntryLikes!
+  entryPrice(id: String!): EntryPrice!
+  entry(id: String!): EntryDetails!
   userCredits: Float!
-  userEntries: [Entry!]
-  userLikes: [Entry!]
+  userEntries: [Entry!]!
+  userLikes: [Entry!]!
   xlmPrice: String!
-  getIssuer: String!
-  getAudibleToken: Token
+  getIssuer(cid: String!): String!
+  getAudibleToken: Token!
 }
 
 type Mutation {
   buyEntry(id: String!, amount: Float!, price: Float!): ConditionalXDR!
-  changeWallet(signedXDR: String!): ChangeWallet!
+  changeWallet(signedXDR: String!): User!
   createEntry(
     fileCid: String!
     metaCid: String!
@@ -147,4 +147,8 @@ type ConditionalXDR {
 type ConditionalUser {
   user: User
   message: String!
+}
+
+type AccountCredits {
+  credits: Float!
 }

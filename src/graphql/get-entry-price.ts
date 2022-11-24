@@ -11,7 +11,7 @@ const getEntryAsk = async (id) => {
   return { price: 0, amount: 0 };
 };
 
-export const entryPriceResolver = async (root: any, { id }: any, ctx: any) => {
+export const entryPriceResolver = async (_root: any, { id }: any, ctx: any) => {
   await getAuthenticatedUser(ctx);
 
   return getEntryAsk(id);

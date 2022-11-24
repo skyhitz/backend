@@ -1,10 +1,10 @@
 import { getAuthenticatedUser } from '../auth/logic';
 
 export const authenticatedUserResolver = async (
-  root: any,
-  args: any,
+  _root: any,
+  _args: any,
   ctx: any
 ) => {
   const user = await getAuthenticatedUser(ctx);
-  return user;
+  return { ...user, managed: user.seed !== '' };
 };

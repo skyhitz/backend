@@ -13,7 +13,7 @@ export const signInWithTokenResolver = async (
       await passwordless._tokenStore.authenticate(
         graphQLToken,
         uid,
-        async function (error, valid, referrer) {
+        async function (error, valid) {
           if (valid) {
             let user = await getUser(uid);
 

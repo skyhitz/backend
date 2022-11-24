@@ -16,10 +16,10 @@ export const buyEntryResolver = async (_: any, args: any, ctx: any) => {
   const { id, amount, price } = args;
   const user = await getAuthenticatedUser(ctx);
 
-  const [{ credits, seed }, { code, issuer }] = [
-    await customerInfo(user),
-    await getEntry(id),
-  ];
+  const [{ credits, seed }, { code, issuer }] = await Promise.all([
+    customerInfo(user),
+    getEntry(id),
+  ]);
 
   const total = price * amount;
 

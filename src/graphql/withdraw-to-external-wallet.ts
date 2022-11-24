@@ -35,7 +35,7 @@ export const withdrawToExternalAddressResolver = async (
     );
     const decryptedSeed = decrypt(seed);
     await withdrawToExternalAddress(address, amount, decryptedSeed);
-    return { success: true, message: 'OK' };
+    return true;
   } catch (e) {
     console.log(`error`, e);
     if (typeof e === 'string') {

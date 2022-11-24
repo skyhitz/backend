@@ -1,9 +1,15 @@
+import { GraphQLError } from 'graphql';
 import { getEntry } from '../algolia/algolia';
 import { Config } from '../config';
 import { AxiosCacheStellarClient } from '../util/axios-cache';
 
 export const entryByIdResolver = async (_: any, { id }: any) => {
-  const entry = await getEntry(id);
+  let entry;
+  try {
+    entry = await getEntry(id);
+  } catch (ex) {
+    throw new GraphQLError('Entry with given id does not exist');
+  }
   const api = AxiosCacheStellarClient as any;
   const assetId = `${entry.code}-${entry.issuer}`;
   try {

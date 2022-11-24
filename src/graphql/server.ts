@@ -57,18 +57,19 @@ const buildOptions: any = async (req: any) => {
   };
 };
 
-const graphiqlUrl = '/api/graphiql';
 const graphqlUrl = '/api/graphql';
-const graphEndpoints = [graphiqlUrl, graphqlUrl];
 
 passwordless.init(new TokenStore());
 
-export const setupGraphQLServer = () => {
-  const graphQLServer = express();
+const graphQLServer = express();
+
+const startGraphqlServer = async () => {
   const server = new ApolloServer<MyContext>({
-    typeDefs: loadFilesSync('./schema.graphql'),
+    typeDefs: loadFilesSync('src/graphql/schema.graphql'),
     resolvers,
   });
+
+  await server.start();
 
   intiliazeCronJobs();
 
@@ -85,9 +86,7 @@ export const setupGraphQLServer = () => {
       res: express.Response,
       next: express.NextFunction
     ): void => {
-      const match = graphEndpoints.find((endpoint) =>
-        req.originalUrl.startsWith(endpoint)
-      );
+      const match = req.originalUrl.startsWith(graphqlUrl);
       if (!match) {
         next();
       } else {
@@ -106,11 +105,12 @@ export const setupGraphQLServer = () => {
 
   assets(graphQLServer);
 
-  // graphQLServer.use(graphiqlUrl, graphiqlExpress({ endpointURL: graphqlUrl }));
   return graphQLServer;
 };
 
-export const graphQLServer = setupGraphQLServer();
+startGraphqlServer();
+
+export default graphQLServer;
 
 if (Config.ENV === 'development') {
   graphQLServer.listen(4000);

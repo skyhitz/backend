@@ -18,5 +18,5 @@ export const setLastPlayedEntryResolver = async (
     lastPlayedEntry: entry,
   };
   await usersIndex.partialUpdateObject(userUpdate);
-  return { success: true, message: 'OK' };
+  return true;
 };

@@ -1,6 +1,6 @@
 import { requestTokenResolver } from './request-token';
 import { signInWithTokenResolver } from './sign-in-with-token';
-import { paymentsInfoResolver } from './payments-info';
+import { userCreditsResolver } from './user-credits';
 import { userLikesResolver } from './user-likes';
 import { entryLikesResolver } from './entry-likes';
 import { authenticatedUserResolver } from './authenticated-user';
@@ -28,7 +28,7 @@ const Query = {
   entryLikes: entryLikesResolver,
   entryPrice: entryPriceResolver,
   entry: entryByIdResolver,
-  paymentsInfo: paymentsInfoResolver,
+  userCredits: userCreditsResolver,
   userEntries: userEntriesResolver,
   userLikes: userLikesResolver,
   xlmPrice: XLMPriceResolver,
