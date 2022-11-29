@@ -64,8 +64,13 @@ passwordless.init(new TokenStore());
 const graphQLServer = express();
 
 const startGraphqlServer = async () => {
+  console.log(process.cwd());
+  const schematPath = `${process
+    .cwd()
+    .replaceAll('/src/graphql', '')}/src/graphql/schema.graphql`;
+  console.log(schematPath);
   const server = new ApolloServer<MyContext>({
-    typeDefs: loadFilesSync('src/graphql/schema.graphql'),
+    typeDefs: loadFilesSync(schematPath),
     resolvers,
   });
 
