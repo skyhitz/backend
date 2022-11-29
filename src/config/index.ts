@@ -23,6 +23,6 @@ export const Config: IConfig = {
   PINATA_JWT: process.env.PINATA_JWT || '',
   AUDIBLE_SECRET:
     Buffer.from(process.env.AUDIBLE_SECRET, 'base64').toString('ascii') || '',
-  DEMO_ACCOUNT_UID: process.env.DEMO_ACCOUNT_UUID || '',
+  DEMO_ACCOUNT_UID: process.env.DEMO_ACCOUNT_UID || '',
   DEMO_ACCOUNT_TOKEN: process.env.DEMO_ACCOUNT_TOKEN || '',
 };
