@@ -16,4 +16,6 @@ export interface IConfig {
   STELLAR_NETWORK: string;
   PINATA_JWT: string;
   AUDIBLE_SECRET: string;
+  DEMO_ACCOUNT_UID: string;
+  DEMO_ACCOUNT_TOKEN: string;
 }

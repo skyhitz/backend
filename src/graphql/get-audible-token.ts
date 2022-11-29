@@ -1,7 +1,7 @@
 import * as jwt from 'jsonwebtoken';
 import { Config } from '../config';
 import Token from './types/token';
-import { getAuthenticatedUser } from 'src/auth/logic';
+import { getAuthenticatedUser } from '../auth/logic';
 
 const GetAudibleToken = {
   type: Token,
