@@ -2,6 +2,7 @@ import * as jwt from 'jsonwebtoken';
 import { Config } from '../config';
 import { getUserByPublicKey } from '../algolia/algolia';
 import { verifySourceSignatureOnXDR } from '../stellar';
+import { GraphQLError } from 'graphql';
 
 export const signInWithXDRResolver = async (
   _: any,
@@ -10,7 +11,7 @@ export const signInWithXDRResolver = async (
 ) => {
   const { verified, source } = verifySourceSignatureOnXDR(signedXDR);
   if (!verified) {
-    throw 'Invalid signed XDR';
+    new GraphQLError('Invalid signed XDR');
   }
 
   const user = await getUserByPublicKey(source);

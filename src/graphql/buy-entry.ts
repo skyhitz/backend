@@ -5,6 +5,7 @@ import { accountCredits, buyViaPathPayment } from '../stellar/operations';
 import { decrypt } from '../util/encryption';
 import { getPublicKeyFromTransactionResult } from '../stellar/operations';
 import { getUserByPublicKey } from '../algolia/algolia';
+import { GraphQLError } from 'graphql';
 
 async function customerInfo(user: any) {
   let { availableCredits: credits } = await accountCredits(user.publicKey);
@@ -69,7 +70,7 @@ export const buyEntryResolver = async (_: any, args: any, ctx: any) => {
         }
       }
 
-      throw message;
+      throw new GraphQLError(message);
     }
   }
 

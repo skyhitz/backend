@@ -6,6 +6,7 @@ import {
 } from '../algolia/algolia';
 import { ipfsProtocol } from '../constants/constants';
 import { pinIpfsFile } from '../util/pinata';
+import { GraphQLError } from 'graphql';
 
 type UpdateUserArgs = {
   avatarUrl?: string | null;
@@ -53,10 +54,10 @@ export const updateUserResolver = async (
   );
   if (existingUser) {
     if (existingUser.email === validatedUpdate.email) {
-      throw 'Account with given email already exists';
+      throw new GraphQLError('Account with given email already exists');
     }
     if (existingUser.username === validatedUpdate.username) {
-      throw 'Username is already taken';
+      throw new GraphQLError('Username is already taken');
     }
   }
   if (validatedUpdate.avatarUrl) {
@@ -65,7 +66,7 @@ export const updateUserResolver = async (
       `${user.username}-image`
     );
     if (!result) {
-      throw "Couldn't pin image to pinata!";
+      throw new GraphQLError("Couldn't pin image to pinata!");
     }
     console.log('Pinned image!');
   }

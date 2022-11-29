@@ -1,15 +1,15 @@
+import { GraphQLError } from 'graphql';
 import { getAuthenticatedUser } from '../auth/logic';
 import { accountCredits } from '../stellar/operations';
 
 export const userCreditsResolver = async (_root: any, _args: any, ctx: any) => {
-  let user;
+  const user = await getAuthenticatedUser(ctx);
+
   try {
-    user = await getAuthenticatedUser(ctx);
-  } catch (e) {
-    return 0;
+    const { availableCredits: credits } = await accountCredits(user.publicKey);
+
+    return credits;
+  } catch (_) {
+    throw new GraphQLError('Could not fetch account credits');
   }
-
-  const { availableCredits: credits } = await accountCredits(user.publicKey);
-
-  return credits;
 };

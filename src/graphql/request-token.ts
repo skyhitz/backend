@@ -1,6 +1,7 @@
 import passwordless from '../passwordless/passwordless';
 import { sendLoginEmail } from '../sendgrid/sendgrid';
 import { getUserByEmail, getUserByPublicKey } from '../algolia/algolia';
+import { GraphQLError } from 'graphql';
 
 export const requestTokenResolver = async (
   _: any,
@@ -20,10 +21,10 @@ export const requestTokenResolver = async (
       currentUser = await getUserByEmail(usernameOrEmail);
     }
   } catch (e) {
-    throw errorMessage;
+    throw new GraphQLError(errorMessage);
   }
   if (!currentUser) {
-    throw errorMessage;
+    throw new GraphQLError(errorMessage);
   }
 
   console.log('current user', currentUser);
@@ -38,7 +39,7 @@ export const requestTokenResolver = async (
       '',
       async function (storeError) {
         if (storeError) {
-          throw `Error on the storage layer: ${storeError}`;
+          reject(new GraphQLError(`Error on the storage layer: ${storeError}`));
         } else {
           await sendLoginEmail(currentUser, token);
 

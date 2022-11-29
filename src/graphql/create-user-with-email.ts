@@ -8,6 +8,7 @@ import { getAccount, getConfig } from '../stellar/utils';
 import { verifySourceSignatureOnXDR } from '../stellar';
 import * as jwt from 'jsonwebtoken';
 import { Config } from '../config';
+import { GraphQLError } from 'graphql';
 
 export const createUserWithEmailResolver = async (
   _: any,
@@ -16,10 +17,10 @@ export const createUserWithEmailResolver = async (
 ) => {
   const { displayName, email, username, signedXDR } = args;
   if (!email) {
-    throw `Email can't be an empty string`;
+    throw new GraphQLError(`Email can't be an empty string`);
   }
   if (!username) {
-    throw `Username can't be an empty string`;
+    throw new GraphQLError(`Username can't be an empty string`);
   }
 
   // TODO: Make a proper fix
@@ -30,7 +31,7 @@ export const createUserWithEmailResolver = async (
   if (signedXDR) {
     const { verified, source } = verifySourceSignatureOnXDR(signedXDR);
     if (!verified) {
-      throw 'Invalid signed XDR';
+      throw new GraphQLError('Invalid signed XDR');
     }
     publicKey = source;
   }
@@ -41,13 +42,15 @@ export const createUserWithEmailResolver = async (
     publicKey
   );
   if (res && res.email === email) {
-    throw 'Email already exists, please sign in.';
+    throw new GraphQLError('Email already exists, please sign in.');
   }
   if (res && res.username === usernameLowercase) {
-    throw 'Username is taken.';
+    throw new GraphQLError('Username is taken.');
   }
   if (res && res.publicKey === publicKey) {
-    throw 'Public Key is connected to another account, please sign in.';
+    throw new GraphQLError(
+      'Public Key is connected to another account, please sign in.'
+    );
   }
 
   // check if provided publicKey account exists on stellar
@@ -55,7 +58,7 @@ export const createUserWithEmailResolver = async (
     try {
       await getAccount(publicKey);
     } catch {
-      throw new Error(
+      throw new GraphQLError(
         `Provided public key does not exist on the Stellar ${
           getConfig().network
         } network. It must be created before it can be used to submit transactions.`
@@ -81,40 +84,40 @@ export const createUserWithEmailResolver = async (
     lastPlayedEntry: null,
   };
 
-  // create and sponsor a stellar account for the user if they don't have one yet
-  if (!user.publicKey) {
-    try {
+  try {
+    // create and sponsor a stellar account for the user if they don't have one yet
+    if (!user.publicKey) {
       let { publicAddress, secret } = await createAndFundAccount();
       let seed = encrypt(secret);
       user.publicKey = publicAddress;
       user.seed = seed;
-    } catch (e) {
-      throw e;
     }
-  }
 
-  await saveUser(user);
-  sendWelcomeEmail(user.email);
+    await saveUser(user);
+    sendWelcomeEmail(user.email);
 
-  // if the user already provided signedXDR and it was valid
-  // we can log in him already.
-  // otherwise user has to log in via email.
-  if (signedXDR) {
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        version: user.version,
-      } as any,
-      Config.JWT_SECRET
-    );
-    user.jwt = token;
-    ctx.user = Promise.resolve(user);
-    return {
-      message: 'User created. You logged in successfully.',
-      user,
-    };
-  } else {
-    return { message: 'User created.' };
+    // if the user already provided signedXDR and it was valid
+    // we can log in him already.
+    // otherwise user has to log in via email.
+    if (signedXDR) {
+      const token = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          version: user.version,
+        } as any,
+        Config.JWT_SECRET
+      );
+      user.jwt = token;
+      ctx.user = Promise.resolve(user);
+      return {
+        message: 'User created. You logged in successfully.',
+        user,
+      };
+    } else {
+      return { message: 'User created.' };
+    }
+  } catch (e) {
+    throw new GraphQLError('There was an error during user creation');
   }
 };

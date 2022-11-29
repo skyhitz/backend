@@ -4,6 +4,7 @@ import {
   accountCredits,
   withdrawToExternalAddress,
 } from '../stellar/operations';
+import { GraphQLError } from 'graphql';
 
 /**
  * Withdraws user balance to external address in XLM
@@ -18,7 +19,7 @@ export const withdrawToExternalAddressResolver = async (
   const { seed, publicKey } = user;
 
   if (!seed) {
-    throw 'Withdraw is only available for custodial accounts';
+    throw new GraphQLError('Withdraw is only available for custodial accounts');
   }
 
   try {
@@ -27,7 +28,7 @@ export const withdrawToExternalAddressResolver = async (
     );
 
     if (amount > currentBalance) {
-      throw 'Your account balance is too low.';
+      throw new GraphQLError('Your account balance is too low.');
     }
 
     console.log(
@@ -39,8 +40,8 @@ export const withdrawToExternalAddressResolver = async (
   } catch (e) {
     console.log(`error`, e);
     if (typeof e === 'string') {
-      throw e;
+      throw new GraphQLError(e);
     }
-    throw 'Unexpected error during withdrawal.';
+    throw new GraphQLError('Unexpected error during withdrawal.');
   }
 };

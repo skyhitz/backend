@@ -3,6 +3,7 @@ import { accountCredits, withdrawAndMerge } from '../stellar/operations';
 import { getAuthenticatedUser } from '../auth/logic';
 import { decrypt } from '../util/encryption';
 import { getUserByPublicKey, usersIndex } from '../algolia/algolia';
+import { GraphQLError } from 'graphql';
 
 export const changeWalletResolver = async (
   _: any,
@@ -13,16 +14,16 @@ export const changeWalletResolver = async (
   const { verified, source: newPublicKey } =
     verifySourceSignatureOnXDR(signedXDR);
   if (!verified) {
-    throw 'Invalid signed XDR';
+    throw new GraphQLError('Invalid signed XDR');
   }
 
   if (user.publicKey === newPublicKey) {
-    throw 'User already has this public key';
+    throw new GraphQLError('User already has this public key');
   }
 
   try {
     await getUserByPublicKey(newPublicKey);
-    throw 'User with this public key already exists';
+    throw new GraphQLError('User with this public key already exists');
   } catch (ex) {
     // it means there is no user with such public key
   }
@@ -42,9 +43,11 @@ export const changeWalletResolver = async (
     } catch (e) {
       console.log(`error`, e);
       if (typeof e === 'string') {
-        throw e;
+        throw new GraphQLError(e);
       }
-      throw 'Unexpected error during change wallet procedure.';
+      throw new GraphQLError(
+        'Unexpected error during change wallet procedure.'
+      );
     }
   }
 

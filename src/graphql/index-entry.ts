@@ -9,6 +9,7 @@ import {
   ipfsProtocol,
 } from '../constants/constants';
 import { pinIpfsFile } from '../util/pinata';
+import { GraphQLError } from 'graphql';
 
 export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
   await getAuthenticatedUser(ctx);
@@ -18,7 +19,9 @@ export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
   const currentHomedomain = Config.APP_URL.replace('https://', '');
 
   if (home_domain !== currentHomedomain) {
-    throw "Can't index NFTs from other marketplaces at the moment";
+    throw new GraphQLError(
+      "Can't index NFTs from other marketplaces at the moment"
+    );
   }
 
   const { ipfshash } = data;
@@ -49,7 +52,7 @@ export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
   }
 
   if (response === null) {
-    throw "Couldn't fetch the nft metadata from ipfs";
+    throw new GraphQLError("Couldn't fetch the nft metadata from ipfs");
   }
 
   const {
@@ -71,10 +74,10 @@ export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
     ]);
 
     if (!pinningResults[0] || !pinningResults[1]) {
-      throw "Couldn't pin media to pinata";
+      throw new GraphQLError("Couldn't pin media to pinata");
     }
   } catch (ex) {
-    throw "Couldn't pin media to pinata";
+    throw new GraphQLError("Couldn't pin media to pinata");
   }
 
   console.log('Pinned media to pinata!');
@@ -112,8 +115,8 @@ export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
       await saveEntry(obj);
       return obj;
     } catch (ex) {
-      throw "Couldn't index entry.";
+      throw new GraphQLError("Couldn't index entry.");
     }
   }
-  throw 'Invalid entry metadata';
+  throw new GraphQLError('Invalid entry metadata');
 };

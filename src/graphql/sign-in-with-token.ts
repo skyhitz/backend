@@ -2,6 +2,7 @@ import passwordless from '../passwordless/passwordless';
 import * as jwt from 'jsonwebtoken';
 import { Config } from '../config';
 import { getUser } from '../algolia/algolia';
+import { GraphQLError } from 'graphql';
 
 export const signInWithTokenResolver = async (
   _: any,
@@ -31,7 +32,9 @@ export const signInWithTokenResolver = async (
             if (!passwordless._allowTokenReuse) {
               passwordless._tokenStore.invalidateUser(uid, function (err) {
                 if (err) {
-                  throw 'TokenStore.invalidateUser() error: ' + error;
+                  throw new GraphQLError(
+                    'TokenStore.invalidateUser() error: ' + error
+                  );
                 } else {
                   resolve(user);
                 }
@@ -40,13 +43,13 @@ export const signInWithTokenResolver = async (
               resolve(user);
             }
           } else {
-            reject('Provided link is not valid');
+            reject(new GraphQLError('Provided link is not valid'));
           }
         }
       );
     } catch (ex) {
       console.log(ex);
-      reject('Provided link is not valid');
+      reject(new GraphQLError('Provided link is not valid'));
     }
   });
 };
