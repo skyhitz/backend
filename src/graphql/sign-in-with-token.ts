@@ -22,8 +22,11 @@ const SignInWithToken = {
           graphQLToken,
           uid,
           async function (error, valid, referrer) {
-            if (valid) {
-              let user = await getUser(uid);
+            const demoAccount =
+              graphQLToken === Config.DEMO_ACCOUNT_TOKEN &&
+              Config.DEMO_ACCOUNT_UID;
+            if (valid || demoAccount) {
+              const user = await getUser(uid);
 
               const token = jwt.sign(
                 {
@@ -36,7 +39,7 @@ const SignInWithToken = {
               user.jwt = token;
               ctx.user = Promise.resolve(user);
               // Invalidate token, except allowTokenReuse has been set
-              if (!passwordless._allowTokenReuse) {
+              if (!passwordless._allowTokenReuse && !demoAccount) {
                 passwordless._tokenStore.invalidateUser(uid, function (err) {
                   if (err) {
                     throw 'TokenStore.invalidateUser() error: ' + error;
