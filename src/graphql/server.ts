@@ -67,7 +67,7 @@ const startGraphqlServer = async () => {
   console.log(process.cwd());
   const schematPath = `${process
     .cwd()
-    .replaceAll('/src/graphql', '')}/src/graphql/schema.graphql`;
+    .replace('/src/graphql', '')}/src/graphql/schema.graphql`;
   console.log(schematPath);
   const server = new ApolloServer<MyContext>({
     typeDefs: loadFilesSync(schematPath),
