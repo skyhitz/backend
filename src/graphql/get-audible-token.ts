@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 import { Config } from '../config';
-import { getAuthenticatedUser } from 'src/auth/logic';
+import { getAuthenticatedUser } from '../auth/logic';
 
 export const getAudibleTokenResolver = async (_: any, __: any, ctx: any) => {
   const user = await getAuthenticatedUser(ctx);
