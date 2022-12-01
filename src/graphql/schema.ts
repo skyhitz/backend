@@ -1,3 +1,4 @@
+export const Schema = `
 type Query {
   authenticatedUser: User!
   entryLikes(id: String!): EntryLikes!
@@ -152,3 +153,4 @@ type ConditionalUser {
 type AccountCredits {
   credits: Float!
 }
+`;

@@ -13,8 +13,7 @@ import { resolvers } from './resolvers';
 import cors from 'cors';
 import cache from 'memory-cache';
 import { User } from 'src/util/types';
-import { loadFilesSync } from '@graphql-tools/load-files';
-import { exec } from 'child_process';
+import { Schema } from './schema';
 
 let cacheInstance = new cache.Cache();
 
@@ -65,24 +64,8 @@ passwordless.init(new TokenStore());
 const graphQLServer = express();
 
 const startGraphqlServer = async () => {
-  console.log(process.cwd());
-  exec('ls -la', (error, stdout, stderr) => {
-    if (error) {
-      console.log(`error: ${error.message}`);
-      return;
-    }
-    if (stderr) {
-      console.log(`stderr: ${stderr}`);
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-  });
-  const schematPath = `${process
-    .cwd()
-    .replace('/src/graphql', '')}/src/graphql/schema.graphql`;
-  console.log(schematPath);
   const server = new ApolloServer<MyContext>({
-    typeDefs: loadFilesSync(schematPath),
+    typeDefs: Schema,
     resolvers,
   });
 
