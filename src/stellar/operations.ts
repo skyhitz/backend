@@ -330,10 +330,9 @@ export async function manageSellOffer(
   price: number,
   assetCode: string,
   offerId = 0,
-  destinationSeed
+  destinationSeed: string
 ) {
   const newAsset = new Asset(assetCode, issuer);
-
   // price of 1 unit in terms of buying, 100 will be 100 usd per one share
   const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
     .addOperation(

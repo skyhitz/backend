@@ -27,7 +27,7 @@ const updatePricing = {
     },
   },
   async resolve(_: any, args: any, ctx: any) {
-    let { id, price, equityForSale } = args;
+    let { id, price, equityForSale, forSale } = args;
 
     let user = await getAuthenticatedUser(ctx);
     let entry = await getEntry(id);
@@ -39,8 +39,8 @@ const updatePricing = {
     let transactionResult = await manageSellOffer(
       publicKey,
       issuer,
-      equityForSale,
-      price / equityForSale,
+      forSale ? equityForSale : 0,
+      forSale ? price / equityForSale : 0,
       entry.code,
       typeof offerId === 'string' ? parseInt(offerId) : offerId,
       seed
