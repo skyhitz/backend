@@ -6,7 +6,7 @@ export const likeEntryResolver = async (
   { id, like }: any,
   ctx: any
 ) => {
-  let user = await getAuthenticatedUser(ctx);
+  const user = await getAuthenticatedUser(ctx);
   if (like) {
     return likeMulti(user.id, id);
   }

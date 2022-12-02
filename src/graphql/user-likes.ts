@@ -6,16 +6,5 @@ export const userLikesResolver = async (_: any, _args: any, ctx: any) => {
 
   const entriesArr = await getEntriesLikesWithUserId(user.id);
 
-  return entriesArr.map(
-    ({ imageUrl, videoUrl, description, title, id, artist }) => {
-      return {
-        imageUrl: imageUrl,
-        videoUrl: videoUrl,
-        description: description,
-        title: title,
-        id: id,
-        artist: artist,
-      };
-    }
-  );
+  return entriesArr;
 };
