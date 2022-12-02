@@ -26,6 +26,7 @@ import SetLastPlayedEntry from './set-last-played-entry';
 import SignInWithXDR from './sing-in-with-xdr';
 import ChangeWallet from './change-wallet';
 import GetAudibleToken from './get-audible-token';
+import { createBuyOffer } from './create-buy-offer';
 
 const Query = new GraphQLObjectType({
   name: 'Query',
@@ -54,6 +55,7 @@ const Mutation = new GraphQLObjectType({
       buyEntry: BuyEntry,
       buyCredits: BuyCredits,
       changeWallet: ChangeWallet,
+      createBuyOffer: createBuyOffer,
       createEntry: CreateEntry,
       createUserWithEmail: CreateUserWithEmail,
       indexEntry: IndexEntry,

@@ -173,6 +173,70 @@ export async function openSellOffer(
   return transactionBuilt.toXDR();
 }
 
+export async function openBuyOffer(
+  issuer: string,
+  code: string,
+  publicAddress: string,
+  seed: string,
+  amount: number,
+  price: number
+) {
+  const asset = new Asset(code, issuer);
+  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
+    .addOperation(
+      Operation.beginSponsoringFutureReserves({
+        sponsoredId: publicAddress,
+      })
+    )
+    .addOperation(
+      Operation.changeTrust({
+        asset: asset,
+        source: publicAddress,
+      })
+    )
+    .addOperation(
+      Operation.endSponsoringFutureReserves({
+        source: publicAddress,
+      })
+    )
+    .addOperation(
+      Operation.beginSponsoringFutureReserves({
+        sponsoredId: publicAddress,
+      })
+    )
+    .addOperation(
+      Operation.manageBuyOffer({
+        selling: XLM,
+        buying: asset,
+        buyAmount: amount.toFixed(6),
+        price: price.toFixed(6),
+        offerId: 0,
+      })
+    )
+    .addOperation(
+      Operation.endSponsoringFutureReserves({
+        source: publicAddress,
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  if (seed) {
+    const keys = Keypair.fromSecret(seed);
+    transaction.sign(sourceKeys, keys);
+    const data = await submitTransaction(transaction);
+    const { result_xdr, successful } = data;
+    return { xdr: result_xdr, success: successful, submitted: true };
+  }
+
+  transaction.sign(sourceKeys);
+  return {
+    xdr: transaction.toEnvelope().toXDR('base64'),
+    success: true,
+    submitted: false,
+  };
+}
+
 export async function buyViaPathPayment(
   destinationPublicKey: string,
   amount: number,
@@ -307,7 +371,7 @@ export async function manageBuyOffer(
 }
 
 export async function getOfferId(sellingAccount, assetCode) {
-  let offers = await getOffers(
+  const offers = await getOffers(
     sellingAccount,
     assetCode,
     sourceKeys.publicKey()
