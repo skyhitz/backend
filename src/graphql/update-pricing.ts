@@ -3,6 +3,7 @@ import {
   GraphQLNonNull,
   GraphQLInt,
   GraphQLBoolean,
+  GraphQLFloat
 } from 'graphql';
 import ConditionalXDR from './types/conditional-xdr';
 import { getAuthenticatedUser } from '../auth/logic';
@@ -22,7 +23,7 @@ const updatePricing = {
       type: new GraphQLNonNull(GraphQLBoolean),
     },
     equityForSale: {
-      type: new GraphQLNonNull(GraphQLInt),
+      type: new GraphQLNonNull(GraphQLFloat),
     },
   },
   async resolve(_: any, args: any, ctx: any) {
@@ -30,7 +31,6 @@ const updatePricing = {
 
     let user = await getAuthenticatedUser(ctx);
     let entry = await getEntry(id);
-    console.log(id);
 
     const { publicKey, seed } = user;
     const offerId = await getOfferId(publicKey, entry.code);

@@ -11,6 +11,7 @@ import {
   xdr,
 } from 'skyhitz-stellar-base';
 import { Config } from '../config';
+import { decrypt } from '../util/encryption';
 export const sourceKeys = Keypair.fromSecret(Config.ISSUER_SEED);
 
 const XLM = Asset.native();
@@ -307,14 +308,19 @@ export async function manageBuyOffer(
 }
 
 export async function getOfferId(sellingAccount, assetCode) {
-  let offers = await getOffers(
-    sellingAccount,
-    assetCode,
-    sourceKeys.publicKey()
-  );
 
-  let offer = offers.records[0];
-  return offer.id;
+  try {
+    let offers = await getOffers(
+      sellingAccount,
+      assetCode,
+      sourceKeys.publicKey()
+    );
+    let offer = offers.records[0];
+    return offer.id;
+
+  } catch(ex) {
+    return 0;
+  }
 }
 
 export async function manageSellOffer(
@@ -329,6 +335,22 @@ export async function manageSellOffer(
 
   // price of 1 unit in terms of buying, 100 will be 100 usd per one share
   const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
+    .addOperation(
+      Operation.beginSponsoringFutureReserves({
+        sponsoredId: destinationPublicKey,
+      })
+    )
+    .addOperation(
+      Operation.changeTrust({
+        asset: newAsset,
+        source: destinationPublicKey,
+      })
+    )
+    .addOperation(
+      Operation.endSponsoringFutureReserves({
+        source: destinationPublicKey,
+      })
+    )
     .addOperation(
       Operation.beginSponsoringFutureReserves({
         sponsoredId: destinationPublicKey,
@@ -353,10 +375,10 @@ export async function manageSellOffer(
     .build();
 
   if (destinationSeed) {
-    const destinationKeys = Keypair.fromSecret(destinationSeed);
+    const destinationKeys = Keypair.fromSecret(decrypt(destinationSeed));
     transaction.sign(sourceKeys, destinationKeys);
-    let { status, result_xdr } = await submitTransaction(transaction);
-    return { xdr: result_xdr, success: status === 200, submitted: true };
+    let { status, result_xdr, message } = await submitTransaction(transaction);
+    return { xdr: result_xdr, success: status === 200, submitted: true, message: message };
   }
 
   transaction.sign(sourceKeys);
