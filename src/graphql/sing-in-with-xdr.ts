@@ -21,7 +21,8 @@ export const signInWithXDRResolver = async (
       email: user.email,
       version: user.version,
     } as any,
-    Config.JWT_SECRET
+    Config.JWT_SECRET,
+    { algorithm: 'HS256' }
   );
   user.jwt = token;
   ctx.user = Promise.resolve(user);

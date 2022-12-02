@@ -15,49 +15,55 @@ import cache from 'memory-cache';
 import { User } from '../util/types';
 import { Schema } from './schema';
 
-let cacheInstance = new cache.Cache();
+const cacheInstance = new cache.Cache();
+const graphqlUrl = '/api/graphql';
 
 interface MyContext {
   user?: User;
 }
 
-const buildOptions: any = async (req: any) => {
+const createContext = async ({ req }) => {
   if (req.user) {
     // check cache instance
-    let cachedUser = cacheInstance.get(req.user.id);
+    const cachedUser = cacheInstance.get(req.user.id);
     if (cachedUser) {
       return {
-        context: {
-          user: Promise.resolve(cachedUser),
-        },
+        user: Promise.resolve(cachedUser),
       };
     }
     return {
-      context: {
-        user: getUser(req.user.id)
-          .then((user: any) => {
-            if (!user) return null;
-            if (req.user.version === user.version) {
-              cacheInstance.put(req.user.id, user);
-              return user;
-            }
-            return null;
-          })
-          .catch((err: any) => {
-            console.log(err);
-            return null;
-          }),
-      },
+      user: getUser(req.user.id)
+        .then((user: any) => {
+          if (!user) return null;
+          if (req.user.version === user.version) {
+            cacheInstance.put(req.user.id, user);
+            return user;
+          }
+          return null;
+        })
+        .catch((err: any) => {
+          console.log(err);
+          return null;
+        }),
     };
   }
   return {
-    context: {
-      user: Promise.resolve(null),
-    },
+    user: Promise.resolve(null),
   };
 };
 
-const graphqlUrl = '/api/graphql';
+const checkPath = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+): void => {
+  const match = req.originalUrl.startsWith(graphqlUrl);
+  if (!match) {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+};
 
 passwordless.init(new TokenStore());
 
@@ -81,26 +87,19 @@ const startGraphqlServer = async () => {
 
   graphQLServer.use(
     graphqlUrl,
-    (
-      req: express.Request,
-      res: express.Response,
-      next: express.NextFunction
-    ): void => {
-      const match = req.originalUrl.startsWith(graphqlUrl);
-      if (!match) {
-        next();
-      } else {
-        express.json()(req, res, next);
-      }
-    },
+    checkPath,
+    cors({
+      origin: '*',
+    }),
     compression(),
     jwt({
-      algorithms: ['RS256'],
+      algorithms: ['HS256'],
       secret: Config.JWT_SECRET,
       credentialsRequired: false,
+      requestProperty: 'user',
     }),
     express.urlencoded({ extended: false }),
-    expressMiddleware(server, buildOptions)
+    expressMiddleware(server, { context: createContext })
   );
 
   assets(graphQLServer);
