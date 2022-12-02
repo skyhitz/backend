@@ -12,7 +12,7 @@ import { ApolloServer } from '@apollo/server';
 import { resolvers } from './resolvers';
 import cors from 'cors';
 import cache from 'memory-cache';
-import { User } from 'src/util/types';
+import { User } from '../util/types';
 import { Schema } from './schema';
 
 let cacheInstance = new cache.Cache();

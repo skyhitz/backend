@@ -6,8 +6,8 @@ import { decrypt } from '../util/encryption';
 import { getPublicKeyFromTransactionResult } from '../stellar/operations';
 import { getUserByPublicKey } from '../algolia/algolia';
 import { GraphQLError } from 'graphql';
-import { Config } from 'src/config';
-import { deleteCache } from 'src/util/axios-cache';
+import { Config } from '../config';
+import { deleteCache } from '../util/axios-cache';
 
 async function customerInfo(user: any) {
   let { availableCredits: credits } = await accountCredits(user.publicKey);
