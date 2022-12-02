@@ -58,5 +58,5 @@ export const changeWalletResolver = async (
     seed: '',
   };
   await usersIndex.partialUpdateObject(userUpdate);
-  return userUpdate;
+  return { ...userUpdate, managed: userUpdate.seed !== '' };
 };

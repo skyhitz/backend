@@ -112,7 +112,7 @@ export const createUserWithEmailResolver = async (
       ctx.user = Promise.resolve(user);
       return {
         message: 'User created. You logged in successfully.',
-        user,
+        user: { ...user, managed: user.seed !== '' },
       };
     } else {
       return { message: 'User created.' };

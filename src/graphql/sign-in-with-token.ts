@@ -25,7 +25,7 @@ export const signInWithTokenResolver = async (
     );
     user.jwt = token;
     ctx.user = Promise.resolve(user);
-    return user;
+    return { ...user, managed: user.seed !== '' };
   }
   return new Promise(async (resolve, reject) => {
     try {
@@ -54,11 +54,11 @@ export const signInWithTokenResolver = async (
                     'TokenStore.invalidateUser() error: ' + error
                   );
                 } else {
-                  resolve(user);
+                  resolve({ ...user, managed: user.seed !== '' });
                 }
               });
             } else {
-              resolve(user);
+              resolve({ ...user, managed: user.seed !== '' });
             }
           } else {
             reject(new GraphQLError('Provided link is not valid'));

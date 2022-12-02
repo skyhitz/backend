@@ -26,5 +26,5 @@ export const signInWithXDRResolver = async (
   user.jwt = token;
   ctx.user = Promise.resolve(user);
 
-  return user;
+  return { ...user, managed: user.seed !== '' };
 };

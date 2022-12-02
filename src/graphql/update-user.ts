@@ -75,5 +75,5 @@ export const updateUserResolver = async (
     ...validatedUpdate,
   };
   await usersIndex.partialUpdateObject(userUpdate);
-  return userUpdate;
+  return { ...userUpdate, managed: userUpdate.seed !== '' };
 };
