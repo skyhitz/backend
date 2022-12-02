@@ -5,7 +5,7 @@ type Query {
   entryPrice(id: String!): EntryPrice!
   entry(id: String!): EntryDetails!
   userCredits: Float!
-  userEntries: [Entry!]!
+  userEntries(userId: String!): [Entry!]!
   userLikes: [Entry!]!
   xlmPrice: String!
   getIssuer(cid: String!): String!
@@ -48,7 +48,7 @@ type Mutation {
     forSale: Boolean!
     equityForSale: Int!
   ): ConditionalXDR!
-  withdrawToExternalWallet(address: String!, type: Int!): Boolean!
+  withdrawToExternalWallet(address: String!, amount: Int!): Boolean!
   setLastPlayedEntry(entryId: String!): Boolean!
 }
 
@@ -63,7 +63,7 @@ type User {
   jwt: String
   description: String
   publicKey: String!
-  lastPlayedEntry: Entry!
+  lastPlayedEntry: Entry
   managed: Boolean!
 }
 
