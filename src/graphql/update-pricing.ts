@@ -34,9 +34,11 @@ const updatePricing = {
 
     const { publicKey, seed } = user;
     const offerId = await getOfferId(publicKey, entry.code);
+    const { issuer } = await getEntry(id);
 
     let transactionResult = await manageSellOffer(
       publicKey,
+      issuer,
       equityForSale,
       price / equityForSale,
       entry.code,

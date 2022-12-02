@@ -325,32 +325,17 @@ export async function getOfferId(sellingAccount, assetCode) {
 
 export async function manageSellOffer(
   destinationPublicKey: string,
+  issuer: string,
   amount: number,
   price: number,
   assetCode: string,
   offerId = 0,
   destinationSeed
 ) {
-  const newAsset = new Asset(assetCode, sourceKeys.publicKey());
+  const newAsset = new Asset(assetCode, issuer);
 
   // price of 1 unit in terms of buying, 100 will be 100 usd per one share
   const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
-    .addOperation(
-      Operation.beginSponsoringFutureReserves({
-        sponsoredId: destinationPublicKey,
-      })
-    )
-    .addOperation(
-      Operation.changeTrust({
-        asset: newAsset,
-        source: destinationPublicKey,
-      })
-    )
-    .addOperation(
-      Operation.endSponsoringFutureReserves({
-        source: destinationPublicKey,
-      })
-    )
     .addOperation(
       Operation.beginSponsoringFutureReserves({
         sponsoredId: destinationPublicKey,
@@ -377,8 +362,8 @@ export async function manageSellOffer(
   if (destinationSeed) {
     const destinationKeys = Keypair.fromSecret(decrypt(destinationSeed));
     transaction.sign(sourceKeys, destinationKeys);
-    let { status, result_xdr, message } = await submitTransaction(transaction);
-    return { xdr: result_xdr, success: status === 200, submitted: true, message: message };
+    let { successful, result_xdr } = await submitTransaction(transaction);
+    return { xdr: result_xdr, success: successful, submitted: true};
   }
 
   transaction.sign(sourceKeys);
