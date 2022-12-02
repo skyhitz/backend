@@ -1,67 +1,81 @@
 import express from 'express';
-import { Schema } from './schema';
 import { Config } from '../config';
-import jwt from 'express-jwt';
-import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
+import { expressjwt as jwt } from 'express-jwt';
+import { expressMiddleware } from '@apollo/server/express4';
 const compression = require('compression');
 import { TokenStore } from '../passwordless/store';
 import passwordless from '../passwordless/passwordless';
-import { stripeWebhook } from '../webhooks';
 import { getUser } from '../algolia/algolia';
 import { assets } from '../assets/assets';
 import { intiliazeCronJobs } from '../util/cron';
+import { ApolloServer } from '@apollo/server';
+import { resolvers } from './resolvers';
+import cors from 'cors';
+import cache from 'memory-cache';
+import { User } from '../util/types';
+import { Schema } from './schema';
 
-let cors = require('cors');
-const cache = require('memory-cache');
-let cacheInstance = new cache.Cache();
+const cacheInstance = new cache.Cache();
+const graphqlUrl = '/api/graphql';
 
-const buildOptions: any = async (req: any) => {
+interface MyContext {
+  user?: User;
+}
+
+const createContext = async ({ req }) => {
   if (req.user) {
     // check cache instance
-    let cachedUser = cacheInstance.get(req.user.id);
+    const cachedUser = cacheInstance.get(req.user.id);
     if (cachedUser) {
       return {
-        schema: Schema,
-        context: {
-          user: Promise.resolve(cachedUser),
-        },
+        user: Promise.resolve(cachedUser),
       };
     }
     return {
-      schema: Schema,
-      context: {
-        user: getUser(req.user.id)
-          .then((user: any) => {
-            if (!user) return null;
-            if (req.user.version === user.version) {
-              cacheInstance.put(req.user.id, user);
-              return user;
-            }
-            return null;
-          })
-          .catch((err: any) => {
-            console.log(err);
-            return null;
-          }),
-      },
+      user: getUser(req.user.id)
+        .then((user: any) => {
+          if (!user) return null;
+          if (req.user.version === user.version) {
+            cacheInstance.put(req.user.id, user);
+            return user;
+          }
+          return null;
+        })
+        .catch((err: any) => {
+          console.log(err);
+          return null;
+        }),
     };
   }
   return {
-    schema: Schema,
-    context: {
-      user: Promise.resolve(null),
-    },
+    user: Promise.resolve(null),
   };
 };
 
-const graphiqlUrl = '/api/graphiql';
-const graphqlUrl = '/api/graphql';
-const graphEndpoints = [graphiqlUrl, graphqlUrl];
+const checkPath = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+): void => {
+  const match = req.originalUrl.startsWith(graphqlUrl);
+  if (!match) {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+};
 
 passwordless.init(new TokenStore());
 
-const setupGraphQLServer = () => {
-  const graphQLServer = express();
+const graphQLServer = express();
+
+const startGraphqlServer = async () => {
+  const server = new ApolloServer<MyContext>({
+    typeDefs: Schema,
+    resolvers,
+  });
+
+  await server.start();
 
   intiliazeCronJobs();
 
@@ -73,37 +87,29 @@ const setupGraphQLServer = () => {
 
   graphQLServer.use(
     graphqlUrl,
-    (
-      req: express.Request,
-      res: express.Response,
-      next: express.NextFunction
-    ): void => {
-      const match = graphEndpoints.find((endpoint) =>
-        req.originalUrl.startsWith(endpoint)
-      );
-      if (!match) {
-        next();
-      } else {
-        express.json()(req, res, next);
-      }
-    },
+    checkPath,
+    cors({
+      origin: '*',
+    }),
     compression(),
     jwt({
+      algorithms: ['HS256'],
       secret: Config.JWT_SECRET,
       credentialsRequired: false,
+      requestProperty: 'user',
     }),
     express.urlencoded({ extended: false }),
-    graphqlExpress(buildOptions)
+    expressMiddleware(server, { context: createContext })
   );
 
-  stripeWebhook(graphQLServer);
   assets(graphQLServer);
 
-  graphQLServer.use(graphiqlUrl, graphiqlExpress({ endpointURL: graphqlUrl }));
   return graphQLServer;
 };
 
-export const graphQLServer = setupGraphQLServer();
+startGraphqlServer();
+
+export default graphQLServer;
 
 if (Config.ENV === 'development') {
   graphQLServer.listen(4000);
