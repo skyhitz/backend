@@ -8,4 +8,9 @@ export const AxiosCacheStellarClient = setup({
       query: false,
     },
   },
-});
+}) as any;
+
+export const deleteCache = (excludeKeys: string[]) => {
+  const filteredPairs = Object.entries(AxiosCacheStellarClient.cache.store).filter(([ key ]) => !excludeKeys.includes(key));
+  AxiosCacheStellarClient.cache.store = Object.fromEntries(filteredPairs);
+}

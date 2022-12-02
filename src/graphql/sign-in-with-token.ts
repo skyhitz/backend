@@ -9,6 +9,24 @@ export const signInWithTokenResolver = async (
   { token: graphQLToken, uid }: any,
   ctx: any
 ) => {
+  if (
+    graphQLToken === Config.DEMO_ACCOUNT_TOKEN &&
+    uid === Config.DEMO_ACCOUNT_UID
+  ) {
+    const user = await getUser(uid);
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        version: user.version,
+      } as any,
+      Config.JWT_SECRET
+    );
+    user.jwt = token;
+    ctx.user = Promise.resolve(user);
+    return user;
+  }
   return new Promise(async (resolve, reject) => {
     try {
       await passwordless._tokenStore.authenticate(

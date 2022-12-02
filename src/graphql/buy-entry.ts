@@ -6,6 +6,8 @@ import { decrypt } from '../util/encryption';
 import { getPublicKeyFromTransactionResult } from '../stellar/operations';
 import { getUserByPublicKey } from '../algolia/algolia';
 import { GraphQLError } from 'graphql';
+import { Config } from 'src/config';
+import { deleteCache } from 'src/util/axios-cache';
 
 async function customerInfo(user: any) {
   let { availableCredits: credits } = await accountCredits(user.publicKey);
@@ -45,6 +47,8 @@ export const buyEntryResolver = async (_: any, args: any, ctx: any) => {
           await sendNftSoldEmail(seller.email);
         }
 
+        deleteEntryCache(code, issuer);
+
         return result;
       } else {
         const result = await buyViaPathPayment(
@@ -54,6 +58,8 @@ export const buyEntryResolver = async (_: any, args: any, ctx: any) => {
           code,
           issuer
         );
+        deleteEntryCache(code, issuer);
+
         return result;
       }
     } catch (ex) {
@@ -75,4 +81,17 @@ export const buyEntryResolver = async (_: any, args: any, ctx: any) => {
   }
 
   return { xdr: '', success: false, submitted: false };
+};
+
+const deleteEntryCache = (code: string, issuer: string) => {
+  const assetId = `${code}-${issuer}`;
+  const baseURL = 'https://api.stellar.expert/explorer/';
+
+  const urls = [
+    `${baseURL}${Config.STELLAR_NETWORK}/asset/${assetId}/history/all?limit=100`,
+    `${baseURL}${Config.STELLAR_NETWORK}/asset/${assetId}/holders?limit=100`,
+    `${baseURL}${Config.STELLAR_NETWORK}/asset/${assetId}/history/offers?limit=100&order=desc`,
+  ];
+
+  deleteCache(urls);
 };
