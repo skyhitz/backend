@@ -54,11 +54,10 @@ export async function getAccountData(publicKey) {
   return account;
 }
 
-export async function getOffers(seller, sellingAsset, sellingIssuer) {
-  const encodedSelling = encodeURIComponent(`${sellingAsset}:${sellingIssuer}`);
+export async function getOffers(seller, sellingAsset) {
   let account = await axios
     .get(
-      `${Config.HORIZON_URL}/offers/selling=${encodedSelling}&seller=${seller}`
+      `${Config.HORIZON_URL}/offers/?selling_asset_issuer=${seller}&selling_asset_type=credit_alphanum12&selling_asset_code=${sellingAsset}`
     )
     .then(({ data }) => data);
   return account;
@@ -312,10 +311,9 @@ export async function getOfferId(sellingAccount, assetCode) {
   try {
     let offers = await getOffers(
       sellingAccount,
-      assetCode,
-      sourceKeys.publicKey()
+      assetCode
     );
-    let offer = offers.records[0];
+    let offer = offers._embedded.records[0];
     return offer.id;
 
   } catch(ex) {
@@ -333,6 +331,7 @@ export async function manageSellOffer(
   destinationSeed: string
 ) {
   const newAsset = new Asset(assetCode, issuer);
+
   // price of 1 unit in terms of buying, 100 will be 100 usd per one share
   const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
     .addOperation(
