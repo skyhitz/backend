@@ -36,11 +36,13 @@ const updatePricing = {
     const offerId = await getOfferId(publicKey, entry.code);
     const { issuer } = await getEntry(id);
 
+    if (!forSale && offerId == 0) return {xdr: '', success: false, submitted: false};
+
     let transactionResult = await manageSellOffer(
       publicKey,
       issuer,
       forSale ? equityForSale : 0,
-      forSale ? price / equityForSale : 0,
+      forSale ? price / equityForSale : 1,
       entry.code,
       typeof offerId === 'string' ? parseInt(offerId) : offerId,
       seed
