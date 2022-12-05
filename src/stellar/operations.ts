@@ -54,10 +54,11 @@ export async function getAccountData(publicKey) {
   return account;
 }
 
-export async function getOffers(seller, sellingAsset) {
+export async function getOffers(seller, assetCode, assetIssuer) {
+  console.log(`${Config.HORIZON_URL}/offers/?seller=${seller}&selling_asset_issuer=${assetIssuer}&selling_asset_type=credit_alphanum12&selling_asset_code=${assetCode}`);
   let account = await axios
     .get(
-      `${Config.HORIZON_URL}/offers/?selling_asset_issuer=${seller}&selling_asset_type=credit_alphanum12&selling_asset_code=${sellingAsset}`
+      `${Config.HORIZON_URL}/offers/?seller=${seller}&selling_asset_issuer=${assetIssuer}&selling_asset_type=credit_alphanum12&selling_asset_code=${assetCode}`
     )
     .then(({ data }) => data);
   return account;
@@ -306,12 +307,13 @@ export async function manageBuyOffer(
   return transactionResult;
 }
 
-export async function getOfferId(sellingAccount, assetCode) {
+export async function getOfferId(sellingAccount, assetCode, assetIssuer) {
 
   try {
     let offers = await getOffers(
       sellingAccount,
-      assetCode
+      assetCode,
+      assetIssuer,
     );
     let offer = offers._embedded.records[0];
     return offer.id;

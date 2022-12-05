@@ -27,20 +27,20 @@ const updatePricing = {
     },
   },
   async resolve(_: any, args: any, ctx: any) {
-    let { id, price, equityForSale, forSale } = args;
+    const { id, price, equityForSale, forSale } = args;
 
-    let user = await getAuthenticatedUser(ctx);
-    let entry = await getEntry(id);
+    const user = await getAuthenticatedUser(ctx);
+    const entry = await getEntry(id);
 
     const { publicKey, seed } = user;
-    const offerId = await getOfferId(publicKey, entry.code);
-    const { issuer } = await getEntry(id);
+    const offerId = await getOfferId(publicKey, entry.code, entry.issuer);
 
-    if (!forSale && offerId == 0) return {xdr: '', success: false, submitted: false};
+    // handle case when user try to cancel offer but doesn't have one
+    if (!forSale && offerId == 0) return {xdr: '', success: false, submitted: true};
 
     let transactionResult = await manageSellOffer(
       publicKey,
-      issuer,
+      entry.issuer,
       forSale ? equityForSale : 0,
       forSale ? price / equityForSale : 1,
       entry.code,
