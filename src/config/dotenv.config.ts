@@ -21,7 +21,7 @@ function cleanupDotenvDefinedVars(cwd: any, encoding: any) {
   // specifying an encoding returns a string instead of a buffer
   const variables = dotenv.parse(fs.readFileSync(dotenvPath, { encoding }));
 
-  Object.keys(variables).forEach(key => {
+  Object.keys(variables).forEach((key) => {
     if (process.env[key] === variables[key]) {
       delete process.env[key];
     }
@@ -53,7 +53,7 @@ function getDotenvFilenames(cwd: any) {
 
   filenames.push(`${cwd}/.env`);
 
-  return filenames.filter(file => fs.existsSync(file));
+  return filenames.filter((file) => fs.existsSync(file));
 }
 
 /**
@@ -78,7 +78,7 @@ export function config(options: any = {}) {
   return getDotenvFilenames(cwd).reduce(
     (variables, filePath) => ({
       ...dotenv.config({ filePath, encoding }),
-      ...variables
+      ...variables,
     }),
     {}
   );
