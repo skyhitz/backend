@@ -1,80 +1,161 @@
-import { GraphQLSchema, GraphQLObjectType } from 'graphql';
-import RequestToken from './request-token';
-import SignInWithToken from './sign-in-with-token';
-import PaymentsInfo from './payments-info';
-import UserLikes from './user-likes';
-import EntryLikes from './entry-likes';
-import AuthenticatedUser from './authenticated-user';
-import { EntryById } from './entry';
-import { UserEntries } from './user-entries';
-import LikeEntry from './like-entry';
-import CreateUserWithEmail from './create-user-with-email';
-import BuyCredits from './buy-credits';
-import BuyEntry from './buy-entry';
-import SubscribeUser from './subscribe-user';
-import CancelSubscription from './cancel-subscription';
-import CreateEntry from './create-entry';
-import IndexEntry from './index-entry';
-import UpdateUser from './update-user';
-import RemoveEntry from './remove-entry';
-import WithdrawToExternalWallet from './withdraw-to-external-wallet';
-import UpdatePricing from './update-pricing';
-import EntryPrice from './get-entry-price';
-import XLMPrice from './xlm-price';
-import GetIssuer from './get-issuer';
-import SetLastPlayedEntry from './set-last-played-entry';
-import SignInWithXDR from './sing-in-with-xdr';
-import ChangeWallet from './change-wallet';
-import GetAudibleToken from './get-audible-token';
-import { createBuyOffer } from './create-buy-offer';
+export const Schema = `
+type Query {
+  authenticatedUser: User!
+  entryLikes(id: String!): EntryLikes!
+  entryPrice(id: String!): EntryPrice!
+  entry(id: String!): EntryDetails!
+  userCredits: Float!
+  userEntries(userId: String!): [Entry!]!
+  userLikes: [Entry!]!
+  xlmPrice: String!
+  getIssuer(cid: String!): String!
+  getAudibleToken: Token!
+}
 
-const Query = new GraphQLObjectType({
-  name: 'Query',
-  description: 'Get users or entries',
-  fields: () => {
-    return {
-      authenticatedUser: AuthenticatedUser,
-      entryLikes: EntryLikes,
-      entryPrice: EntryPrice,
-      entry: EntryById,
-      paymentsInfo: PaymentsInfo,
-      userEntries: UserEntries,
-      userLikes: UserLikes,
-      xlmPrice: XLMPrice,
-      getIssuer: GetIssuer,
-      getAudibleToken: GetAudibleToken,
-    };
-  },
-});
+type Mutation {
+  buyEntry(id: String!, amount: Float!, price: Float!): ConditionalXDR!
+  changeWallet(signedXDR: String!): User!
+  creteBuyOffer(
+    id: String!
+    price: Int!
+    equityToBuy: Float!
+  ): ConditionalXDR!,
+  createEntry(
+    fileCid: String!
+    metaCid: String!
+    code: String!
+    forSale: Boolean!
+    price: Int!
+    equityForSale: Float!
+  ): ConditionalXDR!
+  createUserWithEmail(
+    displayName: String!
+    email: String!
+    username: String!
+    signedXDR: String
+  ): ConditionalUser!
+  indexEntry(issuer: String!): Entry!
+  requestToken(usernameOrEmail: String!): Boolean!
+  signInWithToken(token: String!, uid: String!): User!
+  signInWithXDR(signedXDR: String!): User!
+  likeEntry(id: String!, like: Boolean!): Boolean!
+  removeEntry(id: String!): Boolean!
+  updateUser(
+    avatarUrl: String
+    displayName: String
+    description: String
+    username: String
+    email: String
+  ): User!
+  updatePricing(
+    id: String!
+    price: Int!
+    forSale: Boolean!
+    equityForSale: Int!
+  ): ConditionalXDR!
+  withdrawToExternalWallet(address: String!, amount: Int!): Boolean!
+  setLastPlayedEntry(entryId: String!): Boolean!
+}
 
-const Mutation = new GraphQLObjectType({
-  name: 'Mutation',
-  description: 'Create users or entries',
-  fields() {
-    return {
-      buyEntry: BuyEntry,
-      buyCredits: BuyCredits,
-      changeWallet: ChangeWallet,
-      createBuyOffer: createBuyOffer,
-      createEntry: CreateEntry,
-      createUserWithEmail: CreateUserWithEmail,
-      indexEntry: IndexEntry,
-      requestToken: RequestToken,
-      signInWithToken: SignInWithToken,
-      signInWithXDR: SignInWithXDR,
-      likeEntry: LikeEntry,
-      removeEntry: RemoveEntry,
-      cancelSubscription: CancelSubscription,
-      subscribeUser: SubscribeUser,
-      updateUser: UpdateUser,
-      updatePricing: UpdatePricing,
-      withdrawToExternalWallet: WithdrawToExternalWallet,
-      setLastPlayedEntry: SetLastPlayedEntry,
-    };
-  },
-});
+type User {
+  avatarUrl: String!
+  displayName: String
+  email: String!
+  username: String!
+  id: String!
+  publishedAt: String
+  version: Int
+  jwt: String
+  description: String
+  publicKey: String!
+  lastPlayedEntry: Entry
+  managed: Boolean!
+}
 
-export const Schema = new GraphQLSchema({
-  query: Query,
-  mutation: Mutation,
-});
+type Entry {
+  imageUrl: String!
+  videoUrl: String!
+  description: String
+  title: String!
+  id: String!
+  artist: String!
+  code: String!
+  issuer: String!
+}
+
+type EntryLikes {
+  count: Int!
+  users: [PublicUser]
+}
+
+type PublicUser {
+  avatarUrl: String!
+  displayName: String
+  username: String!
+  id: String!
+  description: String
+}
+
+type EntryPrice {
+  price: String!
+  amount: String!
+}
+
+type EntryDetails {
+  imageUrl: String!
+  videoUrl: String!
+  description: String
+  title: String!
+  id: String!
+  artist: String!
+  code: String!
+  issuer: String!
+  holders: [EntryHolder!]
+  history: [EntryActivity!]
+  offers: [EntryActivity!]
+}
+
+type EntryHolder {
+  account: String!
+  balance: String!
+}
+
+type EntryActivity {
+  id: String!
+  type: Int!
+  ts: Int!
+  accounts: [String]
+  assets: [String]
+  tx: String!
+  offer: String
+  createdOffer: String
+  amount: String
+  sourceAmount: String
+  price: ActivityPrice
+}
+
+type ActivityPrice {
+  n: Int!
+  d: Int!
+}
+
+type Token {
+  token: String!
+}
+
+type ConditionalXDR {
+  xdr: String
+  success: Boolean!
+  submitted: Boolean!
+  message: String
+}
+
+type ConditionalUser {
+  user: User
+  message: String!
+}
+
+type AccountCredits {
+  credits: Float!
+}
+`;

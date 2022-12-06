@@ -175,8 +175,8 @@ export async function saveUser(user) {
 }
 
 export async function likeMulti(userId, entryId) {
-  let { likeCount } = await getEntry(entryId);
-  let likeCountNumber = likeCount ? likeCount + 1 : 1;
+  const { likeCount } = await getEntry(entryId);
+  const likeCountNumber = likeCount ? likeCount + 1 : 1;
   console.log('like count:', likeCount);
 
   try {
