@@ -6,8 +6,6 @@ import { decrypt } from '../util/encryption';
 export const createBuyOffer = async (_: any, args: any, ctx: any) => {
   const { id, price, equityToBuy } = args;
 
-  console.log('received');
-
   const [user, entry] = await Promise.all([
     getAuthenticatedUser(ctx),
     getEntry(id),

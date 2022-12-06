@@ -210,6 +210,7 @@ export async function openBuyOffer(
         buying: asset,
         buyAmount: amount.toFixed(6),
         price: price.toFixed(6),
+        source: publicAddress,
         offerId: 0,
       })
     )
@@ -312,62 +313,6 @@ export async function signAndSubmitXDR(xdr: string, seed: string) {
   transaction.sign(keys);
   const { result_xdr, successful } = await submitTransaction(transaction);
   return { xdr: result_xdr, success: successful, submitted: true };
-}
-
-export async function manageBuyOffer(
-  destinationSeed: string,
-  amount: number,
-  price: number,
-  assetCode: string,
-  issuer: string
-) {
-  const destinationKeys = Keypair.fromSecret(destinationSeed);
-  const newAsset = new Asset(assetCode, issuer);
-
-  // price of 1 unit in terms of buying, 100 will be 100 usd per one share
-  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
-    .addOperation(
-      Operation.beginSponsoringFutureReserves({
-        sponsoredId: destinationKeys.publicKey(),
-      })
-    )
-    .addOperation(
-      Operation.changeTrust({
-        asset: newAsset,
-        source: destinationKeys.publicKey(),
-      })
-    )
-    .addOperation(
-      Operation.endSponsoringFutureReserves({
-        source: destinationKeys.publicKey(),
-      })
-    )
-    .addOperation(
-      Operation.beginSponsoringFutureReserves({
-        sponsoredId: destinationKeys.publicKey(),
-      })
-    )
-    .addOperation(
-      Operation.manageBuyOffer({
-        selling: XLM,
-        buying: newAsset,
-        buyAmount: amount.toString(),
-        price: price.toString(),
-        source: destinationKeys.publicKey(),
-        offerId: 0,
-      })
-    )
-    .addOperation(
-      Operation.endSponsoringFutureReserves({
-        source: destinationKeys.publicKey(),
-      })
-    )
-    .setTimeout(0)
-    .build();
-
-  transaction.sign(sourceKeys, destinationKeys);
-  let transactionResult = await submitTransaction(transaction);
-  return transactionResult;
 }
 
 export async function getOfferId(sellingAccount, assetCode) {

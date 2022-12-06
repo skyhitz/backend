@@ -15,7 +15,7 @@ type Query {
 type Mutation {
   buyEntry(id: String!, amount: Float!, price: Float!): ConditionalXDR!
   changeWallet(signedXDR: String!): User!
-  creteBuyOffer(
+  createBuyOffer(
     id: String!
     price: Int!
     equityToBuy: Float!
