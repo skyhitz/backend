@@ -14,7 +14,8 @@ export default class UniqueIdGenerator {
   private static lastPushTime = 0;
 
   // Modeled after base64 web-safe chars, but ordered by ASCII.
-  private static PUSH_CHARS = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
+  private static PUSH_CHARS =
+    '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
 
   // We generate 72-bits of randomness which get turned into 12 characters and appended to the
   // timestamp to prevent collisions with other clients.  We store the last characters we

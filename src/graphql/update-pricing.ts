@@ -1,36 +1,15 @@
-import {
-  GraphQLString,
-  GraphQLNonNull,
-  GraphQLInt,
-  GraphQLBoolean,
-  GraphQLFloat
-} from 'graphql';
-import ConditionalXDR from './types/conditional-xdr';
 import { getAuthenticatedUser } from '../auth/logic';
 import { getEntry } from '../algolia/algolia';
 import { manageSellOffer, getOfferId } from '../stellar/operations';
+import { GraphQLError } from 'graphql';
 
-const updatePricing = {
-  type: ConditionalXDR,
-  args: {
-    id: {
-      type: new GraphQLNonNull(GraphQLString),
-    },
-    price: {
-      type: new GraphQLNonNull(GraphQLInt),
-    },
-    forSale: {
-      type: new GraphQLNonNull(GraphQLBoolean),
-    },
-    equityForSale: {
-      type: new GraphQLNonNull(GraphQLFloat),
-    },
-  },
-  async resolve(_: any, args: any, ctx: any) {
-    const { id, price, equityForSale, forSale } = args;
+export const updatePricingResolver = async (_: any, args: any, ctx: any) => {
+  const { id, price, equityForSale, forSale } = args;
 
+  try {
     const user = await getAuthenticatedUser(ctx);
     const entry = await getEntry(id);
+    console.log(id);
 
     const { publicKey, seed } = user;
     const offerId = await getOfferId(publicKey, entry.code, entry.issuer);
@@ -48,7 +27,7 @@ const updatePricing = {
       seed
     );
     return transactionResult;
-  },
+  } catch (_) {
+    throw new GraphQLError('Could not update pricing');
+  }
 };
-
-export default updatePricing;
