@@ -63,6 +63,13 @@ export async function getOffers(seller, sellingAsset, sellingIssuer) {
   return account;
 }
 
+export async function getOffer(offerId) {
+  const offer = await axios
+    .get(`${Config.HORIZON_URL}/offers/${offerId}`)
+    .then(({ data }) => data);
+  return offer;
+}
+
 export async function getOrderbook(
   sellingAssetCode: string,
   sellingIssuer: string
@@ -173,6 +180,119 @@ export async function openSellOffer(
   return transactionBuilt.toXDR();
 }
 
+export async function openBuyOffer(
+  issuer: string,
+  code: string,
+  publicAddress: string,
+  seed: string,
+  amount: number,
+  price: number
+) {
+  const asset = new Asset(code, issuer);
+  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
+    .addOperation(
+      Operation.beginSponsoringFutureReserves({
+        sponsoredId: publicAddress,
+      })
+    )
+    .addOperation(
+      Operation.changeTrust({
+        asset: asset,
+        source: publicAddress,
+      })
+    )
+    .addOperation(
+      Operation.endSponsoringFutureReserves({
+        source: publicAddress,
+      })
+    )
+    .addOperation(
+      Operation.beginSponsoringFutureReserves({
+        sponsoredId: publicAddress,
+      })
+    )
+    .addOperation(
+      Operation.manageBuyOffer({
+        selling: XLM,
+        buying: asset,
+        buyAmount: amount.toFixed(6),
+        price: price.toFixed(6),
+        source: publicAddress,
+        offerId: 0,
+      })
+    )
+    .addOperation(
+      Operation.endSponsoringFutureReserves({
+        source: publicAddress,
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  if (seed) {
+    const keys = Keypair.fromSecret(seed);
+    transaction.sign(sourceKeys, keys);
+    const data = await submitTransaction(transaction);
+    const { result_xdr, successful } = data;
+    return { xdr: result_xdr, success: successful, submitted: true };
+  }
+
+  transaction.sign(sourceKeys);
+  return {
+    xdr: transaction.toEnvelope().toXDR('base64'),
+    success: true,
+    submitted: false,
+  };
+}
+
+export async function cancelBuyOffer(
+  issuer: string,
+  code: string,
+  publicAddress: string,
+  seed: string,
+  offerId: string
+) {
+  const asset = new Asset(code, issuer);
+  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
+    .addOperation(
+      Operation.beginSponsoringFutureReserves({
+        sponsoredId: publicAddress,
+      })
+    )
+    .addOperation(
+      Operation.manageBuyOffer({
+        selling: XLM,
+        buying: asset,
+        buyAmount: '0',
+        price: '1',
+        source: publicAddress,
+        offerId: offerId,
+      })
+    )
+    .addOperation(
+      Operation.endSponsoringFutureReserves({
+        source: publicAddress,
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  if (seed) {
+    const keys = Keypair.fromSecret(seed);
+    transaction.sign(sourceKeys, keys);
+    const data = await submitTransaction(transaction);
+    const { result_xdr, successful } = data;
+    return { xdr: result_xdr, success: successful, submitted: true };
+  }
+
+  transaction.sign(sourceKeys);
+  return {
+    xdr: transaction.toEnvelope().toXDR('base64'),
+    success: true,
+    submitted: false,
+  };
+}
+
 export async function buyViaPathPayment(
   destinationPublicKey: string,
   amount: number,
@@ -250,64 +370,8 @@ export async function signAndSubmitXDR(xdr: string, seed: string) {
   return { xdr: result_xdr, success: successful, submitted: true };
 }
 
-export async function manageBuyOffer(
-  destinationSeed: string,
-  amount: number,
-  price: number,
-  assetCode: string,
-  issuer: string
-) {
-  const destinationKeys = Keypair.fromSecret(destinationSeed);
-  const newAsset = new Asset(assetCode, issuer);
-
-  // price of 1 unit in terms of buying, 100 will be 100 usd per one share
-  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
-    .addOperation(
-      Operation.beginSponsoringFutureReserves({
-        sponsoredId: destinationKeys.publicKey(),
-      })
-    )
-    .addOperation(
-      Operation.changeTrust({
-        asset: newAsset,
-        source: destinationKeys.publicKey(),
-      })
-    )
-    .addOperation(
-      Operation.endSponsoringFutureReserves({
-        source: destinationKeys.publicKey(),
-      })
-    )
-    .addOperation(
-      Operation.beginSponsoringFutureReserves({
-        sponsoredId: destinationKeys.publicKey(),
-      })
-    )
-    .addOperation(
-      Operation.manageBuyOffer({
-        selling: XLM,
-        buying: newAsset,
-        buyAmount: amount.toString(),
-        price: price.toString(),
-        source: destinationKeys.publicKey(),
-        offerId: 0,
-      })
-    )
-    .addOperation(
-      Operation.endSponsoringFutureReserves({
-        source: destinationKeys.publicKey(),
-      })
-    )
-    .setTimeout(0)
-    .build();
-
-  transaction.sign(sourceKeys, destinationKeys);
-  let transactionResult = await submitTransaction(transaction);
-  return transactionResult;
-}
-
 export async function getOfferId(sellingAccount, assetCode) {
-  let offers = await getOffers(
+  const offers = await getOffers(
     sellingAccount,
     assetCode,
     sourceKeys.publicKey()
