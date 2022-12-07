@@ -15,7 +15,7 @@ export const createBid = async (_: any, args: any, ctx: any) => {
     entry.issuer,
     entry.code,
     user.publicKey,
-    decrypt(user.seed),
+    user.seed ? decrypt(user.seed) : undefined,
     equityToBuy,
     price / equityToBuy
   );
