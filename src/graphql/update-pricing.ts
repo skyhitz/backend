@@ -6,25 +6,26 @@ import { GraphQLError } from 'graphql';
 export const updatePricingResolver = async (_: any, args: any, ctx: any) => {
   const { id, price, equityForSale, forSale, offerID } = args;
 
-  console.log(args);
-
   try {
-    const user = await getAuthenticatedUser(ctx);
-    const entry = await getEntry(id);
-    console.log(id);
+    const { user, entry } = await Promise.all([
+      await getAuthenticatedUser(ctx),
+      await getEntry(id),
+    ]).then((results) => {
+      return { user: results[0], entry: results[1] };
+    });
 
     const { publicKey, seed } = user;
     // handle case when user try to cancel offer but doesn't have one
     if (!forSale && offerID == 0)
-      return { xdr: '', success: false, submitted: true };
+      return new GraphQLError("Current user doesn't have any offers");
 
-    let transactionResult = await manageSellOffer(
+    const transactionResult = await manageSellOffer(
       publicKey,
       entry.issuer,
       forSale ? equityForSale : 0,
       forSale ? price / equityForSale : 1,
       entry.code,
-      typeof offerID === 'string' ? parseInt(offerID) : offerID,
+      offerID,
       seed
     );
     return transactionResult;
