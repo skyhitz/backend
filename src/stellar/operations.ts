@@ -63,6 +63,13 @@ export async function getOffers(seller, sellingAsset, sellingIssuer) {
   return account;
 }
 
+export async function getOffer(offerId) {
+  const offer = await axios
+    .get(`${Config.HORIZON_URL}/offers/${offerId}`)
+    .then(({ data }) => data);
+  return offer;
+}
+
 export async function getOrderbook(
   sellingAssetCode: string,
   sellingIssuer: string
@@ -212,6 +219,54 @@ export async function openBuyOffer(
         price: price.toFixed(6),
         source: publicAddress,
         offerId: 0,
+      })
+    )
+    .addOperation(
+      Operation.endSponsoringFutureReserves({
+        source: publicAddress,
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  if (seed) {
+    const keys = Keypair.fromSecret(seed);
+    transaction.sign(sourceKeys, keys);
+    const data = await submitTransaction(transaction);
+    const { result_xdr, successful } = data;
+    return { xdr: result_xdr, success: successful, submitted: true };
+  }
+
+  transaction.sign(sourceKeys);
+  return {
+    xdr: transaction.toEnvelope().toXDR('base64'),
+    success: true,
+    submitted: false,
+  };
+}
+
+export async function cancelBuyOffer(
+  issuer: string,
+  code: string,
+  publicAddress: string,
+  seed: string,
+  offerId: string
+) {
+  const asset = new Asset(code, issuer);
+  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
+    .addOperation(
+      Operation.beginSponsoringFutureReserves({
+        sponsoredId: publicAddress,
+      })
+    )
+    .addOperation(
+      Operation.manageBuyOffer({
+        selling: XLM,
+        buying: asset,
+        buyAmount: '0',
+        price: '1',
+        source: publicAddress,
+        offerId: offerId,
       })
     )
     .addOperation(

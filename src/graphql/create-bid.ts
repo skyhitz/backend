@@ -3,15 +3,13 @@ import { getEntry } from '../algolia/algolia';
 import { openBuyOffer } from '../stellar/operations';
 import { decrypt } from '../util/encryption';
 
-export const createBuyOffer = async (_: any, args: any, ctx: any) => {
+export const createBid = async (_: any, args: any, ctx: any) => {
   const { id, price, equityToBuy } = args;
 
   const [user, entry] = await Promise.all([
     getAuthenticatedUser(ctx),
     getEntry(id),
   ]);
-
-  console.log(price, equityToBuy);
 
   return await openBuyOffer(
     entry.issuer,
