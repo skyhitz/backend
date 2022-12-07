@@ -55,7 +55,9 @@ export async function getAccountData(publicKey) {
 }
 
 export async function getOffers(seller, assetCode, assetIssuer) {
-  console.log(`${Config.HORIZON_URL}/offers/?seller=${seller}&selling_asset_issuer=${assetIssuer}&selling_asset_type=credit_alphanum12&selling_asset_code=${assetCode}`);
+  console.log(
+    `${Config.HORIZON_URL}/offers/?seller=${seller}&selling_asset_issuer=${assetIssuer}&selling_asset_type=credit_alphanum12&selling_asset_code=${assetCode}`
+  );
   let account = await axios
     .get(
       `${Config.HORIZON_URL}/offers/?seller=${seller}&selling_asset_issuer=${assetIssuer}&selling_asset_type=credit_alphanum12&selling_asset_code=${assetCode}`
@@ -421,7 +423,7 @@ export async function manageSellOffer(
     const destinationKeys = Keypair.fromSecret(decrypt(destinationSeed));
     transaction.sign(sourceKeys, destinationKeys);
     let { successful, result_xdr } = await submitTransaction(transaction);
-    return { xdr: result_xdr, success: successful, submitted: true};
+    return { xdr: result_xdr, success: successful, submitted: true };
   }
 
   transaction.sign(sourceKeys);

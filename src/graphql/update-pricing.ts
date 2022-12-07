@@ -15,7 +15,8 @@ export const updatePricingResolver = async (_: any, args: any, ctx: any) => {
 
     const { publicKey, seed } = user;
     // handle case when user try to cancel offer but doesn't have one
-    if (!forSale && offerID == 0) return {xdr: '', success: false, submitted: true};
+    if (!forSale && offerID == 0)
+      return { xdr: '', success: false, submitted: true };
 
     let transactionResult = await manageSellOffer(
       publicKey,
