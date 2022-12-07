@@ -13,8 +13,14 @@ type Query {
 }
 
 type Mutation {
-  buyEntry(id: String!, amount: Float!, price: Float!): ConditionalXDR!
+  buyEntry(id: String!, amount: Float!, price: Float!): ConditionalXDR!,
+  cancelBid(id: String): ConditionalXDR!,
   changeWallet(signedXDR: String!): User!
+  createBid(
+    id: String!
+    price: Int!
+    equityToBuy: Float!
+  ): ConditionalXDR!,
   createEntry(
     fileCid: String!
     metaCid: String!

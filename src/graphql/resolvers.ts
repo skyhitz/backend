@@ -22,6 +22,8 @@ import { setLastPlayedEntryResolver } from './set-last-played-entry';
 import { signInWithXDRResolver } from './sing-in-with-xdr';
 import { changeWalletResolver } from './change-wallet';
 import { getAudibleTokenResolver } from './get-audible-token';
+import { createBid } from './create-bid';
+import { cancelBid } from './cancel-bid';
 
 const Query = {
   authenticatedUser: authenticatedUserResolver,
@@ -38,7 +40,9 @@ const Query = {
 
 const Mutation = {
   buyEntry: buyEntryResolver,
+  cancelBid: cancelBid,
   changeWallet: changeWalletResolver,
+  createBid: createBid,
   createEntry: createEntryResolver,
   createUserWithEmail: createUserWithEmailResolver,
   indexEntry: indexEntryResolver,
