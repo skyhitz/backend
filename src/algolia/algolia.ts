@@ -1,5 +1,5 @@
 import algoliasearch from 'algoliasearch';
-import { User, Entry } from '../util/types';
+import { User, Entry, HiddenBid } from '../util/types';
 import { Config } from '../config/index';
 import { pinataGateway } from '../constants/constants';
 const client = algoliasearch(
@@ -81,6 +81,17 @@ likesIndex.setSettings({
   attributesToRetrieve: ['*'],
 });
 
+export const hiddenBidsIndex = client.initIndex(`${appDomain}:hidden-bids`);
+hiddenBidsIndex.setSettings({
+  searchableAttributes: ['hiddenBy', 'offerId'],
+  attributesForFaceting: [
+    'filterOnly(hiddenBy)',
+    'filterOnly(offerId)',
+    'filterOnly(id)',
+  ],
+  attributesToRetrieve: ['*'],
+});
+
 // Always pass objectID
 export async function partialUpdateObject(obj: any) {
   return new Promise((resolve, reject) => {
@@ -92,6 +103,27 @@ export async function partialUpdateObject(obj: any) {
       resolve(content);
     });
   });
+}
+
+export async function hideBid(offerId: string, publicKey: string) {
+  const previousObject = await hiddenBidsIndex.getObject<HiddenBid>(offerId);
+  if (!previousObject) {
+    const newObject = {
+      id: offerId,
+      hiddenBy: [publicKey],
+    };
+    return await hiddenBidsIndex.saveObject(newObject);
+  } else {
+    const hiddenBy = [...previousObject.hiddenBy, publicKey];
+    return await hiddenBidsIndex.partialUpdateObject({
+      ...previousObject,
+      hiddenBy,
+    });
+  }
+}
+
+export async function cancelBid(offerId: string) {
+  return await hiddenBidsIndex.deleteObject(offerId);
 }
 
 export async function saveEntry(entry: Entry) {

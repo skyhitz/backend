@@ -29,3 +29,8 @@ export type Entry = {
   likeCount: number;
   objectID: string;
 };
+
+export type HiddenBid = {
+  id: string;
+  hiddenBy: string[];
+};

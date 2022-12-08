@@ -35,6 +35,7 @@ type Mutation {
     username: String!
     signedXDR: String
   ): ConditionalUser!
+  hideBid(id: String!: Boolean!
   indexEntry(issuer: String!): Entry!
   requestToken(usernameOrEmail: String!): Boolean!
   signInWithToken(token: String!, uid: String!): User!

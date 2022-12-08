@@ -10,8 +10,8 @@ import { Config } from '../config';
 import { deleteCache } from '../util/axios-cache';
 
 async function customerInfo(user: any) {
-  let { availableCredits: credits } = await accountCredits(user.publicKey);
-  let userSeed = user.seed ? decrypt(user.seed) : '';
+  const { availableCredits: credits } = await accountCredits(user.publicKey);
+  const userSeed = user.seed ? decrypt(user.seed) : '';
   return { credits, seed: userSeed };
 }
 
