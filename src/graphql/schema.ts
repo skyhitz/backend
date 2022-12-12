@@ -52,7 +52,8 @@ type Mutation {
     id: String!
     price: Int!
     forSale: Boolean!
-    equityForSale: Int!
+    equityForSale: Float!
+    offerID: String!
   ): ConditionalXDR!
   withdrawToExternalWallet(address: String!, amount: Int!): Boolean!
   setLastPlayedEntry(entryId: String!): Boolean!
