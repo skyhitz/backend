@@ -181,19 +181,19 @@ export async function likeMulti(userId, entryId) {
 
   try {
     await Promise.all([
-      await likesIndex.saveObject({
+      likesIndex.saveObject({
         objectID: `user${userId}entry${entryId}`,
         likeCount: likeCountNumber ? likeCountNumber : 0,
         entryId: entryId,
         userId: userId,
       }),
-      await likesIndex.saveObject({
+      likesIndex.saveObject({
         objectID: `entry${entryId}user${userId}`,
         likeCount: likeCountNumber ? likeCountNumber : 0,
         entryId: entryId,
         userId: userId,
       }),
-      await entriesIndex.partialUpdateObject({
+      entriesIndex.partialUpdateObject({
         objectID: entryId,
         likeCount: {
           _operation: 'Increment',
@@ -213,9 +213,9 @@ export async function unlikeMulti(userId, entryId) {
 
   try {
     await Promise.all([
-      await likesIndex.deleteObject(`user${userId}entry${entryId}`),
-      await likesIndex.deleteObject(`entry${entryId}user${userId}`),
-      await entriesIndex.partialUpdateObject({
+      likesIndex.deleteObject(`user${userId}entry${entryId}`),
+      likesIndex.deleteObject(`entry${entryId}user${userId}`),
+      entriesIndex.partialUpdateObject({
         objectID: entryId,
         likeCount: {
           _operation: 'Decrement',

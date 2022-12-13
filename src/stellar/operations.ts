@@ -98,8 +98,8 @@ export async function accountExists(publicKey: string) {
 
 export async function buildTransactionWithFee(accountPublicKey) {
   const [account, fee] = await Promise.all([
-    await getAccount(accountPublicKey),
-    await getFee(),
+    getAccount(accountPublicKey),
+    getFee(),
   ]);
   return new TransactionBuilder(account, {
     fee: fee,
