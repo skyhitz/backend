@@ -43,6 +43,7 @@ type Mutation {
   removeEntry(id: String!): Boolean!
   updateUser(
     avatarUrl: String
+    backgroundUrl: String
     displayName: String
     description: String
     username: String
@@ -61,6 +62,7 @@ type Mutation {
 
 type User {
   avatarUrl: String!
+  backgroundUrl: String!
   displayName: String
   email: String!
   username: String!
