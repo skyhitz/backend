@@ -1,25 +1,29 @@
 import { getAuthenticatedUser } from '../auth/logic';
 import { getEntry } from '../algolia/algolia';
-import { manageSellOffer, getOfferId } from '../stellar/operations';
+import { manageSellOffer } from '../stellar/operations';
 import { GraphQLError } from 'graphql';
 
 export const updatePricingResolver = async (_: any, args: any, ctx: any) => {
-  let { id, price, equityForSale } = args;
+  const { id, price, equityForSale, forSale, offerID } = args;
 
   try {
-    let user = await getAuthenticatedUser(ctx);
-    let entry = await getEntry(id);
-    console.log(id);
+    const [user, entry] = await Promise.all([
+      getAuthenticatedUser(ctx),
+      getEntry(id),
+    ]);
 
     const { publicKey, seed } = user;
-    const offerId = await getOfferId(publicKey, entry.code);
+    // handle case when user try to cancel offer but doesn't have one
+    if (!forSale && offerID == 0)
+      throw new GraphQLError("Current user doesn't have any offers");
 
-    let transactionResult = await manageSellOffer(
+    const transactionResult = await manageSellOffer(
       publicKey,
-      equityForSale,
-      price / equityForSale,
+      entry.issuer,
+      forSale ? equityForSale : 0,
+      forSale ? price / equityForSale : 1,
       entry.code,
-      typeof offerId === 'string' ? parseInt(offerId) : offerId,
+      offerID,
       seed
     );
     return transactionResult;

@@ -11,6 +11,7 @@ import {
   xdr,
 } from 'skyhitz-stellar-base';
 import { Config } from '../config';
+import { decrypt } from '../util/encryption';
 export const sourceKeys = Keypair.fromSecret(Config.ISSUER_SEED);
 
 const XLM = Asset.native();
@@ -53,11 +54,10 @@ export async function getAccountData(publicKey) {
   return account;
 }
 
-export async function getOffers(seller, sellingAsset, sellingIssuer) {
-  const encodedSelling = encodeURIComponent(`${sellingAsset}:${sellingIssuer}`);
+export async function getOffers(seller, assetCode, assetIssuer) {
   let account = await axios
     .get(
-      `${Config.HORIZON_URL}/offers/selling=${encodedSelling}&seller=${seller}`
+      `${Config.HORIZON_URL}/offers/?seller=${seller}&selling_asset_issuer=${assetIssuer}&selling_asset_type=credit_alphanum12&selling_asset_code=${assetCode}`
     )
     .then(({ data }) => data);
   return account;
@@ -376,20 +376,20 @@ export async function getOfferId(sellingAccount, assetCode) {
     assetCode,
     sourceKeys.publicKey()
   );
-
   let offer = offers.records[0];
   return offer.id;
 }
 
 export async function manageSellOffer(
   destinationPublicKey: string,
+  issuer: string,
   amount: number,
   price: number,
   assetCode: string,
   offerId = 0,
-  destinationSeed
+  destinationSeed: string
 ) {
-  const newAsset = new Asset(assetCode, sourceKeys.publicKey());
+  const newAsset = new Asset(assetCode, issuer);
 
   // price of 1 unit in terms of buying, 100 will be 100 usd per one share
   const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
@@ -417,10 +417,10 @@ export async function manageSellOffer(
     .build();
 
   if (destinationSeed) {
-    const destinationKeys = Keypair.fromSecret(destinationSeed);
+    const destinationKeys = Keypair.fromSecret(decrypt(destinationSeed));
     transaction.sign(sourceKeys, destinationKeys);
-    let { status, result_xdr } = await submitTransaction(transaction);
-    return { xdr: result_xdr, success: status === 200, submitted: true };
+    const { successful, result_xdr } = await submitTransaction(transaction);
+    return { xdr: result_xdr, success: successful, submitted: true };
   }
 
   transaction.sign(sourceKeys);
