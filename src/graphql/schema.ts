@@ -48,6 +48,8 @@ type Mutation {
     description: String
     username: String
     email: String
+    twitter: String
+    instagram: String
   ): User!
   updatePricing(
     id: String!
@@ -62,7 +64,7 @@ type Mutation {
 
 type User {
   avatarUrl: String!
-  backgroundUrl: String!
+  backgroundUrl: String
   displayName: String
   email: String!
   username: String!
@@ -74,6 +76,8 @@ type User {
   publicKey: String!
   lastPlayedEntry: Entry
   managed: Boolean!
+  twitter: String
+  instagram: String
 }
 
 type Entry {

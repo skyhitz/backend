@@ -38,6 +38,8 @@ const updateUserSchema: yup.SchemaOf<UpdateUserArgs> = yup.object().shape({
     .string()
     .required('Email is required')
     .email('Please enter a valid email.'),
+  twitter: yup.string(),
+  instagram: yup.string()
 });
 
 export const updateUserResolver = async (
