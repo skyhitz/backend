@@ -106,19 +106,20 @@ export async function partialUpdateObject(obj: any) {
 }
 
 export async function hideBid(offerId: string, publicKey: string) {
-  const previousObject = await hiddenBidsIndex.getObject<HiddenBid>(offerId);
-  if (!previousObject) {
-    const newObject = {
-      id: offerId,
-      hiddenBy: [publicKey],
-    };
-    return await hiddenBidsIndex.saveObject(newObject);
-  } else {
+  try {
+    const previousObject = await hiddenBidsIndex.getObject<HiddenBid>(offerId);
     const hiddenBy = [...previousObject.hiddenBy, publicKey];
     return await hiddenBidsIndex.partialUpdateObject({
       ...previousObject,
       hiddenBy,
     });
+  } catch (ex) {
+    const newObject = {
+      objectID: offerId,
+      id: offerId,
+      hiddenBy: [publicKey],
+    };
+    return await hiddenBidsIndex.saveObject(newObject);
   }
 }
 
@@ -127,9 +128,9 @@ export async function cancelBid(offerId: string) {
 }
 
 export async function getUserHiddenBids(publicKey: string): Promise<String[]> {
-  const results = await hiddenBidsIndex.search<HiddenBid>(
-    `hiddenBy:${publicKey}`
-  );
+  const results = await hiddenBidsIndex.search<HiddenBid>('', {
+    filters: `hiddenBy:${publicKey}`,
+  });
   return results.hits.map((item) => item.id);
 }
 

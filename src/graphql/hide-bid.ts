@@ -9,7 +9,7 @@ export const hideBidResolver = async (_: any, args: any, ctx: any) => {
 
   try {
     await hideBid(id, user.publicKey);
-    return;
+    return true;
   } catch (ex) {
     throw new GraphQLError(ex);
   }

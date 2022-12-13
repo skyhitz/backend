@@ -11,8 +11,9 @@ export const bids = async (_: any, args: any, ctx) => {
     getUserHiddenBids(user.publicKey),
     getBids(assetCode, assetIssuer),
   ]);
-
-  const visibleBids = bids.filter((item) => !hiddenBids.includes(item.id));
+  const visibleBids = bids.filter(
+    (item) => !hiddenBids.includes(item.id) && item.seller !== user.publicKey
+  );
 
   return visibleBids;
 };
