@@ -6,7 +6,7 @@ const client = algoliasearch(
   Config.ALGOLIA_APP_ID,
   Config.ALGOLIA_ADMIN_API_KEY
 );
-const appDomain = Config.APP_URL.replace('https://', '');
+export const appDomain = Config.APP_URL.replace('https://', '');
 export const entriesIndex = client.initIndex(`${appDomain}:entries`);
 entriesIndex.setSettings({
   searchableAttributes: ['unordered(title,artist)', 'description', 'code'],
@@ -124,6 +124,13 @@ export async function hideBid(offerId: string, publicKey: string) {
 
 export async function cancelBid(offerId: string) {
   return await hiddenBidsIndex.deleteObject(offerId);
+}
+
+export async function getUserHiddenBids(publicKey: string): Promise<String[]> {
+  const results = await hiddenBidsIndex.search<HiddenBid>(
+    `hiddenBy:${publicKey}`
+  );
+  return results.hits.map((item) => item.id);
 }
 
 export async function saveEntry(entry: Entry) {

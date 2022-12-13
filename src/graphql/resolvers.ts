@@ -25,9 +25,12 @@ import { getAudibleTokenResolver } from './get-audible-token';
 import { createBid } from './create-bid';
 import { cancelBidResolver } from './cancel-bid';
 import { hideBidResolver } from './hide-bid';
+import { bids } from './bids';
+import { acceptBidResolver } from './accept-bid';
 
 const Query = {
   authenticatedUser: authenticatedUserResolver,
+  bids: bids,
   entryLikes: entryLikesResolver,
   entryPrice: entryPriceResolver,
   entry: entryByIdResolver,
@@ -40,6 +43,7 @@ const Query = {
 };
 
 const Mutation = {
+  acceptBid: acceptBidResolver,
   buyEntry: buyEntryResolver,
   cancelBid: cancelBidResolver,
   changeWallet: changeWalletResolver,

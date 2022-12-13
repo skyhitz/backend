@@ -1,24 +1,19 @@
-import { sendNftBoughtEmail, sendNftSoldEmail } from '../sendgrid/sendgrid';
-import { getEntry } from '../algolia/algolia';
 import { getAuthenticatedUser } from '../auth/logic';
 import {
-  accountCredits,
-  buyViaPathPayment,
+  // accountCredits,
   getAccountData,
   getOffer,
 } from '../stellar/operations';
-import { decrypt } from '../util/encryption';
-import { getPublicKeyFromTransactionResult } from '../stellar/operations';
-import { getUserByPublicKey } from '../algolia/algolia';
+// import { decrypt } from '../util/encryption';
 import { GraphQLError } from 'graphql';
-import { Config } from '../config';
-import { deleteCache } from '../util/axios-cache';
+// import { Config } from '../config';
+// import { deleteCache } from '../util/axios-cache';
 
-async function customerInfo(user: any) {
-  let { availableCredits: credits } = await accountCredits(user.publicKey);
-  let userSeed = user.seed ? decrypt(user.seed) : '';
-  return { credits, seed: userSeed };
-}
+// async function customerInfo(user: any) {
+//   let { availableCredits: credits } = await accountCredits(user.publicKey);
+//   let userSeed = user.seed ? decrypt(user.seed) : '';
+//   return { credits, seed: userSeed };
+// }
 
 export const acceptBidResolver = async (_: any, args: any, ctx: any) => {
   const { id } = args;
@@ -105,15 +100,15 @@ export const acceptBidResolver = async (_: any, args: any, ctx: any) => {
   //   return { xdr: '', success: false, submitted: false };
 };
 
-const deleteEntryCache = (code: string, issuer: string) => {
-  const assetId = `${code}-${issuer}`;
-  const baseURL = 'https://api.stellar.expert/explorer/';
+// const deleteEntryCache = (code: string, issuer: string) => {
+//   const assetId = `${code}-${issuer}`;
+//   const baseURL = 'https://api.stellar.expert/explorer/';
 
-  const urls = [
-    `${baseURL}${Config.STELLAR_NETWORK}/asset/${assetId}/history/all?limit=100`,
-    `${baseURL}${Config.STELLAR_NETWORK}/asset/${assetId}/holders?limit=100`,
-    `${baseURL}${Config.STELLAR_NETWORK}/asset/${assetId}/history/offers?limit=100&order=desc`,
-  ];
+//   const urls = [
+//     `${baseURL}${Config.STELLAR_NETWORK}/asset/${assetId}/history/all?limit=100`,
+//     `${baseURL}${Config.STELLAR_NETWORK}/asset/${assetId}/holders?limit=100`,
+//     `${baseURL}${Config.STELLAR_NETWORK}/asset/${assetId}/history/offers?limit=100&order=desc`,
+//   ];
 
-  deleteCache(urls);
-};
+//   deleteCache(urls);
+// };
