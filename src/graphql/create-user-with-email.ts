@@ -84,7 +84,7 @@ export const createUserWithEmailResolver = async (
     seed: '',
     lastPlayedEntry: null,
     twitter: '',
-    instagram: ''
+    instagram: '',
   };
 
   try {
