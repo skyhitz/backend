@@ -1,5 +1,6 @@
 export type User = {
   avatarUrl: string;
+  backgroundUrl: string;
   displayName: string;
   description: string;
   email: string;
@@ -13,6 +14,8 @@ export type User = {
   version: number;
   jwt?: string;
   lastPlayedEntry?: Entry;
+  twitter: string;
+  instagram: string;
 };
 
 export type Entry = {
