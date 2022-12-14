@@ -19,8 +19,6 @@ export const acceptBidResolver = async (_: any, args: any, ctx: any) => {
     getAccountData(user.publicKey),
   ]);
 
-  console.log(offer, data);
-
   const { asset_code, asset_issuer } = offer.buying;
   const amount = parseFloat(offer.amount);
   const price = parseFloat(offer.price);
