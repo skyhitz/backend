@@ -117,7 +117,6 @@ type EntryDetails {
   issuer: String!
   holders: [EntryHolder!]
   history: [EntryActivity!]
-  offers: [EntryActivity!]
 }
 
 type EntryHolder {
