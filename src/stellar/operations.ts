@@ -293,6 +293,57 @@ export async function cancelBuyOffer(
   };
 }
 
+export async function sellViaPathPayment(
+  publicKey: string,
+  amount: number,
+  price: number,
+  assetCode: string,
+  issuer: string,
+  seed?: string
+) {
+  const nftAsset = new Asset(assetCode, issuer);
+  const buyMin = amount;
+  const sell = amount * price;
+  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
+    .addOperation(
+      Operation.beginSponsoringFutureReserves({
+        sponsoredId: publicKey,
+      })
+    )
+    .addOperation(
+      Operation.pathPaymentStrictSend({
+        sendAsset: nftAsset,
+        sendAmount: sell.toFixed(7),
+        source: publicKey,
+        destination: publicKey,
+        destAsset: XLM,
+        destMin: buyMin.toFixed(7),
+      })
+    )
+    .addOperation(
+      Operation.endSponsoringFutureReserves({
+        source: publicKey,
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  if (seed) {
+    const userKeys = Keypair.fromSecret(seed);
+    transaction.sign(sourceKeys, userKeys);
+    const data = await submitTransaction(transaction);
+    const { result_xdr, successful } = data;
+    return { xdr: result_xdr, success: successful, submitted: true };
+  }
+
+  transaction.sign(sourceKeys);
+  return {
+    xdr: transaction.toEnvelope().toXDR('base64'),
+    success: true,
+    submitted: false,
+  };
+}
+
 export async function buyViaPathPayment(
   destinationPublicKey: string,
   amount: number,

@@ -23,10 +23,14 @@ import { signInWithXDRResolver } from './sing-in-with-xdr';
 import { changeWalletResolver } from './change-wallet';
 import { getAudibleTokenResolver } from './get-audible-token';
 import { createBid } from './create-bid';
-import { cancelBid } from './cancel-bid';
+import { cancelBidResolver } from './cancel-bid';
+import { hideBidResolver } from './hide-bid';
+import { bids } from './bids';
+import { acceptBidResolver } from './accept-bid';
 
 const Query = {
   authenticatedUser: authenticatedUserResolver,
+  bids: bids,
   entryLikes: entryLikesResolver,
   entryPrice: entryPriceResolver,
   entry: entryByIdResolver,
@@ -39,12 +43,14 @@ const Query = {
 };
 
 const Mutation = {
+  acceptBid: acceptBidResolver,
   buyEntry: buyEntryResolver,
-  cancelBid: cancelBid,
+  cancelBid: cancelBidResolver,
   changeWallet: changeWalletResolver,
   createBid: createBid,
   createEntry: createEntryResolver,
   createUserWithEmail: createUserWithEmailResolver,
+  hideBid: hideBidResolver,
   indexEntry: indexEntryResolver,
   requestToken: requestTokenResolver,
   signInWithToken: signInWithTokenResolver,
