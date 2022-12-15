@@ -2,7 +2,10 @@ name: Cron job
 
 on:
   schedule:
-    - cron: '32 13 * * *'
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - feature/cron-job-action
 
 jobs:
   cron:
