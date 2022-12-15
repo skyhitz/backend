@@ -3,9 +3,6 @@ name: Cron job
 on:
   schedule:
     - cron: '0 0 * * *'
-  push:
-    branches:
-      - feature/cron-job-action
 
 jobs:
   cron:
@@ -13,8 +10,6 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
-        with:
-          ref: feature/cron-job-action
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
