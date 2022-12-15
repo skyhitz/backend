@@ -7,7 +7,6 @@ import { TokenStore } from '../passwordless/store';
 import passwordless from '../passwordless/passwordless';
 import { getUser } from '../algolia/algolia';
 import { assets } from '../assets/assets';
-import { intiliazeCronJobs } from '../util/cron';
 import { ApolloServer } from '@apollo/server';
 import { resolvers } from './resolvers';
 import cors from 'cors';
@@ -76,8 +75,6 @@ const startGraphqlServer = async () => {
   });
 
   await server.start();
-
-  intiliazeCronJobs();
 
   graphQLServer.use(
     cors({

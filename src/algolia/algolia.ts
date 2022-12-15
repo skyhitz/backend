@@ -1,12 +1,12 @@
 import algoliasearch from 'algoliasearch';
-import { User, Entry } from '../util/types';
+import { User, Entry, HiddenBid } from '../util/types';
 import { Config } from '../config/index';
 import { pinataGateway } from '../constants/constants';
 const client = algoliasearch(
   Config.ALGOLIA_APP_ID,
   Config.ALGOLIA_ADMIN_API_KEY
 );
-const appDomain = Config.APP_URL.replace('https://', '');
+export const appDomain = Config.APP_URL.replace('https://', '');
 export const entriesIndex = client.initIndex(`${appDomain}:entries`);
 entriesIndex.setSettings({
   searchableAttributes: ['unordered(title,artist)', 'description', 'code'],
@@ -81,6 +81,17 @@ likesIndex.setSettings({
   attributesToRetrieve: ['*'],
 });
 
+export const hiddenBidsIndex = client.initIndex(`${appDomain}:hidden-bids`);
+hiddenBidsIndex.setSettings({
+  searchableAttributes: ['hiddenBy', 'offerId'],
+  attributesForFaceting: [
+    'filterOnly(hiddenBy)',
+    'filterOnly(offerId)',
+    'filterOnly(id)',
+  ],
+  attributesToRetrieve: ['*'],
+});
+
 // Always pass objectID
 export async function partialUpdateObject(obj: any) {
   return new Promise((resolve, reject) => {
@@ -92,6 +103,35 @@ export async function partialUpdateObject(obj: any) {
       resolve(content);
     });
   });
+}
+
+export async function hideBid(offerId: string, publicKey: string) {
+  try {
+    const previousObject = await hiddenBidsIndex.getObject<HiddenBid>(offerId);
+    const hiddenBy = [...previousObject.hiddenBy, publicKey];
+    return await hiddenBidsIndex.partialUpdateObject({
+      ...previousObject,
+      hiddenBy,
+    });
+  } catch (ex) {
+    const newObject = {
+      objectID: offerId,
+      id: offerId,
+      hiddenBy: [publicKey],
+    };
+    return await hiddenBidsIndex.saveObject(newObject);
+  }
+}
+
+export async function cancelBid(offerId: string) {
+  return await hiddenBidsIndex.deleteObject(offerId);
+}
+
+export async function getUserHiddenBids(publicKey: string): Promise<String[]> {
+  const results = await hiddenBidsIndex.search<HiddenBid>('', {
+    filters: `hiddenBy:${publicKey}`,
+  });
+  return results.hits.map((item) => item.id);
 }
 
 export async function saveEntry(entry: Entry) {
@@ -181,19 +221,19 @@ export async function likeMulti(userId, entryId) {
 
   try {
     await Promise.all([
-      await likesIndex.saveObject({
+      likesIndex.saveObject({
         objectID: `user${userId}entry${entryId}`,
         likeCount: likeCountNumber ? likeCountNumber : 0,
         entryId: entryId,
         userId: userId,
       }),
-      await likesIndex.saveObject({
+      likesIndex.saveObject({
         objectID: `entry${entryId}user${userId}`,
         likeCount: likeCountNumber ? likeCountNumber : 0,
         entryId: entryId,
         userId: userId,
       }),
-      await entriesIndex.partialUpdateObject({
+      entriesIndex.partialUpdateObject({
         objectID: entryId,
         likeCount: {
           _operation: 'Increment',
@@ -213,9 +253,9 @@ export async function unlikeMulti(userId, entryId) {
 
   try {
     await Promise.all([
-      await likesIndex.deleteObject(`user${userId}entry${entryId}`),
-      await likesIndex.deleteObject(`entry${entryId}user${userId}`),
-      await entriesIndex.partialUpdateObject({
+      likesIndex.deleteObject(`user${userId}entry${entryId}`),
+      likesIndex.deleteObject(`entry${entryId}user${userId}`),
+      entriesIndex.partialUpdateObject({
         objectID: entryId,
         likeCount: {
           _operation: 'Decrement',

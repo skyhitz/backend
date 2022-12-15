@@ -1,6 +1,7 @@
 export const Schema = `
 type Query {
   authenticatedUser: User!
+  bids(assetCode: String!, assetIssuer: String!): [Offer!]!
   entryLikes(id: String!): EntryLikes!
   entryPrice(id: String!): EntryPrice!
   entry(id: String!): EntryDetails!
@@ -13,8 +14,15 @@ type Query {
 }
 
 type Mutation {
+  acceptBid(id: String!): ConditionalXDR!
   buyEntry(id: String!, amount: Float!, price: Float!): ConditionalXDR!
+  cancelBid(id: String): ConditionalXDR!,
   changeWallet(signedXDR: String!): User!
+  createBid(
+    id: String!
+    price: Int!
+    equityToBuy: Float!
+  ): ConditionalXDR!,
   createEntry(
     fileCid: String!
     metaCid: String!
@@ -29,6 +37,7 @@ type Mutation {
     username: String!
     signedXDR: String
   ): ConditionalUser!
+  hideBid(id: String!): Boolean!
   indexEntry(issuer: String!): Entry!
   requestToken(usernameOrEmail: String!): Boolean!
   signInWithToken(token: String!, uid: String!): User!
@@ -46,7 +55,8 @@ type Mutation {
     id: String!
     price: Int!
     forSale: Boolean!
-    equityForSale: Int!
+    equityForSale: Float!
+    offerID: String!
   ): ConditionalXDR!
   withdrawToExternalWallet(address: String!, amount: Int!): Boolean!
   setLastPlayedEntry(entryId: String!): Boolean!
@@ -107,7 +117,6 @@ type EntryDetails {
   issuer: String!
   holders: [EntryHolder!]
   history: [EntryActivity!]
-  offers: [EntryActivity!]
 }
 
 type EntryHolder {
@@ -152,5 +161,20 @@ type ConditionalUser {
 
 type AccountCredits {
   credits: Float!
+}
+
+type Offer {
+  id: String!
+  seller: String!
+  selling: Asset!
+  buying: Asset!
+  amount: String!
+  price: String!
+}
+
+type Asset {
+  asset_type: String!
+  asset_code: String
+  asset_issuer: String
 }
 `;
