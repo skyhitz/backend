@@ -10,6 +10,7 @@ import { GraphQLError } from 'graphql';
 
 type UpdateUserArgs = {
   avatarUrl?: string | null;
+  backgroundUrl?: string | null;
   displayName?: string | null;
   description?: string | null;
   username?: string | null;
@@ -18,6 +19,7 @@ type UpdateUserArgs = {
 
 const updateUserSchema: yup.SchemaOf<UpdateUserArgs> = yup.object().shape({
   avatarUrl: yup.string(),
+  backgroundUrl: yup.string(),
   description: yup.string(),
   username: yup
     .string()
@@ -36,6 +38,8 @@ const updateUserSchema: yup.SchemaOf<UpdateUserArgs> = yup.object().shape({
     .string()
     .required('Email is required')
     .email('Please enter a valid email.'),
+  twitter: yup.string(),
+  instagram: yup.string(),
 });
 
 export const updateUserResolver = async (
@@ -69,6 +73,16 @@ export const updateUserResolver = async (
       throw new GraphQLError("Couldn't pin image to pinata!");
     }
     console.log('Pinned image!');
+  }
+  if (validatedUpdate.backgroundUrl) {
+    const result = await pinIpfsFile(
+      validatedUpdate.backgroundUrl.replace(ipfsProtocol, ''),
+      `${user.username}-backgroundimage`
+    );
+    if (!result) {
+      throw new GraphQLError("Couldn't pin background image to pinata!");
+    }
+    console.log('Pinned background image!');
   }
   const userUpdate = {
     ...user,

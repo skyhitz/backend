@@ -70,6 +70,7 @@ export const createUserWithEmailResolver = async (
 
   let user: User = {
     avatarUrl: '',
+    backgroundUrl: '',
     displayName: displayName,
     description: '',
     username: usernameLowercase,
@@ -82,6 +83,8 @@ export const createUserWithEmailResolver = async (
     id: newId,
     seed: '',
     lastPlayedEntry: null,
+    twitter: '',
+    instagram: '',
   };
 
   try {
