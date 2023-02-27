@@ -4,9 +4,9 @@ import { getAccountData } from '../stellar/operations';
 import { Config } from '../config';
 import axios from 'axios';
 import {
-  ipfsGateway,
   fallbackIpfsGateway,
   ipfsProtocol,
+  pinataIpfsGateway,
 } from '../constants/constants';
 import { pinIpfsFile } from '../util/pinata';
 import { GraphQLError } from 'graphql';
@@ -30,7 +30,7 @@ export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
   let response;
 
   response = await axios
-    .get(`${ipfsGateway}/${decodedIpfshash}`, {
+    .get(`${pinataIpfsGateway}/${decodedIpfshash}`, {
       timeout: 15 * 1000,
     })
     .then(({ data }) => data)
