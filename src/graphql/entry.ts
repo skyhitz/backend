@@ -19,6 +19,7 @@ export const entryByIdResolver = async (_: any, { id }: any) => {
     ]);
     return { ...entry, holders, history };
   } catch (ex) {
+    console.log(ex)
     throw new GraphQLError("Couldn't fetch entry data");
   }
 };
