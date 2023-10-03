@@ -13,13 +13,17 @@ export const entryByIdResolver = async (_: any, { id }: any) => {
   const api = AxiosCacheStellarClient as any;
   const assetId = `${entry.code}-${entry.issuer}`;
   try {
-    const [holders, history] = await Promise.all([
+    const [holders,
+      //  history
+      ] = await Promise.all([
       fetchHolders(assetId, api),
-      fetchHistory(assetId, api),
+      // history was removed from stellar expert api
+      // fetchHistory(assetId, api),
     ]);
-    return { ...entry, holders, history };
+    return { ...entry, holders,
+      //  history 
+      };
   } catch (ex) {
-    console.log(ex)
     throw new GraphQLError("Couldn't fetch entry data");
   }
 };
@@ -30,8 +34,8 @@ const fetchHolders = async (assetId: string, api: any) => {
   return res;
 };
 
-const fetchHistory = async (assetId: string, api: any) => {
-  const url = `${Config.STELLAR_NETWORK}/asset/${assetId}/history/all?limit=100`;
-  const res = await api.get(url).then(({ data }) => data._embedded.records);
-  return res;
-};
+// const fetchHistory = async (assetId: string, api: any) => {
+//   const url = `${Config.STELLAR_NETWORK}/asset/${assetId}/history/all?limit=100`;
+//   const res = await api.get(url).then(({ data }) => data._embedded.records);
+//   return res;
+// };
