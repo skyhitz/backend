@@ -27,6 +27,7 @@ import { cancelBidResolver } from './cancel-bid';
 import { hideBidResolver } from './hide-bid';
 import { bids } from './bids';
 import { acceptBidResolver } from './accept-bid';
+import { pinAssetUrlResolver } from './pin-asset-url';
 
 const Query = {
   authenticatedUser: authenticatedUserResolver,
@@ -61,6 +62,7 @@ const Mutation = {
   updatePricing: updatePricingResolver,
   withdrawToExternalWallet: withdrawToExternalAddressResolver,
   setLastPlayedEntry: setLastPlayedEntryResolver,
+  pinAssetUrl: pinAssetUrlResolver
 };
 
 export const resolvers = {

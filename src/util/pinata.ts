@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Config } from '../config';
 import { pinataApi } from '../constants/constants';
+const FormData = require("form-data");
 
 export async function pinIpfsFile(
   ipfsHash: string,
@@ -27,4 +28,29 @@ export async function pinIpfsFile(
       console.log(error);
       return null;
     });
+}
+
+export async function pinAssetUrl(url: string): Promise<unknown> {
+  const data = new FormData();
+  const response = await axios.get(url, {
+    method: "GET",
+    responseType: "stream",
+  });
+  data.append(`file`, response.data);
+  const options = JSON.stringify({
+      cidVersion: 1,
+    });
+  data.append("pinataOptions", options);
+
+  try {
+    const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", data, {
+      headers: {
+          'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+          'Authorization': `Bearer ${Config.PINATA_JWT}`
+      }
+    });
+    return res.data;
+  } catch (error) {
+    console.log(error)
+  }
 }
