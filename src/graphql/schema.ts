@@ -63,6 +63,13 @@ type Mutation {
   ): ConditionalXDR!
   withdrawToExternalWallet(address: String!, amount: Int!): Boolean!
   setLastPlayedEntry(entryId: String!): Boolean!
+  pinAssetUrl(url: String!): IpfsRes!
+}
+
+type IpfsRes {
+  IpfsHash: String!
+  PinSize: Int!
+  Timestamp: String!
 }
 
 type User {
