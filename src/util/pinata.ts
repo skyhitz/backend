@@ -37,8 +37,6 @@ export async function pinAssetUrl(url: string): Promise<unknown> {
     responseType: 'stream',
   });
 
-  console.log(response);
-
   data.append(`file`, response.data);
   const options = JSON.stringify({
     cidVersion: 1,
