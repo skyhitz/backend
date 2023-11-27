@@ -45,19 +45,15 @@ export async function pinAssetUrl(url: string): Promise<unknown> {
   });
   data.append('pinataOptions', options);
 
-  try {
-    const res = await axios.post(
-      'https://api.pinata.cloud/pinning/pinFileToIPFS',
-      data,
-      {
-        headers: {
-          'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
-          Authorization: `Bearer ${Config.PINATA_JWT}`,
-        },
-      }
-    );
-    return res.data;
-  } catch (error) {
-    return error;
-  }
+  const res = await axios.post(
+    'https://api.pinata.cloud/pinning/pinFileToIPFS',
+    data,
+    {
+      headers: {
+        'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+        Authorization: `Bearer ${Config.PINATA_JWT}`,
+      },
+    }
+  );
+  return res.data;
 }
