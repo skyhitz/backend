@@ -10,6 +10,9 @@ import {
 } from '../constants/constants';
 import { pinIpfsFile } from '../util/pinata';
 import { GraphQLError } from 'graphql';
+import { Keypair } from 'skyhitz-stellar-base';
+
+const shajs = require('sha.js');
 
 export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
   await getAuthenticatedUser(ctx);
@@ -58,14 +61,31 @@ export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
   const {
     name,
     description,
-    code: metaCode,
-    issuer: metaIssuer,
-    domain,
-    supply,
+    // code: metaCode,
+    // issuer: metaIssuer,
+    // domain,
+    // supply,
     image,
     animation_url,
-    video,
+    // video,
   } = response;
+
+  const video = animation_url;
+  const metaCode = `${name}`
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/ /g, '')
+    .replace(/-/g, '')
+    .replace(/[^0-9a-z]/gi, '')
+    .slice(0, 12)
+    .toUpperCase();
+
+  const keypairSeed = shajs('sha256')
+    .update(Config.ISSUER_SEED + video.replace(ipfsProtocol, ''))
+    .digest();
+  const issuerKey = Keypair.fromRawEd25519Seed(keypairSeed);
+
+  const metaIssuer = issuerKey.publicKey();
 
   try {
     const pinningResults = await Promise.all([
@@ -105,8 +125,8 @@ export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
     description &&
     metaCode &&
     metaIssuer &&
-    domain &&
-    supply &&
+    // domain &&
+    // supply &&
     image &&
     animation_url &&
     video
