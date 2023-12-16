@@ -72,6 +72,7 @@ const startGraphqlServer = async () => {
   const server = new ApolloServer<MyContext>({
     typeDefs: Schema,
     resolvers,
+    introspection: true,
   });
 
   await server.start();
