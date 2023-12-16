@@ -1,5 +1,9 @@
 import { getAuthenticatedUser } from '../auth/logic';
-import { openSellOffer, signAndSubmitXDR } from '../stellar/operations';
+import {
+  accountExists,
+  openSellOffer,
+  signAndSubmitXDR,
+} from '../stellar/operations';
 import { buildNFTTransaction } from '../stellar/index';
 import { Keypair } from 'skyhitz-stellar-base';
 import { Config } from '../config';
@@ -30,6 +34,19 @@ export const createEntryResolver = async (
     .update(Config.ISSUER_SEED + fileCid)
     .digest();
   const issuerKey = Keypair.fromRawEd25519Seed(keypairSeed);
+
+  const exists = await accountExists(issuerKey.publicKey());
+
+  if (exists) {
+    return {
+      xdr: '',
+      success: true,
+      submitted: false,
+      exists: true,
+      publicKey: issuerKey.publicKey(),
+    };
+  }
+
   const supply = 1;
   let finalXdr;
 

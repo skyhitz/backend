@@ -166,6 +166,8 @@ type ConditionalXDR {
   success: Boolean!
   submitted: Boolean!
   message: String
+  exists: Boolean!
+  publicKey: String!
 }
 
 type ConditionalUser {
