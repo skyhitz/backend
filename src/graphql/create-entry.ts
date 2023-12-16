@@ -7,12 +7,22 @@ import { decrypt } from '../util/encryption';
 import { GraphQLError } from 'graphql';
 const shajs = require('sha.js');
 
+export const sourceKeys = Keypair.fromSecret(Config.ISSUER_SEED);
+
 export const createEntryResolver = async (
   _: any,
-  { fileCid, metaCid, code, forSale, price, equityForSale }: any,
+  { fileCid, metaCid, code, forSale, price, equityForSale, globalMint }: any,
   ctx: any
 ) => {
-  let user = await getAuthenticatedUser(ctx);
+  let user: any = await getAuthenticatedUser(ctx);
+
+  if (globalMint) {
+    user = {
+      publicKey: sourceKeys.publicKey(),
+      secret: sourceKeys.secret(),
+    };
+  }
+
   const addSellOffer = user.publicKey && forSale;
   console.log('create entry: ', user);
 
@@ -53,6 +63,11 @@ export const createEntryResolver = async (
       console.log('managed flow', !!user.seed);
       const userSeed = decrypt(user.seed);
       const result = await signAndSubmitXDR(finalXdr, userSeed);
+      return result;
+    }
+
+    if (user.secret) {
+      const result = await signAndSubmitXDR(finalXdr, user.secret);
       return result;
     }
     return { xdr: finalXdr, success: true, submitted: false };

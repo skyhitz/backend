@@ -30,6 +30,7 @@ type Mutation {
     forSale: Boolean!
     price: Int!
     equityForSale: Float!
+    globalMint: Boolean!
   ): ConditionalXDR!
   createUserWithEmail(
     displayName: String!

@@ -3,7 +3,6 @@ import {
   Asset,
   Memo,
   Operation,
-  AuthImmutableFlag,
   Transaction,
 } from 'skyhitz-stellar-base';
 import { Config } from '../config';
@@ -64,11 +63,6 @@ export async function buildNFTTransaction(
     .addOperation(
       Operation.setOptions({
         source: issuerPublicKey,
-        setFlags: AuthImmutableFlag,
-        masterWeight: 0,
-        lowThreshold: 0,
-        medThreshold: 0,
-        highThreshold: 0,
         homeDomain: appDomain,
       })
     );
