@@ -116,6 +116,7 @@ export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
     id: decodedIpfshash,
     objectID: decodedIpfshash,
     likeCount: 0,
+    // title: name.substring(name.indexOf(nameDivider) + nameDivider.length)
     title: name,
     artist: name.substring(0, name.indexOf(nameDivider)),
     publishedAt: new Date().toISOString(),
