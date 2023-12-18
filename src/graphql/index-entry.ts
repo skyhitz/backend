@@ -93,7 +93,11 @@ export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
       pinIpfsFile(video.replace(ipfsProtocol, ''), `${name}-video`),
     ]);
 
-    if (!pinningResults[0] || !pinningResults[1]) {
+    // if (!pinningResults[0] || !pinningResults[1]) {
+    //   throw new GraphQLError("Couldn't pin media to pinata");
+    // }
+
+    if (!pinningResults[1]) {
       throw new GraphQLError("Couldn't pin media to pinata");
     }
   } catch (ex) {
