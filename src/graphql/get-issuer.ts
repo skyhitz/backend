@@ -1,5 +1,5 @@
 import { getAuthenticatedUser } from '../auth/logic';
-import { Keypair } from 'skyhitz-stellar-base';
+import { Keypair } from 'stellar-base';
 import { Config } from '../config';
 const shajs = require('sha.js');
 

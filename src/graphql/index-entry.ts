@@ -10,7 +10,7 @@ import {
 } from '../constants/constants';
 import { pinIpfsFile } from '../util/pinata';
 import { GraphQLError } from 'graphql';
-import { Keypair } from 'skyhitz-stellar-base';
+import { Keypair } from 'stellar-base';
 
 const shajs = require('sha.js');
 

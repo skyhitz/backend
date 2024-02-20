@@ -9,7 +9,7 @@ import {
   Transaction,
   StrKey,
   xdr,
-} from 'skyhitz-stellar-base';
+} from 'stellar-base';
 import { Config } from '../config';
 import { decrypt } from '../util/encryption';
 export const sourceKeys = Keypair.fromSecret(Config.ISSUER_SEED);

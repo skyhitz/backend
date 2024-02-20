@@ -34,7 +34,7 @@
     "jsonwebtoken": "^8.5.1",
     "memory-cache": "^0.2.0",
     "sha.js": "^2.4.11",
-    "skyhitz-stellar-base": "^6.0.6",
+    "stellar-base": "^11.0.0",
     "yup": "^0.32.11"
   },
   "devDependencies": {

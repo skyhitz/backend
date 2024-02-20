@@ -5,7 +5,7 @@ import {
   signAndSubmitXDR,
 } from '../stellar/operations';
 import { buildNFTTransaction } from '../stellar/index';
-import { Keypair } from 'skyhitz-stellar-base';
+import { Keypair } from 'stellar-base';
 import { Config } from '../config';
 import { decrypt } from '../util/encryption';
 import { GraphQLError } from 'graphql';

@@ -1,10 +1,4 @@
-import {
-  Keypair,
-  Asset,
-  Memo,
-  Operation,
-  Transaction,
-} from 'skyhitz-stellar-base';
+import { Keypair, Asset, Memo, Operation, Transaction } from 'stellar-base';
 import { Config } from '../config';
 import { buildTransactionWithFee } from './operations';
 import { getConfig } from './utils';

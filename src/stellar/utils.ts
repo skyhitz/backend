@@ -1,4 +1,4 @@
-import { Networks } from 'skyhitz-stellar-base';
+import { Networks } from 'stellar-base';
 import axios from 'axios';
 
 export function getConfig() {
