@@ -71,6 +71,8 @@ export const decentralizeEntryResolver = async (
     // @ts-ignore
     const centralizedMeta: any = await axios.get(tokenUri);
 
+    console.log('centralized meta', centralizedMeta);
+
     // strip the ipfs hash and check if it loads on other ipfs nodes
 
     if (centralizedMeta && centralizedMeta.animation_url.includes('ipfs')) {
