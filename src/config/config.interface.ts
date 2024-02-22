@@ -15,4 +15,5 @@ export interface IConfig {
   AUDIBLE_SECRET: string;
   DEMO_ACCOUNT_UID: string;
   DEMO_ACCOUNT_TOKEN: string;
+  ALCHEMY_API_KEY: string;
 }

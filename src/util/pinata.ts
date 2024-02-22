@@ -30,7 +30,14 @@ export async function pinIpfsFile(
     });
 }
 
-export async function pinAssetUrl(url: string): Promise<unknown> {
+type PinRes = {
+  IpfsHash: string;
+  PinSize: number;
+  Timestamp: string;
+  isDuplicate: boolean;
+};
+
+export async function pinAssetUrl(url: string): Promise<PinRes> {
   console.log(url);
   const data = new FormData();
   const response = await axios.get(url, {
@@ -53,5 +60,5 @@ export async function pinAssetUrl(url: string): Promise<unknown> {
       },
     }
   );
-  return res.data;
+  return res.data as PinRes;
 }

@@ -40,6 +40,11 @@ type Mutation {
   ): ConditionalUser!
   hideBid(id: String!): Boolean!
   indexEntry(issuer: String!): Entry!
+  decentralizeEntry(
+    contract: String!
+    tokenId: String!
+    network: String!
+  ): Entry!
   requestToken(usernameOrEmail: String!): Boolean!
   signInWithToken(token: String!, uid: String!): User!
   signInWithXDR(signedXDR: String!): User!
@@ -65,6 +70,11 @@ type Mutation {
   withdrawToExternalWallet(address: String!, amount: Int!): Boolean!
   setLastPlayedEntry(entryId: String!): Boolean!
   pinAssetUrl(url: String!): IpfsRes!
+}
+
+type decentralizeMetaRes {
+  media: String!
+  metadata: String!
 }
 
 type IpfsRes {

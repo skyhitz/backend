@@ -22,4 +22,5 @@ export const Config: IConfig = {
     Buffer.from(process.env.AUDIBLE_SECRET, 'base64').toString('ascii') || '',
   DEMO_ACCOUNT_UID: process.env.DEMO_ACCOUNT_UID || '',
   DEMO_ACCOUNT_TOKEN: process.env.DEMO_ACCOUNT_TOKEN || '',
+  ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY || '',
 };

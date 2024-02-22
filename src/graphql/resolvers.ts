@@ -28,6 +28,7 @@ import { hideBidResolver } from './hide-bid';
 import { bids } from './bids';
 import { acceptBidResolver } from './accept-bid';
 import { pinAssetUrlResolver } from './pin-asset-url';
+import { decentralizeEntryResolver } from './decentralize-entry';
 
 const Query = {
   authenticatedUser: authenticatedUserResolver,
@@ -62,7 +63,8 @@ const Mutation = {
   updatePricing: updatePricingResolver,
   withdrawToExternalWallet: withdrawToExternalAddressResolver,
   setLastPlayedEntry: setLastPlayedEntryResolver,
-  pinAssetUrl: pinAssetUrlResolver
+  pinAssetUrl: pinAssetUrlResolver,
+  decentralizeEntry: decentralizeEntryResolver,
 };
 
 export const resolvers = {
