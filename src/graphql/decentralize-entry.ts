@@ -15,6 +15,9 @@ export const decentralizeEntryResolver = async (
   const alchemyUrl = `https://${networks[network]}.g.alchemy.com/nft/v3/${Config.ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${contract}&tokenId=${tokenId}&refreshCache=false`;
 
   const { data } = await axios.get(alchemyUrl);
+
+  console.log(data);
+
   const tokenUri = data.tokenUri;
 
   const ipfsUrl = 'https://ipfs.io/ipfs';
