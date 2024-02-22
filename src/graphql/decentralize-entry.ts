@@ -128,6 +128,7 @@ export const decentralizeEntryResolver = async (
         {
           headers: {
             'Content-Type': 'application/json',
+            Accept: 'application/json',
             Authorization: `Bearer ${Config.PINATA_JWT}`,
           },
           body: JSON.stringify(body),
