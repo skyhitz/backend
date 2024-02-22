@@ -124,7 +124,7 @@ export const decentralizeEntryResolver = async (
       pinataOptions: { cidVersion: 1 },
     };
 
-    const { data: jsonPinRes } = await await axios.post(
+    const { data: jsonPinRes } = await axios.post(
       'https://api.pinata.cloud/pinning/pinJSONToIPFS',
       {
         headers: {
