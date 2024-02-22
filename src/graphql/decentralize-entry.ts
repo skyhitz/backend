@@ -16,8 +16,6 @@ export const decentralizeEntryResolver = async (
 
   const { data } = await axios.get(alchemyUrl);
 
-  console.log(data);
-
   const tokenUri = data.tokenUri;
 
   const ipfsUrl = 'https://ipfs.io/ipfs';
@@ -72,8 +70,6 @@ export const decentralizeEntryResolver = async (
     // @ts-ignore
     let { data: centralizedMeta } = await axios.get(tokenUri);
 
-    console.log('centralized meta', centralizedMeta);
-
     // strip the ipfs hash and check if it loads on other ipfs nodes
 
     if (centralizedMeta && centralizedMeta.animation_url.includes('ipfs')) {
@@ -124,6 +120,8 @@ export const decentralizeEntryResolver = async (
       pinataOptions: { cidVersion: 1 },
     };
 
+    console.log(body);
+
     try {
       const { data: jsonPinRes } = await axios.post(
         'https://api.pinata.cloud/pinning/pinJSONToIPFS',
@@ -140,8 +138,7 @@ export const decentralizeEntryResolver = async (
         ipfsHashes.metadata = jsonPinRes.IpfsHash;
       }
     } catch (e) {
-      console.log(e);
-      console.log(e.message);
+      //   console.log(e.message);
     }
   }
 
