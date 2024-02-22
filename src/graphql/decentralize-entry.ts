@@ -124,19 +124,24 @@ export const decentralizeEntryResolver = async (
       pinataOptions: { cidVersion: 1 },
     };
 
-    const { data: jsonPinRes } = await axios.post(
-      'https://api.pinata.cloud/pinning/pinJSONToIPFS',
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${Config.PINATA_JWT}`,
-        },
-        body: JSON.stringify(body),
-      }
-    );
+    try {
+      const { data: jsonPinRes } = await axios.post(
+        'https://api.pinata.cloud/pinning/pinJSONToIPFS',
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${Config.PINATA_JWT}`,
+          },
+          body: JSON.stringify(body),
+        }
+      );
 
-    if (jsonPinRes) {
-      ipfsHashes.metadata = jsonPinRes.IpfsHash;
+      if (jsonPinRes) {
+        ipfsHashes.metadata = jsonPinRes.IpfsHash;
+      }
+    } catch (e) {
+      console.log(e);
+      console.log(e.message);
     }
   }
 
