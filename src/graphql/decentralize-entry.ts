@@ -105,11 +105,10 @@ export const decentralizeEntryResolver = async (
 
       if (res.status === 200) {
         // pin the url of the asset
-        const { IpfsHash } = await pinAssetUrl(centralizedMeta.animation_url);
-
-        if (IpfsHash) {
-          ipfsHashes.media = IpfsHash;
-        }
+        // const { IpfsHash } = await pinAssetUrl(centralizedMeta.animation_url);
+        // if (IpfsHash) {
+        //   ipfsHashes.media = IpfsHash;
+        // }
       }
     }
 
@@ -139,7 +138,7 @@ export const decentralizeEntryResolver = async (
         ipfsHashes.metadata = jsonPinRes.IpfsHash;
       }
     } catch (e) {
-      //   console.log(e.message);
+      console.log(e.message);
     }
   }
 
