@@ -105,10 +105,10 @@ export const decentralizeEntryResolver = async (
 
       if (res.status === 200) {
         // pin the url of the asset
-        // const { IpfsHash } = await pinAssetUrl(centralizedMeta.animation_url);
-        // if (IpfsHash) {
-        //   ipfsHashes.media = IpfsHash;
-        // }
+        const { IpfsHash } = await pinAssetUrl(centralizedMeta.animation_url);
+        if (IpfsHash) {
+          ipfsHashes.media = IpfsHash;
+        }
       }
     }
 
@@ -129,6 +129,8 @@ export const decentralizeEntryResolver = async (
             'Content-Type': 'application/json',
             Accept: 'application/json',
             Authorization: `Bearer ${Config.PINATA_JWT}`,
+            'x-pinata-origin': 'sdk',
+            'x-version': '2.1.1',
           },
           body: JSON.stringify(body),
         }
