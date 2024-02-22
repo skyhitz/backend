@@ -124,15 +124,9 @@ export const decentralizeEntryResolver = async (
     try {
       const { data: jsonPinRes } = await axios.post(
         'https://api.pinata.cloud/pinning/pinJSONToIPFS',
+        body,
         {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            Authorization: `Bearer ${Config.PINATA_JWT}`,
-            'x-pinata-origin': 'sdk',
-            'x-version': '2.1.1',
-          },
-          body: JSON.stringify(body),
+          headers: { Authorization: `Bearer ${Config.PINATA_JWT}` },
         }
       );
 
