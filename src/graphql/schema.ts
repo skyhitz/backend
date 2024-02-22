@@ -44,7 +44,7 @@ type Mutation {
     contract: String!
     tokenId: String!
     network: String!
-  ): Entry!
+  ): decentralizeMetaRes!
   requestToken(usernameOrEmail: String!): Boolean!
   signInWithToken(token: String!, uid: String!): User!
   signInWithXDR(signedXDR: String!): User!
