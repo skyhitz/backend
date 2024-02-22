@@ -69,7 +69,7 @@ export const decentralizeEntryResolver = async (
     console.log('centralized');
 
     // @ts-ignore
-    const centralizedMeta: any = await axios.get(tokenUri);
+    const { data: centralizedMeta } = await axios.get(tokenUri);
 
     console.log('centralized meta', centralizedMeta);
 
