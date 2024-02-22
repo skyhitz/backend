@@ -38,7 +38,6 @@ export const decentralizeEntryResolver = async (
     const { data: metadata } = await axios.get(
       `${ipfsUrl}/${metadataIpfsHash}`
     );
-    ipfsHashes.metadata = metadataIpfsHash;
 
     // strip the ipfs hash and check if it loads on other ipfs nodes
 
@@ -65,11 +64,13 @@ export const decentralizeEntryResolver = async (
         }
       }
     }
+
+    ipfsHashes.metadata = metadataIpfsHash;
   } else {
     console.log('centralized');
 
     // @ts-ignore
-    const { data: centralizedMeta } = await axios.get(tokenUri);
+    let { data: centralizedMeta } = await axios.get(tokenUri);
 
     console.log('centralized meta', centralizedMeta);
 
@@ -115,7 +116,50 @@ export const decentralizeEntryResolver = async (
         }
       }
     }
+
+    centralizedMeta.animation_url = `ipfs://${ipfsHashes.media}`;
+
+    const body = {
+      pinataContent: centralizedMeta,
+      pinataOptions: { cidVersion: 1 },
+    };
+
+    const { data: jsonPinRes } = await await axios.post(
+      'https://api.pinata.cloud/pinning/pinJSONToIPFS',
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${Config.PINATA_JWT}`,
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    if (jsonPinRes) {
+      ipfsHashes.metadata = jsonPinRes.IpfsHash;
+    }
   }
 
   return ipfsHashes;
 };
+
+// @ts-ignore
+// const { CHAIN, CONTRACT_ADDRESS, TOKEN_ID } = input.config();
+
+// const payload =  {
+//                 "query": "mutation decentralizeEntry($contract: String!, $tokenId: String!, $network: String!) { decentralizeEntry(contract: $contract, tokenId: $tokenId, network: $network) { media, metadata }}",
+//                 "variables": {  "contract": CONTRACT_ADDRESS, "tokenId": TOKEN_ID, "network": CHAIN }
+//             }
+//             // send the url of the asset to pin it on our server
+// const res = await fetch('https://api.skyhitz.io/api/graphql', {
+//                     method: 'POST',
+//                     headers: {
+//                     'Content-Type': 'application/json',
+//                     'Accept': 'application/json',
+//                     },
+//                     body: JSON.stringify(payload)
+//                 });
+
+// const final = await res.json();
+
+// output.set('res', final)
