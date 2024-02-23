@@ -2,6 +2,14 @@ import axios from 'axios';
 import { Config } from 'src/config';
 import { pinAssetUrl } from 'src/util/pinata';
 
+function isOnIpfs(url: string) {
+  // This regex checks for URLs where 'ipfs' appears right before the hash
+  // and does not enforce any segments after the hash
+  const regex = /^(https?:\/\/)?.+\/ipfs\/[a-zA-Z0-9]+\/?$/;
+
+  return regex.test(url);
+}
+
 export const decentralizeEntryResolver = async (
   _: any,
   { contract, tokenId, network }: any
@@ -27,7 +35,7 @@ export const decentralizeEntryResolver = async (
 
   // strip the ipfs hash and check if it loads on other ipfs nodes
 
-  if (tokenUri.includes('ipfs')) {
+  if (isOnIpfs(tokenUri)) {
     console.log('decentralized meta');
     var parts = tokenUri.split('/');
     var metadataIpfsHash = parts.pop() || parts.pop();
