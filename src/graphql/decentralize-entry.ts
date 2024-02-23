@@ -94,13 +94,9 @@ export const decentralizeEntryResolver = async (
 
         const final = await axios.post(
           'https://api.pinata.cloud/pinning/pinByHash',
+          body,
           {
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-              Authorization: `Bearer ${Config.PINATA_JWT}`,
-            },
-            body: JSON.stringify(body),
+            headers: { Authorization: `Bearer ${Config.PINATA_JWT}` },
           }
         );
 
