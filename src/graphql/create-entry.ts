@@ -28,7 +28,6 @@ export const createEntryResolver = async (
   }
 
   const addSellOffer = user.publicKey && forSale;
-  console.log('create entry: ', user);
 
   const keypairSeed = shajs('sha256')
     .update(Config.ISSUER_SEED + fileCid)
