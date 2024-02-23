@@ -109,11 +109,23 @@ export const decentralizeEntryResolver = async (
         }
       }
     } else if (centralizedMeta && centralizedMeta.animation_url) {
-      const res = await axios.head(centralizedMeta.animation_url);
+      let animation_url = '';
+      if (centralizedMeta.animation_url.includes('ar://')) {
+        animation_url = centralizedMeta.animation_url.replace(
+          'ar://',
+          'https://arweave.net/'
+        );
+      }
+      const res = await axios.head(
+        animation_url ? animation_url : centralizedMeta.animation_url
+      );
 
       if (res.status === 200) {
         // pin the url of the asset
-        const { IpfsHash } = await pinAssetUrl(centralizedMeta.animation_url);
+        const { IpfsHash } = await pinAssetUrl(
+          animation_url ? animation_url : centralizedMeta.animation_url
+        );
+
         if (IpfsHash) {
           ipfsHashes.media = IpfsHash;
         }
@@ -121,6 +133,24 @@ export const decentralizeEntryResolver = async (
     }
 
     centralizedMeta.animation_url = `ipfs://${ipfsHashes.media}`;
+
+    if (centralizedMeta.image.includes('ar://')) {
+      centralizedMeta.image = centralizedMeta.image.replace(
+        'ar://',
+        'https://arweave.net/'
+      );
+    }
+
+    // decentralize image
+
+    const res = await axios.head(centralizedMeta.image);
+
+    if (res.status === 200) {
+      // pin the url of the asset
+      const { IpfsHash } = await pinAssetUrl(centralizedMeta.image);
+
+      centralizedMeta.image = `ipfs://${IpfsHash}`;
+    }
 
     const body = {
       pinataContent: centralizedMeta,
