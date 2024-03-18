@@ -9,7 +9,6 @@ export interface IConfig {
   ALGOLIA_ADMIN_API_KEY: string;
   SENDGRID_API_KEY: string;
   UNIVERSAL_LINK_SCHEME: string;
-  NFT_STORAGE_API_KEY: string;
   STELLAR_NETWORK: string;
   PINATA_JWT: string;
   AUDIBLE_SECRET: string;

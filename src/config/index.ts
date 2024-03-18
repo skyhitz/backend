@@ -15,7 +15,6 @@ export const Config: IConfig = {
   ALGOLIA_ADMIN_API_KEY: process.env.ALGOLIA_ADMIN_API_KEY || '',
   SENDGRID_API_KEY: process.env.SENDGRID_API_KEY || '',
   UNIVERSAL_LINK_SCHEME: process.env.UNIVERSAL_LINK_SCHEME || '',
-  NFT_STORAGE_API_KEY: process.env.NFT_STORAGE_API_KEY || '',
   STELLAR_NETWORK: process.env.STELLAR_NETWORK || 'testnet',
   PINATA_JWT: process.env.PINATA_JWT || '',
   AUDIBLE_SECRET:
