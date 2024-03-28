@@ -75,6 +75,9 @@ type Mutation {
 type decentralizeMetaRes {
   media: String!
   metadata: String!
+  contract: String!
+  tokenId: String!
+  network: String!
 }
 
 type IpfsRes {
