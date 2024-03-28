@@ -31,6 +31,9 @@ export const decentralizeEntryResolver = async (
   let ipfsHashes = {
     media: '',
     metadata: '',
+    contract,
+    tokenId,
+    network,
   };
 
   // strip the ipfs hash and check if it loads on other ipfs nodes
