@@ -115,12 +115,14 @@ echo Deploy contract $CTR
   # echo Build Bindings for $CTR
   soroban contract bindings typescript \
     --wasm ./target/wasm32-unknown-unknown/release/skyhitz.wasm \
-    --output-dir ../node_modules/skyhitz-soroban-client \
+    --output-dir ../contract-client \
     --network $(cat ./.vars/network) \
     --contract-id $(cat ./.vars/$CTR) \
     --overwrite
 
 cd ../
+
+yarn add ./contract-client
 
 echo "Change development vercel variables"
 vercel env rm RPC_URL development --yes 2> /dev/null || true

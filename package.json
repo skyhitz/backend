@@ -9,12 +9,13 @@
     "prod": "NODE_ENV=production node -r ts-node/register -r tsconfig-paths/register --inspect ./src/graphql/server.ts",
     "ci": "tsc --noEmit && tslint --test src && prettier --check src",
     "stellar:check-test-account": "node -r ts-node/register ./src/testing/verify-stellar-test-account.ts",
-    "setup:contract:testnet": "./contract/init.sh ${NETWORK:-testnet}"
+    "setup": "./contract/init.sh ${NETWORK:-testnet}"
   },
   "dependencies": {
     "@apollo/server": "^4.2.0",
     "@iarna/toml": "^2.2.5",
     "@sendgrid/mail": "^7.7.0",
+    "@stellar/js-xdr": "^3.1.0",
     "@types/cors": "^2.8.12",
     "@types/express-jwt": "^6.0.4",
     "@types/graphql": "^14.2.3",
@@ -27,6 +28,7 @@
     "body-parser": "^1.20.1",
     "bs58": "^5.0.0",
     "compression": "^1.7.4",
+    "contract-client": "./contract-client",
     "cors": "^2.8.5",
     "dotenv": "16.0.3",
     "express": "^4.18.2",

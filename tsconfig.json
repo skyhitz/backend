@@ -12,10 +12,7 @@
     "typeRoots": ["./node_modules/@types/**/*.d.ts"],
     "baseUrl": ".",
     "paths": {
-      "src/*": ["./src/*"],
-      "skyhitz-soroban-client/*": [
-        "./contract/node_modules/skyhitz-soroban-client/*"
-      ]
+      "src/*": ["./src/*"]
     }
   }
 }
