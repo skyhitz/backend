@@ -19,3 +19,7 @@ src/data-import/data/users.csv
 
 .vercel
 .tool-versions
+
+contract/target
+contract/.vars
+.soroban
