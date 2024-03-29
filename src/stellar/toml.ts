@@ -17,7 +17,7 @@ export function generateTomlFile({
       ORG_NAME: 'Skyhitz',
       ORG_URL: 'https://skyhitz.io',
       ORG_LOGO: 'https://skyhitz.io/img/icon-512.png',
-      ORG_DESCRIPTION: 'Music NFT Marketplace on Stellar and IPFS',
+      ORG_DESCRIPTION: 'Music NFTs on Stellar and IPFS',
       ORG_TWITTER: 'Skyhitz',
     },
     CURRENCIES: [
