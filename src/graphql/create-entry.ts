@@ -79,14 +79,19 @@ export const createEntryResolver = async (
       console.log('managed flow', !!user.seed);
       const userSeed = decrypt(user.seed);
       const result = await signAndSubmitXDR(finalXdr, userSeed);
-      return result;
+      return { ...result, publicKey: issuerKey.publicKey() };
     }
 
     if (user.secret) {
       const result = await signAndSubmitXDR(finalXdr, user.secret);
-      return result;
+      return { ...result, publicKey: issuerKey.publicKey() };
     }
-    return { xdr: finalXdr, success: true, submitted: false };
+    return {
+      xdr: finalXdr,
+      success: true,
+      submitted: false,
+      publicKey: issuerKey.publicKey(),
+    };
   } catch (ex) {
     const opCodes: string[] = ex.result_codes.operations;
     let message =

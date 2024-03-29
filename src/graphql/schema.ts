@@ -39,7 +39,17 @@ type Mutation {
     signedXDR: String
   ): ConditionalUser!
   hideBid(id: String!): Boolean!
-  indexEntry(issuer: String!): Entry!
+  indexEntry(
+    issuer: String!
+    contract: String!
+    tokenId: String!
+    network: String!
+  ): Entry!
+  processEntry(
+    contract: String!
+    tokenId: String!
+    network: String!
+  ): Entry!
   decentralizeEntry(
     contract: String!
     tokenId: String!

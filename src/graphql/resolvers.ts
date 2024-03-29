@@ -29,6 +29,7 @@ import { bids } from './bids';
 import { acceptBidResolver } from './accept-bid';
 import { pinAssetUrlResolver } from './pin-asset-url';
 import { decentralizeEntryResolver } from './decentralize-entry';
+import { processEntryResolver } from './process-entry';
 
 const Query = {
   authenticatedUser: authenticatedUserResolver,
@@ -54,6 +55,7 @@ const Mutation = {
   createUserWithEmail: createUserWithEmailResolver,
   hideBid: hideBidResolver,
   indexEntry: indexEntryResolver,
+  processEntry: processEntryResolver,
   requestToken: requestTokenResolver,
   signInWithToken: signInWithTokenResolver,
   signInWithXDR: signInWithXDRResolver,

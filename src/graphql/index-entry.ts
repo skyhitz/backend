@@ -1,5 +1,5 @@
 import { getAuthenticatedUser } from '../auth/logic';
-import { saveEntry } from '../algolia/algolia';
+import { getEntry, saveEntry } from '../algolia/algolia';
 import { getAccountData } from '../stellar/operations';
 import { Config } from '../config';
 import axios from 'axios';
@@ -14,7 +14,11 @@ import { Keypair } from 'stellar-base';
 
 const shajs = require('sha.js');
 
-export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
+export const indexEntryResolver = async (
+  _: any,
+  { issuer, contract, tokenId, network }: any,
+  ctx: any
+) => {
   await getAuthenticatedUser(ctx);
 
   const { data, home_domain } = await getAccountData(issuer);
@@ -106,6 +110,11 @@ export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
 
   console.log('Pinned media to pinata!');
 
+  let entry;
+  try {
+    entry = await getEntry(decodedIpfshash);
+  } catch {}
+
   const nameDivider = ' - ';
   const obj = {
     description,
@@ -115,12 +124,17 @@ export const indexEntryResolver = async (_: any, { issuer }: any, ctx: any) => {
     videoUrl: video,
     id: decodedIpfshash,
     objectID: decodedIpfshash,
-    likeCount: 0,
+    likeCount: entry?.likeCount ? entry.likeCount : 0,
     // title: name.substring(name.indexOf(nameDivider) + nameDivider.length)
-    title: name,
-    artist: name.substring(0, name.indexOf(nameDivider)),
+    title: entry?.title ? entry.title : name,
+    artist: entry?.artist
+      ? entry.artist
+      : name.substring(0, name.indexOf(nameDivider)),
     publishedAt: new Date().toISOString(),
     publishedAtTimestamp: Math.floor(new Date().getTime() / 1000),
+    contract: contract ? contract : '',
+    tokenId: tokenId ? tokenId : '',
+    network: network ? network : '',
   };
 
   console.log('indexed entry:', obj);
