@@ -10,6 +10,10 @@ export function generateTomlFile({
   image,
   supply,
 }): string {
+  const finalImage = image.includes('ipfs://')
+    ? `${pinataGateway}/ipfs/${image.replace('ipfs://', '')}`
+    : image;
+
   const assetInfo = {
     VERSION: '2.1.0',
     NETWORK_PASSPHRASE: getConfig().networkPassphrase,
@@ -26,10 +30,7 @@ export function generateTomlFile({
         issuer: issuer,
         name: name,
         desc: description,
-        image: `${pinataGateway}/ipfs/${image.replace(
-          'ipfs://',
-          ''
-        )}?img-width=200&img-height=200`,
+        image: `${finalImage}?img-width=200&img-height=200`,
         fixed_number: supply,
       },
     ],
