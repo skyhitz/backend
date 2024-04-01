@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Config } from 'src/config';
-import { pinAssetUrl } from 'src/util/pinata';
+import { pinataGateway } from 'src/constants/constants';
+import { pinAssetUrl, pinIpfsFile } from 'src/util/pinata';
 
 function isOnIpfs(url: string) {
   // This regex checks for URLs where 'ipfs' appears right before the hash
@@ -42,6 +43,12 @@ export const decentralizeEntryResolver = async (
     console.log('decentralized meta');
     var parts = tokenUri.split('/');
     var metadataIpfsHash = parts.pop() || parts.pop();
+
+    const res = await axios.head(`${pinataGateway}/ipfs/${metadataIpfsHash}`);
+
+    if (res.status !== 200) {
+      await pinIpfsFile(metadataIpfsHash, '');
+    }
 
     // @ts-ignore
     const { data: metadata } = await axios.get(
