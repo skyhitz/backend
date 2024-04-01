@@ -25,18 +25,23 @@ export const pinExternalUrl = async (initial_url: string) => {
   return null;
 };
 
+export const findAndPinIpfsHash = async (parts: string[]) => {
+  var ipfsHash = parts.pop() || parts.pop();
+
+  const res = await axios.head(`${ipfsUrl}/${ipfsHash}`);
+
+  if (res.status === 200) {
+    // pin it to our server
+    await pinIpfsFile(ipfsHash, ipfsHash);
+    return ipfsHash;
+  }
+};
+
 export const getIpfsHashForMedia = async (media: string) => {
-  if (media.includes('ipfs')) {
-    var parts = media.split('/');
-    var ipfsHash = parts.pop() || parts.pop();
+  var parts = media.split('/');
 
-    const res = await axios.head(`${ipfsUrl}/${ipfsHash}`);
-
-    if (res.status === 200) {
-      // pin it to our server
-      await pinIpfsFile(ipfsHash, ipfsHash);
-      return ipfsHash;
-    }
+  if (parts[parts.length - 2].includes('ipfs') || parts[0].includes('ipfs:')) {
+    return await findAndPinIpfsHash(parts);
   } else if (media) {
     const IpfsHash = await pinExternalUrl(media);
 
