@@ -1,15 +1,54 @@
 import axios from 'axios';
 import { Config } from 'src/config';
-import { pinataGateway } from 'src/constants/constants';
-import { pinAssetUrl, pinIpfsFile } from 'src/util/pinata';
+import { pinAssetUrl, pinIpfsFile, pinJSON } from 'src/util/pinata';
 
-function isOnIpfs(url: string) {
-  // This regex checks for URLs where 'ipfs' appears right before the hash
-  // and does not enforce any segments after the hash
-  const regex = /^(https?:\/\/)?.+\/ipfs\/[a-zA-Z0-9]+\/?$/;
+const ipfsUrl = 'https://ipfs.io/ipfs';
 
-  return regex.test(url);
-}
+export const pinExternalUrl = async (initial_url: string) => {
+  let url = '';
+  if (initial_url.includes('ar://')) {
+    url = initial_url.replace('ar://', 'https://arweave.net/');
+  }
+
+  const final_url = url ? url : initial_url;
+  const res = await axios.head(final_url);
+
+  if (res.status === 200) {
+    // pin the url of the asset
+    const { IpfsHash } = await pinAssetUrl(final_url);
+
+    if (IpfsHash) {
+      return IpfsHash;
+    }
+  }
+
+  return null;
+};
+
+export const getIpfsHashForMedia = async (media: string) => {
+  if (media.includes('ipfs')) {
+    var parts = media.split('/');
+    var ipfsHash = parts.pop() || parts.pop();
+
+    const res = await axios.head(`${ipfsUrl}/${ipfsHash}`);
+
+    if (res.status === 200) {
+      // pin it to our server
+      await pinIpfsFile(ipfsHash, ipfsHash);
+      return ipfsHash;
+    }
+  } else if (media) {
+    const IpfsHash = await pinExternalUrl(media);
+
+    if (IpfsHash) {
+      return IpfsHash;
+    }
+  }
+};
+
+const ipfsProtocolUrl = (hash: string) => {
+  return `ipfs://${hash}`;
+};
 
 export const decentralizeEntryResolver = async (
   _: any,
@@ -27,8 +66,6 @@ export const decentralizeEntryResolver = async (
 
   const tokenUri = data.tokenUri;
 
-  const ipfsUrl = 'https://ipfs.io/ipfs';
-
   let ipfsHashes = {
     media: '',
     metadata: '',
@@ -37,149 +74,21 @@ export const decentralizeEntryResolver = async (
     network,
   };
 
-  // strip the ipfs hash and check if it loads on other ipfs nodes
+  let { data: metadata } = await axios.get(tokenUri);
 
-  if (isOnIpfs(tokenUri)) {
-    console.log('decentralized meta');
-    var parts = tokenUri.split('/');
-    var metadataIpfsHash = parts.pop() || parts.pop();
+  const imageHash = await getIpfsHashForMedia(metadata.image);
+  const animationHash = await getIpfsHashForMedia(metadata.animation_url);
 
-    const res = await axios.head(`${pinataGateway}/ipfs/${metadataIpfsHash}`);
+  metadata.image = ipfsProtocolUrl(imageHash);
+  metadata.animation_url = ipfsProtocolUrl(animationHash);
+  metadata.networks[network] = { [contract]: [tokenId] };
 
-    if (res.status !== 200) {
-      await pinIpfsFile(metadataIpfsHash, '');
-    }
-
-    // @ts-ignore
-    const { data: metadata } = await axios.get(
-      `${ipfsUrl}/${metadataIpfsHash}`
-    );
-
-    // strip the ipfs hash and check if it loads on other ipfs nodes
-
-    if (metadata && metadata.animation_url.includes('ipfs')) {
-      var parts = metadata.animation_url.split('/');
-      var ipfsHash = parts.pop() || parts.pop();
-
-      // @ts-ignore
-      const res = await axios.head(`${ipfsUrl}/${ipfsHash}`);
-
-      // decentralized media metadata
-      if (res.status === 200) {
-        ipfsHashes.media = ipfsHash;
-      }
-    } else if (metadata && metadata.animation_url) {
-      const res = await axios.head(metadata.animation_url);
-
-      if (res.status === 200) {
-        // pin the url of the asset
-        const { IpfsHash } = await pinAssetUrl(metadata.animation_url);
-
-        if (IpfsHash) {
-          ipfsHashes.media = IpfsHash;
-        }
-      }
-    }
-
-    ipfsHashes.metadata = metadataIpfsHash;
-  } else {
-    console.log('centralized');
-
-    // @ts-ignore
-    let { data: centralizedMeta } = await axios.get(tokenUri);
-
-    // strip the ipfs hash and check if it loads on other ipfs nodes
-
-    if (centralizedMeta && centralizedMeta.animation_url.includes('ipfs')) {
-      var parts = centralizedMeta.animation_url.split('/');
-      var ipfsHash = parts.pop() || parts.pop();
-      const res = await axios.head(`${ipfsUrl}/${ipfsHash}`);
-
-      if (res.status === 200) {
-        // pin the hash of the asset
-
-        const body = {
-          hashToPin: ipfsHash,
-        };
-
-        const final = await axios.post(
-          'https://api.pinata.cloud/pinning/pinByHash',
-          body,
-          {
-            headers: { Authorization: `Bearer ${Config.PINATA_JWT}` },
-          }
-        );
-
-        if (final) {
-          ipfsHashes.media = ipfsHash;
-        }
-      }
-    } else if (centralizedMeta && centralizedMeta.animation_url) {
-      let animation_url = '';
-      if (centralizedMeta.animation_url.includes('ar://')) {
-        animation_url = centralizedMeta.animation_url.replace(
-          'ar://',
-          'https://arweave.net/'
-        );
-      }
-      const res = await axios.head(
-        animation_url ? animation_url : centralizedMeta.animation_url
-      );
-
-      if (res.status === 200) {
-        // pin the url of the asset
-        const { IpfsHash } = await pinAssetUrl(
-          animation_url ? animation_url : centralizedMeta.animation_url
-        );
-
-        if (IpfsHash) {
-          ipfsHashes.media = IpfsHash;
-        }
-      }
-    }
-
-    centralizedMeta.animation_url = `ipfs://${ipfsHashes.media}`;
-
-    if (centralizedMeta.image.includes('ar://')) {
-      centralizedMeta.image = centralizedMeta.image.replace(
-        'ar://',
-        'https://arweave.net/'
-      );
-    }
-
-    // decentralize image
-
-    const res = await axios.head(centralizedMeta.image);
-
-    if (res.status === 200) {
-      // pin the url of the asset
-      const { IpfsHash } = await pinAssetUrl(centralizedMeta.image);
-
-      centralizedMeta.image = `ipfs://${IpfsHash}`;
-    }
-
-    const body = {
-      pinataContent: centralizedMeta,
-      pinataOptions: { cidVersion: 1 },
-    };
-
-    const { data: jsonPinRes } = await axios.post(
-      'https://api.pinata.cloud/pinning/pinJSONToIPFS',
-      body,
-      {
-        headers: { Authorization: `Bearer ${Config.PINATA_JWT}` },
-      }
-    );
-
-    if (jsonPinRes) {
-      ipfsHashes.metadata = jsonPinRes.IpfsHash;
-    }
-  }
+  ipfsHashes.metadata = await pinJSON(metadata);
+  ipfsHashes.media = animationHash;
 
   return ipfsHashes;
 };
 
-// @ts-ignore
 // const { CHAIN, CONTRACT_ADDRESS, TOKEN_ID } = input.config();
 
 // const payload =  {

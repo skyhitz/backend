@@ -3,6 +3,13 @@ import { Config } from '../config';
 import { pinataApi } from '../constants/constants';
 const FormData = require('form-data');
 
+type PinRes = {
+  IpfsHash: string;
+  PinSize: number;
+  Timestamp: string;
+  isDuplicate: boolean;
+};
+
 export async function pinIpfsFile(
   ipfsHash: string,
   name: string
@@ -30,13 +37,6 @@ export async function pinIpfsFile(
     });
 }
 
-type PinRes = {
-  IpfsHash: string;
-  PinSize: number;
-  Timestamp: string;
-  isDuplicate: boolean;
-};
-
 export async function pinAssetUrl(url: string): Promise<PinRes> {
   console.log(url);
   const data = new FormData();
@@ -50,15 +50,28 @@ export async function pinAssetUrl(url: string): Promise<PinRes> {
   });
   data.append('pinataOptions', options);
 
-  const res = await axios.post(
-    'https://api.pinata.cloud/pinning/pinFileToIPFS',
-    data,
+  const res = await axios.post(`${pinataApi}/pinning/pinFileToIPFS`, data, {
+    headers: {
+      'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+      Authorization: `Bearer ${Config.PINATA_JWT}`,
+    },
+  });
+  return res.data as PinRes;
+}
+
+export async function pinJSON(centralizedMeta) {
+  const body = {
+    pinataContent: centralizedMeta,
+    pinataOptions: { cidVersion: 1 },
+  };
+
+  const { data }: { data: PinRes } = await axios.post(
+    `${pinataApi}/pinning/pinJSONToIPFS`,
+    body,
     {
-      headers: {
-        'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
-        Authorization: `Bearer ${Config.PINATA_JWT}`,
-      },
+      headers: { Authorization: `Bearer ${Config.PINATA_JWT}` },
     }
   );
-  return res.data as PinRes;
+
+  return data.IpfsHash;
 }
