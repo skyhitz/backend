@@ -9,13 +9,16 @@ export const processEntryResolver = async (
   { contract, tokenId, network }: any,
   ctx: any
 ) => {
-  const { media, metadata } = await decentralizeEntryResolver(_, {
-    contract,
-    tokenId,
-    network,
-  });
+  const { media: fileCid, metadata: metaCid } = await decentralizeEntryResolver(
+    _,
+    {
+      contract,
+      tokenId,
+      network,
+    }
+  );
 
-  const { data } = await axios.get(`${pinataGateway}/ipfs/${metadata}`);
+  const { data } = await axios.get(`${pinataGateway}/ipfs/${metaCid}`);
 
   const metaCode = `${data.name}`
     .normalize('NFD')
@@ -29,8 +32,8 @@ export const processEntryResolver = async (
   const { publicKey } = await createEntryResolver(
     _,
     {
-      fileCid: media,
-      metaCid: metadata,
+      fileCid,
+      metaCid,
       code: metaCode,
       globalMint: true,
     },
@@ -39,7 +42,7 @@ export const processEntryResolver = async (
 
   const res = await indexEntryResolver(
     _,
-    { issuer: publicKey, contract, tokenId, network },
+    { issuer: publicKey, contract, tokenId, network, metaCid, fileCid },
     ctx
   );
 
