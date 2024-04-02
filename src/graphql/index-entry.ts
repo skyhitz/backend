@@ -1,5 +1,5 @@
 import { getAuthenticatedUser } from '../auth/logic';
-import { getEntry, saveEntry } from '../algolia/algolia';
+import { deleteEntry, getEntry, saveEntry } from '../algolia/algolia';
 import { getAccountData } from '../stellar/operations';
 import { Config } from '../config';
 import axios from 'axios';
@@ -34,11 +34,13 @@ export const indexEntryResolver = async (
 
   const { ipfshash } = data;
   let decodedIpfshash = Buffer.from(ipfshash, 'base64').toString();
+  let removeObjectId;
 
   if (metaCid !== decodedIpfshash && fileCid) {
     // update data on issuer
     const result = await updateMeta(metaCid, fileCid);
     if (result && result.submitted && result.success) {
+      removeObjectId = decodedIpfshash;
       decodedIpfshash = metaCid;
     }
   }
@@ -160,11 +162,22 @@ export const indexEntryResolver = async (
     video
   ) {
     try {
-      await saveEntry(obj);
+      await Promise.all([
+        await saveEntry(obj),
+        await safelyRemoveEntry(removeObjectId),
+      ]);
+
       return obj;
     } catch (ex) {
       throw new GraphQLError("Couldn't index entry.");
     }
   }
   throw new GraphQLError('Invalid entry metadata');
+};
+
+const safelyRemoveEntry = async (removeObjectId: string) => {
+  if (removeObjectId) {
+    return await deleteEntry(removeObjectId);
+  }
+  return true;
 };
