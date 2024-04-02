@@ -86,7 +86,7 @@ export const decentralizeEntryResolver = async (
 
   metadata.image = ipfsProtocolUrl(imageHash);
   metadata.animation_url = ipfsProtocolUrl(animationHash);
-  metadata.neworks = {};
+  metadata.networks = {};
   metadata.networks[network] = { [contract]: [tokenId] };
 
   ipfsHashes.metadata = await pinJSON(metadata);
