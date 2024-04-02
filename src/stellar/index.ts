@@ -17,7 +17,7 @@ export async function updateMeta(metaCid: string, fileCid: string) {
   const issuerKey = getKeyPairFromFileCid(fileCid);
   const issuerPublicKey = issuerKey.publicKey();
 
-  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey))
+  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
     .setTimeout(300)
     .addMemo(Memo.text(`Skyhitz - Music NFTs✨`))
     .addOperation(
