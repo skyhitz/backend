@@ -44,6 +44,8 @@ type Mutation {
     contract: String!
     tokenId: String!
     network: String!
+    metaCid: String!
+    fileCid: String!
   ): Entry!
   processEntry(
     contract: String!

@@ -4,12 +4,11 @@ import {
   openSellOffer,
   signAndSubmitXDR,
 } from '../stellar/operations';
-import { buildNFTTransaction } from '../stellar/index';
+import { buildNFTTransaction, getKeyPairFromFileCid } from '../stellar/index';
 import { Keypair } from 'stellar-base';
 import { Config } from '../config';
 import { decrypt } from '../util/encryption';
 import { GraphQLError } from 'graphql';
-const shajs = require('sha.js');
 
 export const sourceKeys = Keypair.fromSecret(Config.ISSUER_SEED);
 
@@ -29,10 +28,7 @@ export const createEntryResolver = async (
 
   const addSellOffer = user.publicKey && forSale;
 
-  const keypairSeed = shajs('sha256')
-    .update(Config.ISSUER_SEED + fileCid)
-    .digest();
-  const issuerKey = Keypair.fromRawEd25519Seed(keypairSeed);
+  const issuerKey = getKeyPairFromFileCid(fileCid);
 
   const exists = await accountExists(issuerKey.publicKey());
 

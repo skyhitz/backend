@@ -11,12 +11,13 @@ import {
 import { pinIpfsFile } from '../util/pinata';
 import { GraphQLError } from 'graphql';
 import { Keypair } from 'stellar-base';
+import { updateMeta } from 'src/stellar';
 
 const shajs = require('sha.js');
 
 export const indexEntryResolver = async (
   _: any,
-  { issuer, contract, tokenId, network }: any,
+  { issuer, contract, tokenId, network, metaCid, fileCid }: any,
   ctx: any
 ) => {
   await getAuthenticatedUser(ctx);
@@ -32,7 +33,15 @@ export const indexEntryResolver = async (
   }
 
   const { ipfshash } = data;
-  const decodedIpfshash = Buffer.from(ipfshash, 'base64').toString();
+  let decodedIpfshash = Buffer.from(ipfshash, 'base64').toString();
+
+  if (metaCid !== decodedIpfshash && fileCid) {
+    // update data on issuer
+    const result = await updateMeta(metaCid, fileCid);
+    if (result && result.submitted && result.success) {
+      decodedIpfshash = metaCid;
+    }
+  }
 
   let response;
 
