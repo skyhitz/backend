@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Config } from 'src/config';
-import { fetchAndConvertImage } from 'src/util/image-conversion';
+import { fetchAndConvertImage } from '../util/image-conversion';
 import { pinAssetUrl, pinBuffer, pinIpfsFile, pinJSON } from 'src/util/pinata';
 
 const ipfsUrl = 'https://ipfs.io/ipfs';
