@@ -81,10 +81,7 @@ export const decentralizeEntryResolver = async (
 
   let { data: metadata } = await axios.get(tokenUri);
 
-  const image = metadata.image.includes('?')
-    ? metadata.image.split('?')[0]
-    : metadata.image;
-  const imageHash = await getIpfsHashForMedia(image);
+  const imageHash = await getIpfsHashForMedia(metadata.image);
   const animationHash = await getIpfsHashForMedia(metadata.animation_url);
 
   metadata.image = ipfsProtocolUrl(imageHash);
