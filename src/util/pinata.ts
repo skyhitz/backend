@@ -37,14 +37,16 @@ export async function pinIpfsFile(
     });
 }
 
-export async function pinAssetUrl(url: string): Promise<PinRes> {
-  console.log(url);
-  const data = new FormData();
-  const response = await axios.get(url, {
-    responseType: 'stream',
-  });
+export async function pinBuffer(
+  buffer: Buffer,
+  fileName: string
+): Promise<PinRes> {
+  let data = new FormData();
+  data.append('file', buffer, fileName);
+  return pinData(data);
+}
 
-  data.append(`file`, response.data);
+export async function pinData(data) {
   const options = JSON.stringify({
     cidVersion: 1,
   });
@@ -57,6 +59,17 @@ export async function pinAssetUrl(url: string): Promise<PinRes> {
     },
   });
   return res.data as PinRes;
+}
+
+export async function pinAssetUrl(url: string): Promise<PinRes> {
+  console.log(url);
+  const data = new FormData();
+  const response = await axios.get(url, {
+    responseType: 'stream',
+  });
+
+  data.append(`file`, response.data);
+  return pinData(data);
 }
 
 export async function pinJSON(centralizedMeta) {

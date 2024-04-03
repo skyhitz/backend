@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Config } from 'src/config';
-import { pinAssetUrl, pinIpfsFile, pinJSON } from 'src/util/pinata';
+import { fetchAndConvertImage } from 'src/util/image-conversion';
+import { pinAssetUrl, pinBuffer, pinIpfsFile, pinJSON } from 'src/util/pinata';
 
 const ipfsUrl = 'https://ipfs.io/ipfs';
 
@@ -81,7 +82,15 @@ export const decentralizeEntryResolver = async (
 
   let { data: metadata } = await axios.get(tokenUri);
 
-  const imageHash = await getIpfsHashForMedia(metadata.image);
+  const convertedAnimation = await fetchAndConvertImage(metadata.image);
+  let imageHash;
+  if (convertedAnimation) {
+    const { IpfsHash } = await pinBuffer(convertedAnimation, metadata.image);
+    imageHash = IpfsHash;
+  } else {
+    imageHash = await getIpfsHashForMedia(metadata.image);
+  }
+
   const animationHash = await getIpfsHashForMedia(metadata.animation_url);
 
   metadata.image = ipfsProtocolUrl(imageHash);
