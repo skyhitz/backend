@@ -291,7 +291,7 @@ export async function getEntriesLikesWithUserId(userId) {
   return entries.results as unknown as Entry[];
 }
 
-const resizeParams = '?img-width=200&img-height=200';
+const resizeParams = '?img-width=128&img-height=128';
 
 const pinataResizedGateway = (imageUrl: string) => {
   return imageUrl.includes('ipfs://')

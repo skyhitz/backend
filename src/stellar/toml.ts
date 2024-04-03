@@ -30,7 +30,7 @@ export function generateTomlFile({
         issuer: issuer,
         name: name,
         desc: description,
-        image: `${finalImage}?img-width=200&img-height=200`,
+        image: `${finalImage}?img-width=128&img-height=128`,
         fixed_number: supply,
       },
     ],
