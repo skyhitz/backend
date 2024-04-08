@@ -1,7 +1,48 @@
 import { Keypair, Asset, Memo, Operation, Transaction } from 'stellar-base';
 import { Config } from '../config';
-import { buildTransactionWithFee } from './operations';
+import { buildTransactionWithFee, signAndSubmitXDR } from './operations';
 import { getConfig } from './utils';
+const shajs = require('sha.js');
+
+export const sourceKeys = Keypair.fromSecret(Config.ISSUER_SEED);
+
+export function getKeyPairFromFileCid(fileCid: string) {
+  const keypairSeed = shajs('sha256')
+    .update(Config.ISSUER_SEED + fileCid)
+    .digest();
+  return Keypair.fromRawEd25519Seed(keypairSeed);
+}
+
+export async function updateMeta(metaCid: string, fileCid: string) {
+  const issuerKey = getKeyPairFromFileCid(fileCid);
+  const issuerPublicKey = issuerKey.publicKey();
+
+  const transaction = (await buildTransactionWithFee(sourceKeys.publicKey()))
+    .setTimeout(300)
+    .addMemo(Memo.text(`Skyhitz - Music NFTs✨`))
+    .addOperation(
+      Operation.beginSponsoringFutureReserves({
+        sponsoredId: issuerPublicKey,
+      })
+    )
+    .addOperation(
+      Operation.manageData({
+        source: issuerPublicKey,
+        name: `ipfshash`,
+        value: metaCid,
+      })
+    )
+    .addOperation(
+      Operation.endSponsoringFutureReserves({
+        source: issuerPublicKey,
+      })
+    );
+
+  const transactionBuilt = transaction.build();
+  transactionBuilt.sign(issuerKey);
+
+  return signAndSubmitXDR(transactionBuilt.toXDR(), sourceKeys.secret());
+}
 
 export async function buildNFTTransaction(
   accountPublicKey: string,

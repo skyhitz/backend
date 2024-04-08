@@ -42,7 +42,19 @@ type Mutation {
     signedXDR: String
   ): ConditionalUser!
   hideBid(id: String!): Boolean!
-  indexEntry(issuer: String!): Entry!
+  indexEntry(
+    issuer: String!
+    contract: String!
+    tokenId: String!
+    network: String!
+    metaCid: String!
+    fileCid: String!
+  ): Entry!
+  processEntry(
+    contract: String!
+    tokenId: String!
+    network: String!
+  ): Entry!
   decentralizeEntry(
     contract: String!
     tokenId: String!
@@ -78,6 +90,9 @@ type Mutation {
 type decentralizeMetaRes {
   media: String!
   metadata: String!
+  contract: String!
+  tokenId: String!
+  network: String!
 }
 
 type IpfsRes {

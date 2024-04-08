@@ -92,13 +92,13 @@ const buy = async (mft: string, user?: User) => {
 
   const buyerClient = getClientForKeypair(buyerKeys);
 
-  const txBuyer = buyerClient.txFromJSON(jsonFromRoot);
+  const txBuyer = buyerClient.fromJSON['buy'](jsonFromRoot);
 
   await txBuyer.signAuthEntries();
 
   const jsonFromBuyer = txBuyer.toJSON();
 
-  const txRoot = contract.txFromJSON(jsonFromBuyer);
+  const txRoot = contract.fromJSON['buy'](jsonFromBuyer);
 
   const result = await txRoot.signAndSend();
 

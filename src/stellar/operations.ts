@@ -96,7 +96,7 @@ export async function accountExists(publicKey: string) {
   return true;
 }
 
-export async function buildTransactionWithFee(accountPublicKey) {
+export async function buildTransactionWithFee(accountPublicKey: string) {
   const [account, fee] = await Promise.all([
     getAccount(accountPublicKey),
     getFee(),

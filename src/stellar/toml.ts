@@ -10,14 +10,18 @@ export function generateTomlFile({
   image,
   supply,
 }): string {
+  const finalImage = image.includes('ipfs://')
+    ? `${pinataGateway}/ipfs/${image.replace('ipfs://', '')}`
+    : image;
+
   const assetInfo = {
     VERSION: '2.1.0',
     NETWORK_PASSPHRASE: getConfig().networkPassphrase,
     DOCUMENTATION: {
       ORG_NAME: 'Skyhitz',
       ORG_URL: 'https://skyhitz.io',
-      ORG_LOGO: 'https://skyhitz.io/img/icon-512.png',
-      ORG_DESCRIPTION: 'Music NFT Marketplace on Stellar and IPFS',
+      ORG_LOGO: 'https://skyhitz.io/img/icon-128.png',
+      ORG_DESCRIPTION: 'Music NFTs on Stellar and IPFS',
       ORG_TWITTER: 'Skyhitz',
     },
     CURRENCIES: [
@@ -26,10 +30,7 @@ export function generateTomlFile({
         issuer: issuer,
         name: name,
         desc: description,
-        image: `${pinataGateway}/ipfs/${image.replace(
-          'ipfs://',
-          ''
-        )}?img-width=200&img-height=200`,
+        image: `${finalImage}?img-width=128&img-height=128`,
         fixed_number: supply,
       },
     ],

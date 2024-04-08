@@ -291,8 +291,13 @@ export async function getEntriesLikesWithUserId(userId) {
   return entries.results as unknown as Entry[];
 }
 
-const pinataResizedGateway = (ipfsHash: string) =>
-  `${pinataGateway}/ipfs/${ipfsHash}?img-width=200&img-height=200`;
+const resizeParams = '?img-width=128&img-height=128';
+
+const pinataResizedGateway = (imageUrl: string) => {
+  return imageUrl.includes('ipfs://')
+    ? `${pinataGateway}/ipfs/${imageUrl.replace('ipfs://', '')}${resizeParams}`
+    : imageUrl + resizeParams;
+};
 
 export async function assetsMeta(
   publishedAtTimestamp,
@@ -325,7 +330,7 @@ export async function assetsMeta(
         code: code,
         description: description,
         name: `${artist} - ${title}`.substring(0, 20),
-        image: pinataResizedGateway(imageUrl.replace('ipfs://', '')),
+        image: pinataResizedGateway(imageUrl),
         fixed_number: 1,
         timestamp: publishedAtTimestamp,
         anchor_asset_type: 'nft',
@@ -356,7 +361,7 @@ export async function findAssetMeta(code, issuer) {
         code: code,
         description: description,
         name: `${artist} - ${title}`.substring(0, 20),
-        image: pinataResizedGateway(imageUrl.replace('ipfs://', '')),
+        image: pinataResizedGateway(imageUrl),
         fixed_number: 1,
         timestamp: publishedAtTimestamp,
         anchor_asset_type: 'nft',
