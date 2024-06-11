@@ -67,7 +67,7 @@ echo "  RPC URL: $SOROBAN_RPC_URL"
 echo "  Friendbot URL: $FRIENDBOT_URL"
 
 echo Add the $NETWORK network to cli client
-soroban config network add \
+soroban network add \
   --rpc-url "$SOROBAN_RPC_URL" \
   --network-passphrase "$SOROBAN_NETWORK_PASSPHRASE" "$NETWORK"
 
@@ -81,11 +81,11 @@ echo $FRIENDBOT_URL > ./.vars/friendbot-url
 echo -n GD7BAZM73BXQTMRHA2JVJPE5X4AATOMOIXGA76N22JNTNMVXRQW5DR4B > ./.vars/public-key
 echo -n SB6NGNDLFKMRK4XW2W5OWFMJ2LIJ5SBXJU2X5TRSPXR2UNDOXHHZNKWY > ./.vars/secret-key
 
-if !(soroban config identity ls | grep token-admin 2>&1 >/dev/null); then
+if !(soroban keys ls | grep token-admin 2>&1 >/dev/null); then
   echo Create the token-admin identity
-  soroban config identity generate token-admin --rpc-url "$SOROBAN_RPC_URL" --network-passphrase "$SOROBAN_NETWORK_PASSPHRASE" --network "$NETWORK" 
+  soroban keys generate token-admin --rpc-url "$SOROBAN_RPC_URL" --network-passphrase "$SOROBAN_NETWORK_PASSPHRASE" --network "$NETWORK" 
 fi
-ADMIN_ADDRESS="$(soroban config identity address token-admin)"
+ADMIN_ADDRESS="$(soroban keys address token-admin)"
 
 # This will fail if the account already exists, but it'll still be fine.
 echo Fund token-admin account from friendbot

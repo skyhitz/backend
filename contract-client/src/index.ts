@@ -1,6 +1,12 @@
-import { ContractSpec, Address } from '@stellar/stellar-sdk';
 import { Buffer } from "buffer";
-import { AssembledTransaction, Ok, Err } from './assembled-tx.js';
+import { Address } from '@stellar/stellar-sdk';
+import {
+  AssembledTransaction,
+  Client as ContractClient,
+  ClientOptions as ContractClientOptions,
+  Result,
+  Spec as ContractSpec,
+} from '@stellar/stellar-sdk/contract';
 import type {
   u32,
   i32,
@@ -13,211 +19,159 @@ import type {
   Option,
   Typepoint,
   Duration,
-  Error_,
-  Result,
-} from './assembled-tx.js';
-import type { ClassOptions, XDR_BASE64 } from './method-options.js';
-
-export * from './assembled-tx.js';
-export * from './method-options.js';
+} from '@stellar/stellar-sdk/contract';
+export * from '@stellar/stellar-sdk'
+export * as contract from '@stellar/stellar-sdk/contract'
+export * as rpc from '@stellar/stellar-sdk/rpc'
 
 if (typeof window !== 'undefined') {
-    //@ts-ignore Buffer exists
-    window.Buffer = window.Buffer || Buffer;
+  //@ts-ignore Buffer exists
+  window.Buffer = window.Buffer || Buffer;
 }
 
 
 export const networks = {
-    testnet: {
-        networkPassphrase: "Test SDF Network ; September 2015",
-        contractId: "CBKPY5UKSG5PLW6WL7BKE5JTTUINCD5EWQWXLCD74EYNOBFIRADP4ADY",
-    }
+  testnet: {
+    networkPassphrase: "Test SDF Network ; September 2015",
+    contractId: "CC5ELPSQFQMJ75XUPJARIODNA7UIH4RS36N37BAV4SVEBEDN4PJYVL5E",
+  }
 } as const
 
-/**
-    
-    */
-export type DataKey = {tag: "Offers", values: readonly [string]};
+export type DataKey = {tag: "Index", values: void} | {tag: "Entries", values: readonly [string]};
 
-/**
-    
-    */
-export interface Offer {
-  /**
-    
-    */
-amount: i128;
-  /**
-    
-    */
-list_price: i128;
-  /**
-    
-    */
-mft: string;
+
+export interface Entry {
+  apr: i128;
+  equity_shares: Map<string, i128>;
+  escrow: i128;
+  ipfs_hash: string;
+  total_invested: i128;
 }
 
-/**
-    
-    */
-export interface Owner {
-  /**
-    
-    */
-amount: i128;
-  /**
-    
-    */
-mft: string;
-  /**
-    
-    */
-public_key: string;
-}
-
-/**
-    
-    */
 export const Errors = {
-
+  
 }
 
-export class Contract {
-    spec: ContractSpec;
-    constructor(public readonly options: ClassOptions) {
-        this.spec = new ContractSpec([
-            "AAAAAgAAAAAAAAAAAAAAB0RhdGFLZXkAAAAAAQAAAAEAAAAAAAAABk9mZmVycwAAAAAAAQAAABM=",
-        "AAAAAQAAAAAAAAAAAAAABU9mZmVyAAAAAAAAAwAAAAAAAAAGYW1vdW50AAAAAAALAAAAAAAAAApsaXN0X3ByaWNlAAAAAAALAAAAAAAAAANtZnQAAAAAEw==",
-        "AAAAAQAAAAAAAAAAAAAABU93bmVyAAAAAAAAAwAAAAAAAAAGYW1vdW50AAAAAAALAAAAAAAAAANtZnQAAAAAEwAAAAAAAAAKcHVibGljX2tleQAAAAAAEw==",
-        "AAAAAAAAAAAAAAADYnV5AAAAAAMAAAAAAAAABWJ1eWVyAAAAAAAAEwAAAAAAAAADbWZ0AAAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAA=",
-        "AAAAAAAAAAAAAAAHYmFsYW5jZQAAAAABAAAAAAAAAAdhZGRyZXNzAAAAABMAAAABAAAACw==",
-        "AAAAAAAAAAAAAAAJc2V0X29mZmVyAAAAAAAAAQAAAAAAAAAFb2ZmZXIAAAAAAAfQAAAABU9mZmVyAAAAAAAAAA==",
-        "AAAAAAAAAAAAAAAJZ2V0X29mZmVyAAAAAAAAAQAAAAAAAAADbWZ0AAAAABMAAAABAAAH0AAAAAVPZmZlcgAAAA==",
-        "AAAAAAAAAAAAAAAMZGVsZXRlX29mZmVyAAAAAQAAAAAAAAADbWZ0AAAAABMAAAAA"
-        ]);
-    }
-    private readonly parsers = {
-        buy: () => {},
-        balance: (result: XDR_BASE64): i128 => this.spec.funcResToNative("balance", result),
-        setOffer: () => {},
-        getOffer: (result: XDR_BASE64): Offer => this.spec.funcResToNative("get_offer", result),
-        deleteOffer: () => {}
-    };
-    private txFromJSON = <T>(json: string): AssembledTransaction<T> => {
-        const { method, ...tx } = JSON.parse(json)
-        return AssembledTransaction.fromJSON(
-            {
-                ...this.options,
-                method,
-                parseResultXdr: this.parsers[method],
-            },
-            tx,
-        );
-    }
-    public readonly fromJSON = {
-        buy: this.txFromJSON<ReturnType<typeof this.parsers['buy']>>,
-        balance: this.txFromJSON<ReturnType<typeof this.parsers['balance']>>,
-        setOffer: this.txFromJSON<ReturnType<typeof this.parsers['setOffer']>>,
-        getOffer: this.txFromJSON<ReturnType<typeof this.parsers['getOffer']>>,
-        deleteOffer: this.txFromJSON<ReturnType<typeof this.parsers['deleteOffer']>>
-    }
-        /**
-    * Construct and simulate a buy transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    buy = async ({buyer, mft, amount}: {buyer: string, mft: string, amount: i128}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'buy',
-            args: this.spec.funcArgsToScVals("buy", {buyer: new Address(buyer), mft: new Address(mft), amount}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['buy'],
-        });
-    }
+export interface Client {
+  /**
+   * Construct and simulate a set_entry transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  set_entry: ({entry}: {entry: Entry}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
 
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
 
-        /**
-    * Construct and simulate a balance transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    balance = async ({address}: {address: string}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'balance',
-            args: this.spec.funcArgsToScVals("balance", {address: new Address(address)}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['balance'],
-        });
-    }
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<null>>
 
+  /**
+   * Construct and simulate a get_entry transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  get_entry: ({ipfs_hash}: {ipfs_hash: string}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
 
-        /**
-    * Construct and simulate a set_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    setOffer = async ({offer}: {offer: Offer}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'set_offer',
-            args: this.spec.funcArgsToScVals("set_offer", {offer}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['setOffer'],
-        });
-    }
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
 
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<Entry>>
 
-        /**
-    * Construct and simulate a get_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    getOffer = async ({mft}: {mft: string}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'get_offer',
-            args: this.spec.funcArgsToScVals("get_offer", {mft: new Address(mft)}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['getOffer'],
-        });
-    }
+  /**
+   * Construct and simulate a invest transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  invest: ({user, ipfs_hash, amount}: {user: string, ipfs_hash: string, amount: i128}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
 
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
 
-        /**
-    * Construct and simulate a delete_offer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-    */
-    deleteOffer = async ({mft}: {mft: string}, options: {
-        /**
-         * The fee to pay for the transaction. Default: 100.
-         */
-        fee?: number,
-    } = {}) => {
-        return await AssembledTransaction.fromSimulation({
-            method: 'delete_offer',
-            args: this.spec.funcArgsToScVals("delete_offer", {mft: new Address(mft)}),
-            ...options,
-            ...this.options,
-            errorTypes: Errors,
-            parseResultXdr: this.parsers['deleteOffer'],
-        });
-    }
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<null>>
 
+  /**
+   * Construct and simulate a distribute_payout transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  distribute_payout: ({ipfs_hash}: {ipfs_hash: string}, options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<null>>
+
+  /**
+   * Construct and simulate a distribute_payouts transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   */
+  distribute_payouts: (options?: {
+    /**
+     * The fee to pay for the transaction. Default: BASE_FEE
+     */
+    fee?: number;
+
+    /**
+     * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+     */
+    timeoutInSeconds?: number;
+
+    /**
+     * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+     */
+    simulate?: boolean;
+  }) => Promise<AssembledTransaction<null>>
+
+}
+export class Client extends ContractClient {
+  constructor(public readonly options: ContractClientOptions) {
+    super(
+      new ContractSpec([ "AAAAAgAAAAAAAAAAAAAAB0RhdGFLZXkAAAAAAgAAAAAAAAAAAAAABUluZGV4AAAAAAAAAQAAAAAAAAAHRW50cmllcwAAAAABAAAAEA==",
+        "AAAAAQAAAAAAAAAAAAAABUVudHJ5AAAAAAAABQAAAAAAAAADYXByAAAAAAsAAAAAAAAADWVxdWl0eV9zaGFyZXMAAAAAAAPsAAAAEwAAAAsAAAAAAAAABmVzY3JvdwAAAAAACwAAAAAAAAAJaXBmc19oYXNoAAAAAAAAEAAAAAAAAAAOdG90YWxfaW52ZXN0ZWQAAAAAAAs=",
+        "AAAAAAAAAAAAAAAJc2V0X2VudHJ5AAAAAAAAAQAAAAAAAAAFZW50cnkAAAAAAAfQAAAABUVudHJ5AAAAAAAAAA==",
+        "AAAAAAAAAAAAAAAJZ2V0X2VudHJ5AAAAAAAAAQAAAAAAAAAJaXBmc19oYXNoAAAAAAAAEAAAAAEAAAfQAAAABUVudHJ5AAAA",
+        "AAAAAAAAAAAAAAAGaW52ZXN0AAAAAAADAAAAAAAAAAR1c2VyAAAAEwAAAAAAAAAJaXBmc19oYXNoAAAAAAAAEAAAAAAAAAAGYW1vdW50AAAAAAALAAAAAA==",
+        "AAAAAAAAAAAAAAARZGlzdHJpYnV0ZV9wYXlvdXQAAAAAAAABAAAAAAAAAAlpcGZzX2hhc2gAAAAAAAAQAAAAAA==",
+        "AAAAAAAAAAAAAAASZGlzdHJpYnV0ZV9wYXlvdXRzAAAAAAAAAAAAAA==" ]),
+      options
+    )
+  }
+  public readonly fromJSON = {
+    set_entry: this.txFromJSON<null>,
+        get_entry: this.txFromJSON<Entry>,
+        invest: this.txFromJSON<null>,
+        distribute_payout: this.txFromJSON<null>,
+        distribute_payouts: this.txFromJSON<null>
+  }
 }

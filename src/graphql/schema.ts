@@ -13,7 +13,7 @@ type Query {
   xlmPrice: String!
   getIssuer(cid: String!): String!
   getAudibleToken: Token!
-  callContract(fn: String!, mft: String): JSON
+  callContract(fn: String!, ipfs_hash: String): JSON
 }
 
 type Mutation {

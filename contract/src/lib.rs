@@ -1,101 +1,115 @@
 #![no_std]
 
-use soroban_sdk::{contract, contractimpl, contracttype, log, token, Address, Env, String};
+use soroban_sdk::{contract, contracttype, Map, contractimpl, Env, String, Address, token, log, Vec, vec };
 
 #[contracttype]
 pub enum DataKey {
-    Offers(Address),
+    Index,
+    Entries(String),
 }
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Offer {
-    mft: Address,
-    amount: i128,
-    list_price: i128,
-}
-
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Owner {
-    public_key: Address,
-    amount: i128,
-    mft: Address,
+pub struct Entry {
+    pub ipfs_hash: String,
+    pub apr: i128,
+    pub total_invested: i128,
+    pub escrow: i128,
+    pub equity_shares: Map<Address, i128>,
 }
 
 #[contract]
-pub struct MusicNFTs;
+pub struct Contract;
 
 #[contractimpl]
-impl MusicNFTs {
-    pub fn buy(e: Env, buyer: Address, mft: Address, amount: i128) {
-        buyer.require_auth();
+impl Contract {
+    pub fn set_entry(e: Env, entry: Entry) {
+        let key = DataKey::Entries(entry.ipfs_hash.clone());
+        e.storage().instance().set(&key, &entry);
 
-        // let offer = Self::get_offer(&e, mft.clone());
-        // assert!(offer.amount >= amount, "amount must be less or equal to the current offer");
-
-        // log!(&e, "Buying NFT.");
-        // let xlm_address = get_xlm_address(&e);
-        // let xlm = token::Client::new(&e, &xlm_address);
-
-        // let total_xlm = offer.list_price * (amount / 100) * 1000000;
-        // xlm.transfer(&buyer, &e.current_contract_address(), &total_xlm);
-
-        // let mut updated_offer = offer;
-        // updated_offer.amount -= amount;
-
-        // if updated_offer.amount == 0 {
-        //     Self::delete_offer(e.clone(), mft.clone());
-        // } else {
-        //     Self::set_offer(e.clone(), updated_offer);
-        // }
-    }
-
-    pub fn balance(e: Env, address: Address) -> i128 {
-        let xlm_address = get_xlm_address(&e);
-        let xlm = token::Client::new(&e, &xlm_address);
-        xlm.balance(&address)
-    }
-
-    pub fn set_offer(e: Env, offer: Offer) {
-        let key = DataKey::Offers(offer.mft.clone());
-
-        e.storage().instance().set(&key, &offer);
+        let mut index: Vec<String> = e.storage().instance().get(&DataKey::Index).unwrap_or(vec![&e]);
+        index.push_back(entry.ipfs_hash.clone());
+        e.storage().instance().set(&DataKey::Index, &index);
     }
     
 
-    pub fn get_offer(e: &Env, mft: Address) -> Offer {
-        let key = DataKey::Offers(mft);
+    pub fn get_entry(e: &Env, ipfs_hash: String) -> Entry {
+        let key = DataKey::Entries(ipfs_hash);
 
         e.storage().instance().get(&key).unwrap()
     }
 
-    pub fn delete_offer(e: Env, mft: Address) {
-        let key = DataKey::Offers(mft);
+    pub fn invest(e: Env, user: Address, ipfs_hash: String, amount: i128) {
+        user.require_auth();
+        let download_amount = 3000000;
+        let key = DataKey::Entries(ipfs_hash.clone());
+        let mut entry: Entry = e.storage().instance().get(&key).unwrap();
 
-        e.storage().instance().remove(&key);
+        // Update equity share
+        let past_user_equity = entry.equity_shares.get(user.clone()).unwrap_or(0);
+
+        if amount > download_amount {
+            entry.equity_shares.set(user.clone(), past_user_equity + amount);
+             log!(&e, "Got equity!");
+            entry.total_invested += amount;
+        } 
+        
+        entry.escrow += amount;
+        entry.apr = get_apr(&e, entry.clone());
+
+        // Save updated entry
+        e.storage().instance().set(&key, &entry);
+        transfer(&e, &user, &e.current_contract_address(), amount);
     }
 
-    // The rest of the contract methods...
+    pub fn distribute_payout(e: Env, ipfs_hash: String) {
+        let key = DataKey::Entries(ipfs_hash.clone());
+        let mut entry: Entry = e.storage().instance().get(&key).unwrap();
+        for (user, equity) in entry.equity_shares.iter() {
+            let user_payout = (entry.escrow / 365) * (equity / entry.total_invested);
+            entry.escrow -= user_payout;
+            entry.apr = get_apr(&e, entry.clone());
+
+            e.storage().instance().set(&key, &entry);
+            log!(&e, "Payout {}!", user_payout);
+            transfer(&e, &e.current_contract_address(), &user, user_payout);
+        }
+    }
+
+    pub fn distribute_payouts(e: Env) {
+        let index: Vec<String> = e.storage().instance().get(&DataKey::Index).unwrap_or(vec![&e]);
+        for key in index.iter() {
+            // Access each entry by key
+            log!(&e,"Key: {}", key);
+            Self::distribute_payout(e.clone(), key);
+        }
+    }
+    
 }
 
-fn get_xlm_address(e: &Env) -> Address {
-    // Implementation remains unchanged...
-     // public xlm
-    // return Address::from_string(&String::from_str(
-    //  &e,
-    //     "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-    // ));
+fn get_apr(_: &Env, entry: Entry) -> i128 {
+  if entry.total_invested == 0 {
+      return 0
+  } 
+  (entry.escrow * 100 ) / entry.total_invested
+}
 
+fn transfer(e: &Env, from: &Address, to: &Address, amount: i128) {
+    let token_contract_id = &get_xlm_address(e);
+    let client = token::Client::new(e, token_contract_id);
+    client.transfer(from, to, &amount)
+}
+
+fn get_xlm_address(env: &Env) -> Address {
+
+    // futurenet
+    // CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT
     // testnet
-    return Address::from_string(&String::from_str(
-        &e,
-        "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
-    )); 
-
-    // futurenet 
-    // return Address::from_string(&String::from_str(
-    //     &e,
-    //     "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT",
-    // ));
+    // CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
+    // mainnet
+    // CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA
+    
+    // testnet
+    Address::from_string(&String::from_str(env, "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",))
 }
+
