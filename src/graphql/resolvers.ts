@@ -1,3 +1,5 @@
+import GraphQLJSON from 'graphql-type-json';
+
 import { requestTokenResolver } from './request-token';
 import { signInWithTokenResolver } from './sign-in-with-token';
 import { userCreditsResolver } from './user-credits';
@@ -30,6 +32,7 @@ import { acceptBidResolver } from './accept-bid';
 import { pinAssetUrlResolver } from './pin-asset-url';
 import { decentralizeEntryResolver } from './decentralize-entry';
 import { processEntryResolver } from './process-entry';
+import { callContract } from './call-contract';
 
 const Query = {
   authenticatedUser: authenticatedUserResolver,
@@ -43,6 +46,7 @@ const Query = {
   xlmPrice: XLMPriceResolver,
   getIssuer: getIssuerResolver,
   getAudibleToken: getAudibleTokenResolver,
+  callContract: callContract,
 };
 
 const Mutation = {
@@ -72,4 +76,5 @@ const Mutation = {
 export const resolvers = {
   Query,
   Mutation,
+  JSON: GraphQLJSON,
 };

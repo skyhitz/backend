@@ -4,23 +4,27 @@
   "main": "index.ts",
   "author": "Alejo Mendoza",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development node -r ts-node/register -r tsconfig-paths/register --inspect ./src/graphql/server.ts",
     "prod": "NODE_ENV=production node -r ts-node/register -r tsconfig-paths/register --inspect ./src/graphql/server.ts",
     "ci": "tsc --noEmit && tslint --test src && prettier --check src",
-    "stellar:check-test-account": "node -r ts-node/register ./src/testing/verify-stellar-test-account.ts"
+    "stellar:check-test-account": "node -r ts-node/register ./src/testing/verify-stellar-test-account.ts",
+    "setup": "./contract/init.sh ${NETWORK:-testnet}"
   },
   "dependencies": {
-    "@apollo/server": "^4.2.0",
+    "@apollo/server": "^4.10.4",
     "@iarna/toml": "^2.2.5",
     "@sendgrid/mail": "^7.7.0",
+    "@stellar/js-xdr": "^3.1.0",
+    "@stellar/stellar-sdk": "12.0.0-rc.3",
     "@types/cors": "^2.8.12",
     "@types/express-jwt": "^6.0.4",
     "@types/graphql": "^14.2.3",
     "@types/jsonwebtoken": "^8.5.9",
     "algoliasearch": "^4.14.2",
     "async": "^3.2.4",
-    "axios": "1.1.0",
+    "axios": "^1.7.2",
     "axios-cache-adapter": "^2.7.3",
     "bcrypt": "5.1.0",
     "body-parser": "^1.20.1",
@@ -31,6 +35,7 @@
     "express": "^4.18.2",
     "express-jwt": "^7.7.7",
     "graphql": "^16.6.0",
+    "graphql-type-json": "^0.3.2",
     "jsonwebtoken": "^8.5.1",
     "memory-cache": "^0.2.0",
     "sha.js": "^2.4.11",
@@ -41,10 +46,10 @@
   "devDependencies": {
     "@vercel/node": "2.4.0",
     "prettier": "2.8.0",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.1.0",
     "tslint": "^6.1.2",
-    "typescript": "^4.9.3"
+    "typescript": "^5.4.5"
   },
   "packageManager": "yarn@4.1.1"
 }

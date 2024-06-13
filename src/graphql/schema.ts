@@ -1,4 +1,6 @@
 export const Schema = `
+scalar JSON
+
 type Query {
   authenticatedUser: User!
   bids(assetCode: String!, assetIssuer: String!): [Offer!]!
@@ -11,6 +13,7 @@ type Query {
   xlmPrice: String!
   getIssuer(cid: String!): String!
   getAudibleToken: Token!
+  callContract(fn: String!, ipfs_hash: String): JSON
 }
 
 type Mutation {
